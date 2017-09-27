@@ -1,0 +1,2 @@
+Go to rover_autonomy/launch/simulation_worlds/simple_world.world
+Change all instances of "model://husky" to the directory of your husky folder
