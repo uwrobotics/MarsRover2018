@@ -13,7 +13,7 @@
 
   <node pkg="robot_localization" type="navsat_transform_node" name="rover_navsat_transform" respawn="true">
     <param name="magnetic_declination_radians" value="0"/>
-    <param name="yaw_offset" value="1.5707963"/>
+    <param name="yaw_offset" value="0"/>
     <param name="broadcast_utm_transform" value="true"/>
 
     <!-- input mapping -->
