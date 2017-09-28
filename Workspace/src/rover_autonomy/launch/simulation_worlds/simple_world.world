@@ -171,7 +171,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://husky/husky_description/meshes/top_plate.dae</uri>
+              <uri>/opt/ros/kinetic/share/husky/husky_description/meshes/top_plate.dae</uri>
             </mesh>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -208,7 +208,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://husky/husky_description/meshes/base_link.dae</uri>
+              <uri>/opt/ros/kinetic/share/husky/husky_description/meshes/base_link.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -226,7 +226,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://husky/husky_description/meshes/accessories/lms1xx_mount.dae</uri>
+              <uri>/opt/ros/kinetic/share/husky/husky_description/meshes/accessories/lms1xx_mount.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -235,7 +235,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://husky/husky_description/meshes/bumper.dae</uri>
+              <uri>/opt/ros/kinetic/share/husky/husky_description/meshes/bumper.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -244,7 +244,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://husky/husky_description/meshes/bumper.dae</uri>
+              <uri>/opt/ros/kinetic/share/husky/husky_description/meshes/bumper.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -253,7 +253,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://husky/husky_description/meshes/top_chassis.dae</uri>
+              <uri>/opt/ros/kinetic/share/husky/husky_description/meshes/top_chassis.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -262,7 +262,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://husky/husky_description/meshes/top_plate.dae</uri>
+              <uri>/opt/ros/kinetic/share/husky/husky_description/meshes/top_plate.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -271,7 +271,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://husky/husky_description/meshes/user_rail.dae</uri>
+              <uri>/opt/ros/kinetic/share/husky/husky_description/meshes/user_rail.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -362,7 +362,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://husky/husky_description/meshes/wheel.dae</uri>
+              <uri>/opt/ros/kinetic/share/husky/husky_description/meshes/wheel.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -431,7 +431,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://husky/husky_description/meshes/wheel.dae</uri>
+              <uri>/opt/ros/kinetic/share/husky/husky_description/meshes/wheel.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -500,7 +500,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://husky/husky_description/meshes/wheel.dae</uri>
+              <uri>/opt/ros/kinetic/share/husky/husky_description/meshes/wheel.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -569,7 +569,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://husky/husky_description/meshes/wheel.dae</uri>
+              <uri>/opt/ros/kinetic/share/husky/husky_description/meshes/wheel.dae</uri>
             </mesh>
           </geometry>
         </visual>
