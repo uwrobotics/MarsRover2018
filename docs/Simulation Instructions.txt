@@ -1,2 +1,4 @@
-Go to rover_autonomy/launch/simulation_worlds/simple_world.world
-Change all instances of "model://husky" to the directory of your husky folder
+Go to /opt/ros/kinetic/share/husky
+
+In husky_gazebo/launch/spawn_husky.launch, comment out the block spawning the husky
+In husky_control/launch/control.launch, comment out the ekf localization node
