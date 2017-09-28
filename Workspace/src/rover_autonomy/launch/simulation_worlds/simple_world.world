@@ -315,6 +315,61 @@
           </plugin>
           <pose>0.337 0 0.30795 3.14159 -0 0</pose>
         </sensor>
+
+      <sensor type="multicamera" name="stereo_camera">
+      <update_rate>30.0</update_rate>
+      <camera name="left">
+        <pose>0.260 0 0.40795 0 0 3.14159</pose>
+        <horizontal_fov>1.3962634</horizontal_fov>
+        <image>
+          <width>800</width>
+          <height>800</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>300</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+      </camera>
+      <camera name="right">
+        <pose>0.260 -0.07 0.40795 0 0 3.14159</pose>
+        <horizontal_fov>1.3962634</horizontal_fov>
+        <image>
+          <width>800</width>
+          <height>800</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>300</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+      </camera>
+      <plugin name="stereo_camera_controller" filename="libgazebo_ros_multicamera.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>0.0</updateRate>
+        <cameraName>duo3d_driver</cameraName>
+        <imageTopicName>image_raw</imageTopicName>
+        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+        <frameName>base_laser</frameName>
+        <hackBaseline>0.07</hackBaseline>
+        <distortionK1>0.0</distortionK1>
+        <distortionK2>0.0</distortionK2>
+        <distortionK3>0.0</distortionK3>
+        <distortionT1>0.0</distortionT1>
+        <distortionT2>0.0</distortionT2>
+      </plugin>
+    </sensor>
+
         <kinematic>0</kinematic>
       </link>
       <link name='front_left_wheel_link'>
@@ -593,6 +648,8 @@
           <dynamics/>
         </axis>
       </joint>
+
+
       <plugin name='gazebo_ros_control' filename='libgazebo_ros_control.so'>
         <robotNamespace>/</robotNamespace>
       </plugin>
@@ -601,12 +658,12 @@
         <updateRate>50.0</updateRate>
         <bodyName>base_link</bodyName>
         <topicName>imu/data</topicName>
-        <accelDrift>0.005 0.005 0.005</accelDrift>
-        <accelGaussianNoise>0.005 0.005 0.005</accelGaussianNoise>
-        <rateDrift>0.005 0.005 0.005</rateDrift>
-        <rateGaussianNoise>0.005 0.005 0.005</rateGaussianNoise>
-        <headingDrift>0.005</headingDrift>
-        <headingGaussianNoise>0.005</headingGaussianNoise>
+        <accelDrift>0.0005 0.0005 0.0005</accelDrift>
+        <accelGaussianNoise>0.0005 0.0005 0.0005</accelGaussianNoise>
+        <rateDrift>0.0005 0.0005 0.0005</rateDrift>
+        <rateGaussianNoise>0.0005 0.0005 0.0005</rateGaussianNoise>
+        <headingDrift>0.0005</headingDrift>
+        <headingGaussianNoise>0.0005</headingGaussianNoise>
       </plugin>
       <static>0</static>
       <plugin name='gps_controller' filename='libhector_gazebo_ros_gps.so'>
@@ -620,7 +677,7 @@
         <referenceLongitude>8.9</referenceLongitude>
         <referenceHeading>0</referenceHeading>
         <referenceAltitude>0</referenceAltitude>
-        <drift>0.0001 0.0001 0.0001</drift>
+        <drift>0.00001 0.00001 0.00001</drift>
       </plugin>
       <pose>0 0 0 0 -0 0</pose>
     </model>
@@ -1210,7 +1267,7 @@
         </link>
       </model>
       <model name='unit_box_8'>
-        <pose>-1 -3 0.5 0 -0 0</pose>
+        <pose>-1 -3 0.5 0 -0 0</pose>base_link
         <link name='link'>
           <pose>-1 -3 0.5 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
