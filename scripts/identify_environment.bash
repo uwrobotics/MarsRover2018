@@ -2,12 +2,10 @@
 set -e
 export UBUNTU_CODENAME=$(lsb_release -s -c)
 case $UBUNTU_CODENAME in
-  trusty)
-    export ROS_DISTRO=indigo;;
   xenial)
     export ROS_DISTRO=kinetic;;
   *)
-    echo "Unsupported version of Ubuntu detected. Only trusty (14.04.*) and xenial (16.04.*) are currently supported."
+    echo "Unsupported version of Ubuntu detected. Only xenial (16.04.*) is currently supported."
     exit 1
 esac
 export REPO_DIR=$(dirname "$SCRIPT_DIR")
