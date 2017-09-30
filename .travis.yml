@@ -1,0 +1,82 @@
+# Generic .travis.yml file for running continuous integration on Travis-CI with
+# any ROS package.
+#
+# This installs ROS on a clean Travis-CI virtual machine, creates a ROS
+# workspace, resolves all listed dependencies, and sets environment variables
+# (setup.bash). Then, it compiles the entire ROS workspace (ensuring there are
+# no compilation errors), and runs all the tests. If any of the compilation/test
+# phases fail, the build is marked as a failure.
+#
+# We handle two types of package dependencies:
+#   - packages (ros and otherwise) available through apt-get. These are installed
+#     using rosdep, based on the information in the ROS package.xml.
+#   - dependencies that must be checked out from source. These are handled by
+#     'wstool', and should be listed in a file named dependencies.rosinstall.
+#
+# There are two variables you may want to change:
+#   - ROS_DISTRO (default is indigo). Note that packages must be available for
+#     ubuntu 14.04 trusty.
+#   - ROSINSTALL_FILE (default is dependencies.rosinstall inside the repo
+#     root). This should list all necessary repositories in wstool format (see
+#     the ros wiki). If the file does not exists then nothing happens.
+#
+# See the README.md for more information.
+#
+# Author: Felix Duvallet <felixd@gmail.com>
+
+# NOTE: The build lifecycle on Travis.ci is something like this:
+#    before_install
+#    install
+#    before_script
+#    script
+#    after_success or after_failure
+#    after_script
+#    OPTIONAL before_deploy
+#    OPTIONAL deploy
+#    OPTIONAL after_deploy
+
+################################################################################
+
+# Use ubuntu xenial (16.04) with sudo privileges.
+dist: xenial
+sudo: required
+
+# Have to pull submodules outside of git as docker doesn't have ssh key.
+# before_install:
+#  - git submodule init
+#  - git submodule -q update
+
+################################################################################
+
+env:
+  - DISTRO=xenial
+
+# Load cached docker images
+before_install:
+  - if [[ -d $HOME/docker ]]; then ls $HOME/docker/*.tar.gz | xargs -I {file} sh -c "docker load -i {file} "; fi
+
+# Doesn't run if build is already in cache
+install:
+  - docker inspect "uwrobotics/ubuntu:${DISTRO}" > /dev/null 2>&1 || travis_wait 45 bash docker/docker-build.sh ${DISTRO}
+
+# Compile and test on 16.04
+script:
+  - bash docker/docker-run.sh ${DISTRO}
+
+# Save tagged docker images
+before_cache:
+  - >
+    mkdir -p $HOME/docker && docker images -a --filter='dangling=false' --format '{{.Repository}}:{{.Tag}} {{.ID}}'
+    | xargs -n 2 -t sh -c 'test -e $HOME/docker/$1.tar.gz || docker save $0 | gzip -2 > $HOME/docker/$1.tar.gz'
+cache:
+  directories:
+    - $HOME/docker
+  timeout: 1200
+
+notifications:
+  slack:
+    rooms:
+      - uwrobotics2018:ss09bkUdD6xwTLP9wS371C9j
+    on_success: change
+    on_failure: always
+  email: false
