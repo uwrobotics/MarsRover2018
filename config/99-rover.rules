@@ -1,0 +1,5 @@
+# Motor controller
+KERNEL=="ttyACM*", ATTRS{manufacturer}=="Roboteq", ATTRS{product}=="Motor Controller", SYMLINK+="roboteq", MODE:="0666"
+
+# IMU
+KERNEL=="ttyACM*", ATTRS{manufacturer}=="MicroStrain, Inc. ", ATTRS{product}=="3DM-GX3-35 Orientation Sensor", SYMLINK+="microstrain", MODE:="0666"
