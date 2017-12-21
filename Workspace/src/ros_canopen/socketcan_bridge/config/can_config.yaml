@@ -3,8 +3,8 @@
 ######################
 
 # Interface
-/receiver_interface:     "vcan0"
-/transmitter_interface:  "vcan0"
+/receiver_interface:     "can0"
+/transmitter_interface:  "can0"
 
 # Topics
 /receiver_list:          ["/switchesTurntableFlags", "/switchesForearmFlags", "switchesShoulderFlags", "/science", "/current_sensors", "/thermistors"]
