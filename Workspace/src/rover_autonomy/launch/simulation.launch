@@ -5,8 +5,8 @@
 <launch>
   <arg name="world_name" default="$(find rover_autonomy)/launch/simulation_worlds/simple_world.world"/>
 
-  <arg name="laser_enabled" default="true"/>
-  <arg name="kinect_enabled" default="false"/>
+  <arg name="laser_enabled" default="false"/>
+  <arg name="kinect_enabled" default="true"/>
 
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(arg world_name)"/> 
@@ -24,5 +24,7 @@
     <arg name="laser_enabled" value="$(arg laser_enabled)"/>
     <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
   </include>
+
+  <node pkg="tf" type="static_transform_publisher" name="kinect_transform_broadcaster" args="0 0 0.35 1.571, -0.000, -1.571 base_link kinect_link 100" />
 
 </launch>
