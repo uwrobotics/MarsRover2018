@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>rover_autonomy</name>
+  <name>simulation</name>
   <version>0.0.0</version>
-  <description>The rover_autonomy package</description>
+  <description>The simulation package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
