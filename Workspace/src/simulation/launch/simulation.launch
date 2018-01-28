@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<!-- Go to rover_autonomy/launch/simulation_worlds/simple_world.world and
+<!-- Go to simulation/launch/simulation_worlds/simple_world.world and
      change all instances of "model://husky" to the directory of your husky folder -->
 
 <launch>
-  <arg name="world_name" default="$(find rover_autonomy)/launch/simulation_worlds/simple_world.world"/>
+  <arg name="world_name" default="$(find simulation)/launch/simulation_worlds/simple_world.world"/>
 
   <arg name="laser_enabled" default="false"/>
   <arg name="kinect_enabled" default="true"/>

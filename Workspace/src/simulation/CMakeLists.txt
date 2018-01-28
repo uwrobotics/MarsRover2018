@@ -1,12 +1,11 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(rover_autonomy)
+project(simulation)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   robot_localization
-  message_generation
   std_msgs
 )
 
@@ -44,10 +43,9 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 # Generate messages in the 'msg' folder
- add_message_files(
-   FILES
-   gps_coord.msg
- )
+ # add_message_files(
+ #   FILES
+ # )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -63,11 +61,11 @@ find_package(catkin REQUIRED COMPONENTS
 #   Action2.action
 # )
 
-# Generate added messages and services with any dependencies listed here
- generate_messages(
-   DEPENDENCIES
-   std_msgs  # Or other packages containing msgs
- )
+## Generate added messages and services with any dependencies listed here
+ # generate_messages(
+ #   DEPENDENCIES
+ #   std_msgs  # Or other packages containing msgs
+ # )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -127,16 +125,15 @@ include_directories(
 # add_dependencies(rover_autonomy ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-add_executable(gps_navigation_node src/gps_navigation.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(rover_autonomy_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-# Specify libraries to link a library or executable target against
-target_link_libraries(gps_navigation_node
-  ${catkin_LIBRARIES}
-)
+##Specify libraries to link a library or executable target against
+# target_link_libraries( library
+#   ${catkin_LIBRARIES}
+# )
 
 #############
 ## Install ##
