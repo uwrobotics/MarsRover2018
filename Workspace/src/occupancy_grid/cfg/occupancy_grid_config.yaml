@@ -1,0 +1,5 @@
+xMax: 100
+yMax: 100
+resolution: 5
+rate: 10
+queue_size: 1

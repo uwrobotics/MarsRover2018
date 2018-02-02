@@ -1,0 +1,7 @@
+<launch>
+ <arg name="cameraConfig" default="$(find occupancy_grid)/cfg/occupancy_grid_config.yaml"/>
+
+ <rosparam command="load" file="$(arg cameraConfig)"/>
+<node pkg="occupancy_grid" type="occupancy_grid" name="occupancy_grid">
+</node>
+</launch>

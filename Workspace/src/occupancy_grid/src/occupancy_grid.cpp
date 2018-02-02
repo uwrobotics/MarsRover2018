@@ -6,18 +6,40 @@
 #include "std_msgs/MultiArrayDimension.h"
 #include "std_msgs/Float32MultiArray.h"
 
+//resolution is in terms of side length of a grid cell
+//x, y max is the max range of the camera (in one direction)
+typedef struct 
+{
+   int xMax;
+   int yMax;
+   int resolution;
+   int rate;
+   int queue_size;
+} gridParams;
+
 class OccupancyGrid {
 	public:
-		OccupancyGrid(float resolution){
+		OccupancyGrid(){
+
+			ros::param::get("xMax", myGrid.xMax);
+			ros::param::get("yMax", myGrid.yMax);
+			ros::param::get("resolution", myGrid.resolution);
+			ros::param::get("rate", myGrid.rate);
+			ros::param::get("queue_size", myGrid.queue_size);
 			
-			m_gridXSize = 10;//do some conversion w/ res///////////////////////////////////////////////////////////////// Bob implement conversion
-			m_gridYSize = 10;//do some conversion w/ res///////////////////////////////////////////////////////////////// Bob implement conversion
+			m_gridXSize = (myGrid.xMax * 2 % myGrid.resolution == 0)? myGrid.xMax*2/myGrid.resolution : myGrid.xMax*2/myGrid.resolution + 1;
+			m_gridYSize = (myGrid.yMax * 2 % myGrid.resolution == 0)? myGrid.yMax*2/myGrid.resolution : myGrid.yMax*2/myGrid.resolution + 1;
 			
-			m_sub = m_n.subscribe("/duo3d/point_cloud/image_raw", 1, &OccupancyGrid::callback, this);
-			m_pub = m_n.advertise<std_msgs::Float32MultiArray>("OccupancyGrid", 1);
+			m_sub = m_n.subscribe("/duo3d/point_cloud/image_raw", myGrid.queue_size, &OccupancyGrid::callback, this);
+			m_pub = m_n.advertise<std_msgs::Float32MultiArray>("OccupancyGrid", myGrid.queue_size);
 		}
 
 		void callback(const sensor_msgs::PointCloud2 input);
+		
+		gridParams getGridParams() const{
+			return myGrid;
+		}
+
 		
 	private:
 		ros::NodeHandle m_n;	
@@ -26,6 +48,8 @@ class OccupancyGrid {
 				
 		int m_gridXSize; 
 		int m_gridYSize;
+   		
+		gridParams myGrid;
 };
 
 void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input){
@@ -58,6 +82,8 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input){
 		
 		int convX = x / m_gridXSize;
 		int convY = y / m_gridYSize;
+//we can leave it as an average for now but we might want to look into other ways of calculating the cost of a grid, as tom said
+//if (z > threshold)
 		output.data[convX*output.layout.dim[1].stride + convY*output.layout.dim[2].stride + 0] = z;
 		count[convX][convY] ++;
 	}
@@ -76,9 +102,9 @@ int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "OccupancyGrid");
 
-	OccupancyGrid o(10);//change rez///////////////////////////////////////////////////////////////// BOB implement param
+	OccupancyGrid o;
 
-	ros::Rate rate(5);//hz////////////////////////////////////////////////////////////////////////// BOB implement param
+	ros::Rate rate(o.getGridParams().rate);
 
 	while(ros::ok()) {
 		ros::spinOnce();
