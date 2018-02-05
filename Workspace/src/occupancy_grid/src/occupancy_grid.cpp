@@ -6,6 +6,13 @@
 #include "std_msgs/MultiArrayDimension.h"
 #include "std_msgs/Float32MultiArray.h"
 
+//debug
+#define DEBUG
+
+#ifdef DEBUG
+#include <fstream>
+#endif
+
 //resolution is in terms of side length of a grid cell
 //x, y max is the max range of the camera (in one direction)
 typedef struct 
@@ -39,7 +46,6 @@ class OccupancyGrid {
 		gridParams getGridParams() const{
 			return myGrid;
 		}
-
 		
 	private:
 		ros::NodeHandle m_n;	
@@ -50,6 +56,10 @@ class OccupancyGrid {
 		int m_gridYSize;
    		
 		gridParams myGrid;
+
+		#ifdef DEBUG
+		std::ofstream fout;
+		#endif
 };
 
 void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input){
@@ -93,9 +103,28 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input){
 			output.data[x*output.layout.dim[1].stride + y*output.layout.dim[2].stride + 0]/=count[x][y];
 		}
 	}
-
-
 	m_pub.publish(output);
+
+	#ifdef DEBUG
+	fout.open("/home/wmmc/Documents/OCCUPANCY_GRID_OUTPUT.txt");
+	fout << std::endl << "INPUT" << std::endl;
+	for (int i =0; i<input.row_step/input.point_step; i++){
+		float x = input.data[i]<<24 | input.data[i+1]<<16 | input.data[i+2]<<8 | input.data[i+3];
+		float y = input.data[i+4]<<24 | input.data[i+5]<<16 | input.data[i+6]<<8 | input.data[i+7];
+		float z = input.data[i+8]<<24 | input.data[i+9]<<16 | input.data[i+10]<<8 | input.data[i+11];
+		
+		fout << x << " " << y << " " << z << std::endl;
+	}
+
+
+	fout << std::endl << "OUTPUT" << std::endl;
+	for(int row =0; row<output.layout.dim[0].size; row++){
+		for(int col = 0; col<output.layout.dim[1].size; col++){
+			fout << output.data[row*output.layout.dim[1].stride + col*output.layout.dim[2].stride + 0] << " ";
+		}
+		fout << std::endl;
+	}
+	#endif
 }
 
 int main(int argc, char **argv)
