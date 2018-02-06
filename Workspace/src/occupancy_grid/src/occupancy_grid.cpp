@@ -7,11 +7,15 @@
 #include "std_msgs/Float32MultiArray.h"
 
 //debug
-//#define DEBUG
+#define DEBUG 
 
 #ifdef DEBUG
 #include <fstream>
+#include <ros/console.h>
+
 #endif
+
+
 
 //resolution is in terms of side length of a grid cell
 //x, y max is the max range of the camera (in one direction)
@@ -98,23 +102,24 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input){
 		int convY = (y + m_gridParams.yMax) / m_gridParams.resolution;
 //we can leave it as an average for now but we might want to look into other ways of calculating the cost of a grid, as tom said
 //if (z > threshold)
-		if (convX >= m_gridXSize || convY >= m_gridYSize || convX < 0 || convY < 0 )
+		if (convX >= m_gridXSize || convY >= m_gridYSize || convX < 0 || convY < 0 )//invalid bounds error check
 		{
+			ROS_ERROR_STREAM("CONVERSION BOUND ERROR\tconvX: "<< convX << "\tconvY: " << convY << "\tMaxXGridCoord: " << m_gridXSize << "\tMaxYGridCoord: " << m_gridYSize << std::endl);			
 			return;
 		}
 		output.data[convX*output.layout.dim[1].stride + convY*output.layout.dim[2].stride + 0] = z; 
 		count[convX][convY] ++;
 	} 
-/*	
+
 	for(int x = 0; x < m_gridXSize; x++){
 		for (int y = 0; y < m_gridYSize; y++){
 			output.data[x*output.layout.dim[1].stride + y*output.layout.dim[2].stride + 0]/=count[x][y];
 		}
-	}*/
+	}
 	m_pub.publish(output);
 
 	#ifdef DEBUG
-	fout.open("/home/wmmc/Documents/OCCUPANCY_GRID_OUTPUT.txt");
+	fout.open("/home/wmmc/Documents/OCCUPANCY_GRID_OUTPUT.txt", std::ofstream::app);
 	fout << std::endl << "INPUT" << std::endl;
 	for (int i =0; i<input.row_step/input.point_step; i++){
 		float x = input.data[i]<<24 | input.data[i+1]<<16 | input.data[i+2]<<8 | input.data[i+3];
@@ -132,12 +137,18 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input){
 		}
 		fout << std::endl;
 	}
+	fout.close();
 	#endif
 }
 
 int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "OccupancyGrid");
+	#ifdef DEBUG
+		if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
+			ros::console::notifyLoggerLevelsChanged();
+		}
+	#endif	
 
 	OccupancyGrid o;
 
