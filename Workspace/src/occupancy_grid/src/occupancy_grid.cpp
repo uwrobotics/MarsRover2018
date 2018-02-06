@@ -7,7 +7,7 @@
 #include "std_msgs/Float32MultiArray.h"
 
 //debug
-#define DEBUG
+//#define DEBUG
 
 #ifdef DEBUG
 #include <fstream>
@@ -28,23 +28,24 @@ class OccupancyGrid {
 	public:
 		OccupancyGrid(){
 
-			ros::param::get("xMax", myGrid.xMax);
-			ros::param::get("yMax", myGrid.yMax);
-			ros::param::get("resolution", myGrid.resolution);
-			ros::param::get("rate", myGrid.rate);
-			ros::param::get("queue_size", myGrid.queue_size);
+			ros::param::get("xMax", m_gridParams.xMax);
+			ros::param::get("yMax", m_gridParams.yMax);
+			ros::param::get("resolution", m_gridParams.resolution);
+			ros::param::get("rate", m_gridParams.rate);
+			ros::param::get("queue_size", m_gridParams.queue_size);
+
+			//account for centreeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+			m_gridXSize = (m_gridParams.xMax * 2 % m_gridParams.resolution == 0)? m_gridParams.xMax*2/m_gridParams.resolution : m_gridParams.xMax*2/m_gridParams.resolution + 1;
+			m_gridYSize = (m_gridParams.yMax * 2 % m_gridParams.resolution == 0)? m_gridParams.yMax*2/m_gridParams.resolution : m_gridParams.yMax*2/m_gridParams.resolution + 1;
 			
-			m_gridXSize = (myGrid.xMax * 2 % myGrid.resolution == 0)? myGrid.xMax*2/myGrid.resolution : myGrid.xMax*2/myGrid.resolution + 1;
-			m_gridYSize = (myGrid.yMax * 2 % myGrid.resolution == 0)? myGrid.yMax*2/myGrid.resolution : myGrid.yMax*2/myGrid.resolution + 1;
-			
-			m_sub = m_n.subscribe("/duo3d/point_cloud/image_raw", myGrid.queue_size, &OccupancyGrid::callback, this);
-			m_pub = m_n.advertise<std_msgs::Float32MultiArray>("OccupancyGrid", myGrid.queue_size);
+			m_sub = m_n.subscribe("/duo3d/point_cloud/image_raw", m_gridParams.queue_size, &OccupancyGrid::callback, this);
+			m_pub = m_n.advertise<std_msgs::Float32MultiArray>("OccupancyGrid", m_gridParams.queue_size);
 		}
 
 		void callback(const sensor_msgs::PointCloud2 input);
 		
 		gridParams getGridParams() const{
-			return myGrid;
+			return m_gridParams;
 		}
 		
 	private:
@@ -55,7 +56,7 @@ class OccupancyGrid {
 		int m_gridXSize; 
 		int m_gridYSize;
    		
-		gridParams myGrid;
+		gridParams m_gridParams;
 
 		#ifdef DEBUG
 		std::ofstream fout;
@@ -66,6 +67,9 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input){
 	
 	std_msgs::Float32MultiArray output;
 
+	output.layout.dim.push_back(std_msgs::MultiArrayDimension());
+	output.layout.dim.push_back(std_msgs::MultiArrayDimension());
+	output.layout.dim.push_back(std_msgs::MultiArrayDimension());
 	output.layout.dim[0].label  = "x";
 	output.layout.dim[1].label  = "y";
 	output.layout.dim[2].label  = "infoChannel";
@@ -90,19 +94,23 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input){
 		float y = input.data[i+4]<<24 | input.data[i+5]<<16 | input.data[i+6]<<8 | input.data[i+7];
 		float z = input.data[i+8]<<24 | input.data[i+9]<<16 | input.data[i+10]<<8 | input.data[i+11];
 		
-		int convX = x / m_gridXSize;
-		int convY = y / m_gridYSize;
+		int convX = (x + m_gridParams.xMax) / m_gridParams.resolution;
+		int convY = (y + m_gridParams.yMax) / m_gridParams.resolution;
 //we can leave it as an average for now but we might want to look into other ways of calculating the cost of a grid, as tom said
 //if (z > threshold)
-		output.data[convX*output.layout.dim[1].stride + convY*output.layout.dim[2].stride + 0] = z;
+		if (convX >= m_gridXSize || convY >= m_gridYSize || convX < 0 || convY < 0 )
+		{
+			return;
+		}
+		output.data[convX*output.layout.dim[1].stride + convY*output.layout.dim[2].stride + 0] = z; 
 		count[convX][convY] ++;
-	}
-	
+	} 
+/*	
 	for(int x = 0; x < m_gridXSize; x++){
 		for (int y = 0; y < m_gridYSize; y++){
 			output.data[x*output.layout.dim[1].stride + y*output.layout.dim[2].stride + 0]/=count[x][y];
 		}
-	}
+	}*/
 	m_pub.publish(output);
 
 	#ifdef DEBUG
