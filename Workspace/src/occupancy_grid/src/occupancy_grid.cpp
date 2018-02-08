@@ -1,4 +1,5 @@
 #include "ros/ros.h"
+#include <ros/console.h>
 
 //msg types
 #include "sensor_msgs/PointCloud2.h"
@@ -11,8 +12,6 @@
 
 #ifdef DEBUG
 #include <fstream>
-#include <ros/console.h>
-
 #endif
 
 
