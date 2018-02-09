@@ -9,7 +9,6 @@
 
 //debug
 #define DEBUG 
-
 #ifdef DEBUG
 #include <fstream>
 #endif
@@ -20,9 +19,9 @@
 //x, y max is the max range of the camera (in one direction)
 typedef struct 
 {
-   int xMax;
-   int yMax;
-   int resolution;
+   float xMax;
+   float yMax;
+   float resolution;
    int rate;
    int queue_size;
 } gridParams;
@@ -38,8 +37,14 @@ class OccupancyGrid {
 			ros::param::get("queue_size", m_gridParams.queue_size);
 
 			//account for centreeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+
 			m_gridXSize = (m_gridParams.xMax * 2 % m_gridParams.resolution == 0)? m_gridParams.xMax*2/m_gridParams.resolution : m_gridParams.xMax*2/m_gridParams.resolution + 1;
 			m_gridYSize = (m_gridParams.yMax * 2 % m_gridParams.resolution == 0)? m_gridParams.yMax*2/m_gridParams.resolution : m_gridParams.yMax*2/m_gridParams.resolution + 1;
+
+
+			m_gridXSize = m_gridParams.xMax*2/m_gridParams.resolution + 1;
+			m_gridYSize = m_gridParams.yMax*2/m_gridParams.resolution + 1;
+
 			
 			m_sub = m_n.subscribe("/duo3d/point_cloud/image_raw", m_gridParams.queue_size, &OccupancyGrid::callback, this);
 			m_pub = m_n.advertise<std_msgs::Float32MultiArray>("OccupancyGrid", m_gridParams.queue_size);
