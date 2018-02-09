@@ -37,15 +37,13 @@ class OccupancyGrid {
 			ros::param::get("queue_size", m_gridParams.queue_size);
 
 			//account for centreeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
-
-			m_gridXSize = (m_gridParams.xMax * 2 % m_gridParams.resolution == 0)? m_gridParams.xMax*2/m_gridParams.resolution : m_gridParams.xMax*2/m_gridParams.resolution + 1;
-			m_gridYSize = (m_gridParams.yMax * 2 % m_gridParams.resolution == 0)? m_gridParams.yMax*2/m_gridParams.resolution : m_gridParams.yMax*2/m_gridParams.resolution + 1;
-
-
 			m_gridXSize = m_gridParams.xMax*2/m_gridParams.resolution + 1;
 			m_gridYSize = m_gridParams.yMax*2/m_gridParams.resolution + 1;
 
-			
+			if (m_gridXSize % 2 == 0) {
+				m_gridXSize++;	
+			}
+
 			m_sub = m_n.subscribe("/duo3d/point_cloud/image_raw", m_gridParams.queue_size, &OccupancyGrid::callback, this);
 			m_pub = m_n.advertise<std_msgs::Float32MultiArray>("OccupancyGrid", m_gridParams.queue_size);
 		}
