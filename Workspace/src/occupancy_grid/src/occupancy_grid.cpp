@@ -7,9 +7,9 @@
 #include "std_msgs/MultiArrayDimension.h"
 #include "std_msgs/Float32MultiArray.h"
 
+#define DEBUG_OUTPUT 1
 //debug
-#define TEST 1
-#ifdef TEST
+#ifdef DEBUG_OUTPUT
 #include <fstream>
 #endif
 
@@ -36,7 +36,7 @@ class OccupancyGrid {
 			ros::param::get("rate", m_gridParams.rate);
 			ros::param::get("queue_size", m_gridParams.queue_size);
 
-			//account for centreeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+			//account for centre
 			m_gridXSize = m_gridParams.xMax/m_gridParams.resolution + 1;
 			m_gridYSize = m_gridParams.yMax*2/m_gridParams.resolution + 1;
 
@@ -64,7 +64,7 @@ class OccupancyGrid {
    		
 		gridParams m_gridParams;
 
-		#ifdef TEST
+		#ifdef DEBUG_OUTPUT
 		std::ofstream fout;
 		#endif
 };
@@ -88,32 +88,41 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input){
 	output.layout.dim[1].stride = output.layout.dim[1].size * output.layout.dim[2].size;
 	output.layout.dim[2].stride = output.layout.dim[2].size;
 	
-	output.data.resize(output.layout.dim[0].stride);
-			
-	output.data.clear();	
+	output.data.resize(output.layout.dim[0].stride, 0.0);
 
 	std::vector<std::vector<int>> count;
 	count.resize(m_gridXSize, std::vector<int>(m_gridYSize, 0));
-
+	#ifdef DEBUG_OUTPUT
+	fout.open("/home/wmmc/Documents/OCCUPANCY_GRID_OUTPUT.txt", std::fstream::app);
+	fout << std::endl << std::endl << "NEW FRAME" << std::endl;
+	#endif
 	for (int i =0; i<input.row_step/input.point_step; i++){
+		//conversion from byte data array to float values
 		float x = *(float*)(&input.data[i*input.point_step]);
 		float y = *(float*)(&input.data[i*input.point_step+4]);
 		float z = *(float*)(&input.data[i*input.point_step+8]);
-
+		//conversion from float cartesian coords to occupancy grid values
 		int convX = x/m_gridParams.resolution;
-		int convY = y/m_gridParams.resolution + (m_gridYSize-1)/2;
+		int convY = y/m_gridParams.resolution + (m_gridYSize/2.0);
 //we can leave it as an average for now but we might want to look into other ways of calculating the cost of a grid, as tom said
 //if (z > threshold)
-
-		ROS_ERROR_STREAM("X: " << x << " Y: " << y << " Z: " << z << "convX: "<< convX << "\tconvY: " << convY<< std::endl);			
+		#ifdef DEBUG_OUTPUT
+		fout<<"X: "<<x<<"\tY: "<<y<<"\tZ: "<<z<<"\tconvX: "<<convX<<"\tconvY: "<<convY<<std::endl;
+		#endif	
+		ROS_DEBUG_STREAM("\tX: " << x << "\tY: " << y << "\tZ: " << z << "\tconvX: "<< convX << "\tconvY: " << convY<< std::endl);			
 		if (convX >= m_gridXSize || convY >= m_gridYSize || convX < 0 || convY < 0 )//invalid bounds error check
 		{
-			ROS_ERROR_STREAM("CONVERSION BOUND ERROR\tconvX: "<< convX << "\tconvY: " << convY << "\tMaxXGridCoord: " << m_gridXSize << "\tMaxYGridCoord: " << m_gridYSize << std::endl);
-
-			return;
+			ROS_ERROR_STREAM("CONVERSION BOUND ERROR\tX: " << x << "\tY: " << y << "\tZ: " << z <<"\tconvX: "<< convX << "\tconvY: " << convY << "\tMaxXGridCoord: " << m_gridXSize << "\tMaxYGridCoord: " << m_gridYSize << std::endl);
+			#ifdef DEBUG_OUTPUT
+			fout<<"\tMaxXGridCoord: " << m_gridXSize << "\tMaxYGridCoord: " << m_gridYSize << std::endl;
+			fout<<"^^^^^^^^^^^^^^^^^^^^^^^^^^^CONVERSION OUT OF BOUNDS ERROR ABOVE^^^^^^^^^^^^^^^^^^^^^^^^^^"<<std::endl;
+			#endif	
 		}
+		else
+		{
 		output.data[convX*output.layout.dim[1].stride + convY*output.layout.dim[2].stride + 0] = z; 
 		count[convX][convY] ++;
+		}
 	} 
 
 	for(int x = 0; x < m_gridXSize; x++){
@@ -122,26 +131,8 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input){
 		}
 	}
 	m_pub.publish(output);
-
-	#ifdef TEST
-	fout.open("/home/wmmc/Documents/OCCUPANCY_GRID_OUTPUT.txt", std::ofstream::app);
-	fout << std::endl << "INPUT" << std::endl;
-	for (int i =0; i<input.row_step/input.point_step; i++){
-		float x = input.data[i]<<24 | input.data[i+1]<<16 | input.data[i+2]<<8 | input.data[i+3];
-		float y = input.data[i+4]<<24 | input.data[i+5]<<16 | input.data[i+6]<<8 | input.data[i+7];
-		float z = input.data[i+8]<<24 | input.data[i+9]<<16 | input.data[i+10]<<8 | input.data[i+11];
-		
-		fout << x << " " << y << " " << z << std::endl;
-	}
-
-
-	fout << std::endl << "OUTPUT" << std::endl;
-	for(int row =0; row<output.layout.dim[0].size; row++){
-		for(int col = 0; col<output.layout.dim[1].size; col++){
-			fout << output.data[row*output.layout.dim[1].stride + col*output.layout.dim[2].stride + 0] << " ";
-		}
-		fout << std::endl;
-	}
+	
+	#ifdef DEBUG_OUTPUT
 	fout.close();
 	#endif
 }

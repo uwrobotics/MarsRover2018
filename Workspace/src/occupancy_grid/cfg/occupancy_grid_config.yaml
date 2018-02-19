@@ -1,5 +1,5 @@
-xMax: 100
-yMax: 100
-resolution: 0.05
-rate: 10
+xMax: 10
+yMax: 10
+resolution: 0.10
+rate: 1
 queue_size: 1
