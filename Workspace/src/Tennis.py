@@ -35,7 +35,7 @@ TOL_RadiusDiff_BtwnFrames = 100
 pts = deque(maxlen=pts_size)
 #----------CODE----------
 # grab the reference to the webcam
-camera = cv2.VideoCapture(0)
+camera = cv2.VideoCapture(1)
 #camera setting , require adjustments
 camera.set(cv2.CAP_PROP_APERTURE, 1)
 camera.set(cv2.CAP_PROP_AUTOFOCUS, 0)
@@ -65,8 +65,8 @@ while True:
         DebugShow_Mask_before_Filter = cv2.cvtColor(mask_clr, cv2.COLOR_GRAY2BGR)
 
     # filter
-    mask_clr = cv2.dilate(mask_clr, kernel_clr, iterations=2)
     mask_clr = cv2.erode(mask_clr, kernel_clr, iterations=2)
+    mask_clr = cv2.dilate(mask_clr, kernel_clr, iterations=2)
 
     if(DebugOnScreenMode):
         DebugShow_Mask_after_Filter = cv2.cvtColor(mask_clr, cv2.COLOR_GRAY2BGR)
@@ -167,6 +167,13 @@ while True:
 
     # if the 'q' key is pressed, stop the loop
     if key == ord("q"):
+        break
+
+    if key == ord(" "):
+        while True:
+            key = cv2.waitKey(0)
+            if key == ord("q"):
+                break
         break
 
 #cv2.waitKey(0)
