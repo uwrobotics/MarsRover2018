@@ -48,3 +48,5 @@ CATKIN_IGNORE
 
 # Catkin tools
 .catkin_tools
+
+*.swp
