@@ -1,29 +1,45 @@
-#include "DynamicWindow.h"
-#include "ros/ros.h"
-#include "nav_msgs/OccupancyGrid.h"
-#include "geometry_msgs/Twist.h"
+//
+// Created by tom on 20/02/18.
+//
 
-ros::Publisher velocityPub;
+#include "LocalPlanner.h"
 
-void CurrentVelocityCallback(geometry_msgs::Twist::ConstPtr& currentVelocity)
+CLocalPlanner::CLocalPlanner(ros::NodeHandle *pNh)
 {
-
+    m_pNh = pNh;
+    m_pOccupancySub =  new ros::Subscriber(
+            m_pNh->subscribe("occupancy_grid",1,&CLocalPlanner::OccupancyCallback, this));
+    m_pVelSub = new ros::Subscriber(
+            m_pNh->subscribe("current_vel",1,&CLocalPlanner::CurVelCallback, this));
+    m_pCurGpsSub = new ros::Subscriber(
+            m_pNh->subscribe("cur_gps",1,&CLocalPlanner::CurGPSCallback, this));
+    m_pGoalGpsSub = new ros::Subscriber(
+            m_pNh->subscribe("goal_gps",1,&CLocalPlanner::GoalGPSCallback, this));
+    m_pVelPub = new ros::Publisher(m_pNh->advertise<geometry_msgs::Twist>("local_planner_vel",1));
 }
 
-void OccupancyGridCallback(nav_msgs::OccupancyGrid::ConstPtr& occupancyGrid)
+void CLocalPlanner::CurVelCallback(geometry_msgs::Twist::ConstPtr vel)
 {
-
+    m_curVel = *vel;
 }
 
-
-int main(int argc, char** argv)
+void CLocalPlanner::GoalGPSCallback(sensor_msgs::NavSatFix::ConstPtr goal)
 {
-    ros::init(argc, argv, "local_planner");
-    ros::NodeHandle nh;
-    ros::Subscriber mapSub = nh.subscribe("occupancy_grid",1,OccupancyGridCallback);
-    ros::Subscriber velSub = nh.subscribe("current_vel",1,CurrentVelocityCallback);
-    velocityPub = nh.advertise<geometry_msgs::Twist>("local_planner_vel",1);
-
-
-    return 0;
+    m_goalGPS = *goal;
 }
+
+void CLocalPlanner::CurGPSCallback(sensor_msgs::NavSatFix::ConstPtr gps)
+{
+    m_curGPS = *gps;
+}
+
+/*
+///Occupancy Callback:
+1) blur the occupancy grid if needed
+2) find slope if needed
+3) construct dynamic window based on cur vel
+4) assess distances
+5) compute scores
+6) select bests
+
+ */
