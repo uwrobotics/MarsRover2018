@@ -8,18 +8,20 @@
 #include <ros/ros.h>
 #include <geometry_msgs/Twist.h>
 #include <sensor_msgs/NavSatFix.h>
+#include "local_planner/OccupancyGrid.h"
+#include "DynamicWindow.h"
 
 class CLocalPlanner
 {
 public:
-    explicit CLocalPlanner(ros::NodeHandle* pNh);
+    explicit CLocalPlanner(ros::NodeHandle* pNh, const RobotParams_t& robotParams);
 
 private:
     //Subscriber callbacks
     void CurVelCallback(geometry_msgs::Twist::ConstPtr vel);
     void GoalGPSCallback(sensor_msgs::NavSatFix::ConstPtr goal);
     void CurGPSCallback(sensor_msgs::NavSatFix::ConstPtr gps);
-    void OccupancyCallback();
+    void OccupancyCallback(local_planner::OccupancyGrid::ConstPtr grid);
 
 
     //Ros handlers
@@ -34,6 +36,9 @@ private:
     geometry_msgs::Twist m_curVel;
     sensor_msgs::NavSatFix m_goalGPS;
     sensor_msgs::NavSatFix m_curGPS;
+
+    //Parameters
+    const RobotParams_t& m_robotParams;
 
 
 
