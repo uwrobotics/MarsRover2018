@@ -1,6 +1,7 @@
-#include "DynamicWindow.h
+#include "DynamicWindow.h"
 
-CDynamicWindow::CDynamicWindow()
+CDynamicWindow::CDynamicWindow(float curV, float curW, const RobotParams_t& robotParams)
+ : m_robotParams(robotParams)
 {
 
 }

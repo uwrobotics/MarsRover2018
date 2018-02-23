@@ -4,9 +4,15 @@
 
 #include "LocalPlanner.h"
 
-CLocalPlanner::CLocalPlanner(ros::NodeHandle *pNh)
+CLocalPlanner::CLocalPlanner(ros::NodeHandle *pNh, const RobotParams_t& robotParams)
+ : m_pNh(pNh),
+   m_pOccupancySub(nullptr),
+   m_pGoalGpsSub(nullptr),
+   m_pCurGpsSub(nullptr),
+   m_pVelSub(nullptr),
+   m_pVelPub(nullptr),
+   m_robotParams(robotParams)
 {
-    m_pNh = pNh;
     m_pOccupancySub =  new ros::Subscriber(
             m_pNh->subscribe("occupancy_grid",1,&CLocalPlanner::OccupancyCallback, this));
     m_pVelSub = new ros::Subscriber(
@@ -43,3 +49,7 @@ void CLocalPlanner::CurGPSCallback(sensor_msgs::NavSatFix::ConstPtr gps)
 6) select bests
 
  */
+void CLocalPlanner::OccupancyCallback(local_planner::OccupancyGrid::ConstPtr grid)
+{
+
+}
