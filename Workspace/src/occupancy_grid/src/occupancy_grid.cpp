@@ -1,26 +1,38 @@
+/*
+NOTE:
+Duo Pointcloud2 data follows (z = forward, x = left, y = down)
+
+*/
+
 #include "ros/ros.h"
 #include <ros/console.h>
 
-//msg types
-#include "sensor_msgs/PointCloud2.h"
-#include "std_msgs/MultiArrayLayout.h"
-#include "std_msgs/MultiArrayDimension.h"
-#include "std_msgs/Float32MultiArray.h"
+//std and ext. lib msg types
+#include <sensor_msgs/PointCloud2.h>
+#include <sensor_msgs/point_cloud2_iterator.h>
+
+//custom msg types
+#include "occupancy_grid/OccupancyGrid.h"
+#include "occupancy_grid/OccupancyGridHeader.h"
+#include "occupancy_grid/GridDataDimension.h"
+
 
 #define DEBUG_OUTPUT 1
+
 //debug
 #ifdef DEBUG_OUTPUT
 #include <fstream>
 #endif
 
 
-
 //resolution is in terms of side length of a grid cell
-//x, y max is the max range of the camera (in one direction)
+//z, x max is the max range of the camera (in one direction)
 typedef struct 
 {
+   float zMax;
    float xMax;
-   float yMax;
+   float yOffset;
+   float yThreshold;
    float resolution;
    int rate;
    int queue_size;
@@ -29,23 +41,28 @@ typedef struct
 class OccupancyGrid {
 	public:
 		OccupancyGrid(){
-
+			//get params from yaml file
+			ros::param::get("zMax", m_gridParams.zMax);
 			ros::param::get("xMax", m_gridParams.xMax);
-			ros::param::get("yMax", m_gridParams.yMax);
+			ros::param::get("yOffset", m_gridParams.yOffset);
+			ros::param::get("yThreshold", m_gridParams.yOffset);
 			ros::param::get("resolution", m_gridParams.resolution);
 			ros::param::get("rate", m_gridParams.rate);
 			ros::param::get("queue_size", m_gridParams.queue_size);
 
-			//account for centre
-			m_gridXSize = m_gridParams.xMax/m_gridParams.resolution + 1;
-			m_gridYSize = m_gridParams.yMax*2/m_gridParams.resolution + 1;
-
-			if (m_gridYSize % 2 == 0) {
-				m_gridYSize++;	
+			//set grid params
+			m_gridZSize = m_gridParams.zMax/m_gridParams.resolution + 1;
+			m_gridXSize = m_gridParams.xMax*2/m_gridParams.resolution + 1;
+			//make sure camera is in centre of a cell
+			if (m_gridXSize % 2 == 0) {
+				m_gridXSize++;	
 			}
-
+			m_gridCameraZ = 0;
+			m_gridCameraX = m_gridXSize/2;
+			
+			//sub & pub
 			m_sub = m_n.subscribe("/duo3d/point_cloud/image_raw", m_gridParams.queue_size, &OccupancyGrid::callback, this);
-			m_pub = m_n.advertise<std_msgs::Float32MultiArray>("OccupancyGrid", m_gridParams.queue_size);
+			m_pub = m_n.advertise<occupancy_grid::OccupancyGrid>("/OccupancyGrid", m_gridParams.queue_size);
 		}
 
 		void callback(const sensor_msgs::PointCloud2 input);
@@ -59,87 +76,110 @@ class OccupancyGrid {
 		ros::Subscriber m_sub;
 		ros::Publisher m_pub;
 				
-		int m_gridXSize; 
-		int m_gridYSize;
-   		
+		int m_gridZSize; 
+		int m_gridXSize;
+		int m_gridCameraZ;
+		int m_gridCameraX;
+
 		gridParams m_gridParams;
 
 		#ifdef DEBUG_OUTPUT
 		std::ofstream fout;
+		std::ofstream fout2;
 		#endif
 };
 
 void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input){
-	
-	std_msgs::Float32MultiArray output;
+	occupancy_grid::OccupancyGrid output;
 
-	output.layout.dim.push_back(std_msgs::MultiArrayDimension());
-	output.layout.dim.push_back(std_msgs::MultiArrayDimension());
-	output.layout.dim.push_back(std_msgs::MultiArrayDimension());
-	output.layout.dim[0].label  = "x";
-	output.layout.dim[1].label  = "y";
-	output.layout.dim[2].label  = "infoChannel";
+	output.header.cameraZMax = m_gridParams.zMax;
+	output.header.cameraXMax = m_gridParams.xMax;
+	output.header.gridResolution = m_gridParams.resolution;
+	output.header.gridCameraZ = m_gridCameraZ;
+	output.header.gridCameraX = m_gridCameraX;
+	output.header.cameraYOffset = m_gridParams.yOffset;
 
-	output.layout.dim[0].size   = m_gridXSize;
-	output.layout.dim[1].size   = m_gridYSize;
-	output.layout.dim[2].size   = 1;
+	output.dataDimension.push_back(occupancy_grid::GridDataDimension());
+	output.dataDimension.push_back(occupancy_grid::GridDataDimension());
 
-	output.layout.dim[0].stride = output.layout.dim[0].size * output.layout.dim[1].size * output.layout.dim[2].size;
-	output.layout.dim[1].stride = output.layout.dim[1].size * output.layout.dim[2].size;
-	output.layout.dim[2].stride = output.layout.dim[2].size;
-	
-	output.data.resize(output.layout.dim[0].stride, 0.0);
+	output.dataDimension[0].label = "Z(Forward)";
+	output.dataDimension[0].size = m_gridZSize;
+	output.dataDimension[0].stride = m_gridXSize;
+
+	output.dataDimension[1].label = "X(Left)";
+	output.dataDimension[1].size = m_gridXSize;
+	output.dataDimension[1].stride = 1;
+
+	output.data.resize(output.dataDimension[0].size * output.dataDimension[1].size, 0);
 
 	std::vector<std::vector<int>> count;
-	count.resize(m_gridXSize, std::vector<int>(m_gridYSize, 0));
+	count.resize(m_gridZSize, std::vector<int>(m_gridXSize, 0));
+
 	#ifdef DEBUG_OUTPUT
-	fout.open("/home/wmmc/Documents/OCCUPANCY_GRID_OUTPUT.txt", std::fstream::app);
+	fout.open("/home/wmmc/Documents/OCCUPANCY_GRID_INPUT.txt", std::fstream::app);
+	fout2.open("/home/wmmc/Documents/OCCUPANCY_GRID_OUTPUT.txt", std::fstream::app);
 	fout << std::endl << std::endl << "NEW FRAME" << std::endl;
 	#endif
-	for (int i =0; i<input.row_step/input.point_step; i++){
-		//conversion from byte data array to float values
-		float x = *(float*)(&input.data[i*input.point_step]);
-		float y = *(float*)(&input.data[i*input.point_step+4]);
-		float z = *(float*)(&input.data[i*input.point_step+8]);
-		//conversion from float cartesian coords to occupancy grid values
-		int convX = x/m_gridParams.resolution;
-		int convY = y/m_gridParams.resolution + (m_gridYSize/2.0);
-//we can leave it as an average for now but we might want to look into other ways of calculating the cost of a grid, as tom said
-//if (z > threshold)
-		#ifdef DEBUG_OUTPUT
-		fout<<"X: "<<x<<"\tY: "<<y<<"\tZ: "<<z<<"\tconvX: "<<convX<<"\tconvY: "<<convY<<std::endl;
-		#endif	
-		ROS_DEBUG_STREAM("\tX: " << x << "\tY: " << y << "\tZ: " << z << "\tconvX: "<< convX << "\tconvY: " << convY<< std::endl);			
-		if (convX >= m_gridXSize || convY >= m_gridYSize || convX < 0 || convY < 0 )//invalid bounds error check
-		{
-			ROS_ERROR_STREAM("CONVERSION BOUND ERROR\tX: " << x << "\tY: " << y << "\tZ: " << z <<"\tconvX: "<< convX << "\tconvY: " << convY << "\tMaxXGridCoord: " << m_gridXSize << "\tMaxYGridCoord: " << m_gridYSize << std::endl);
-			#ifdef DEBUG_OUTPUT
-			fout<<"\tMaxXGridCoord: " << m_gridXSize << "\tMaxYGridCoord: " << m_gridYSize << std::endl;
-			fout<<"^^^^^^^^^^^^^^^^^^^^^^^^^^^CONVERSION OUT OF BOUNDS ERROR ABOVE^^^^^^^^^^^^^^^^^^^^^^^^^^"<<std::endl;
-			#endif	
-		}
-		else
-		{
-		output.data[convX*output.layout.dim[1].stride + convY*output.layout.dim[2].stride + 0] = z; 
-		count[convX][convY] ++;
-		}
-	} 
 
-	for(int x = 0; x < m_gridXSize; x++){
-		for (int y = 0; y < m_gridYSize; y++){
-			output.data[x*output.layout.dim[1].stride + y*output.layout.dim[2].stride + 0]/=count[x][y];
+	sensor_msgs::PointCloud2ConstIterator<float> iterX (input, "x");
+	sensor_msgs::PointCloud2ConstIterator<float> iterY (input, "y");
+	sensor_msgs::PointCloud2ConstIterator<float> iterZ (input, "z");
+
+	for (;iterX != iterX.end(); ++iterX, ++iterY, ++iterZ){
+		float height = -1 * (*iterY) + m_gridParams.yOffset;
+		if(height > m_gridParams.yThreshold) {
+			int convZ = (*iterZ)/m_gridParams.resolution;
+			int convX = (*iterX)/m_gridParams.resolution + (m_gridXSize/2.0);
+			#ifdef DEBUG_OUTPUT
+			fout<<"X: "<<*iterX<<"\tY: "<<*iterY<<"\tZ: "<< *iterZ<<"\tconvZ: "<<convZ<<"\tconvX: "<<convX<<std::endl;
+			#endif	
+			ROS_DEBUG_STREAM("X: " << *iterX << "\tY: " << *iterY << "\tZ: " << *iterZ << "\tconvZ: "<< convZ << "\tconvX: " << convX<< std::endl);			
+			if (convZ >= m_gridZSize || convX >= m_gridXSize || convZ < 0 || convX < 0 )//invalid bounds error check
+			{
+				ROS_ERROR_STREAM("X: " << *iterX << "\tY: " << *iterY << "\tZ: " << *iterZ << "\tconvZ: "<< convZ << "\tconvX: " << convX<< std::endl);			
+				ROS_ERROR_STREAM("POINT OUTSIDE OF CONFIGURED GRID SIZE\tMaxZGridCoord: " << m_gridZSize << "\tMaxXGridCoord: " << m_gridXSize << std::endl);
+
+				#ifdef DEBUG_OUTPUT
+				fout<<"MaxZGridCoord: " << m_gridZSize << "\tMaxXGridCoord: " << m_gridXSize << std::endl;
+				fout<<"^^^^^^^^^^^^^^^^^^^^^^^^^^^CONVERSION OUT OF BOUNDS ERROR ABOVE^^^^^^^^^^^^^^^^^^^^^^^^^^"<<std::endl;
+				#endif	
+			}
+			else
+			{
+			output.data[convZ*output.dataDimension[0].stride + convX*output.dataDimension[1].stride] = height;
+			count[convZ][convX] ++;
+			}
 		}
 	}
+
+	for(int z = 0; z < m_gridZSize; z++){
+		for (int x = 0; x < m_gridXSize; x++){
+			if (count[z][x]!=0) {
+				output.data[z*output.dataDimension[0].stride + x*output.dataDimension[1].stride] /= count[z][x];
+			}
+		}
+	}
+
 	m_pub.publish(output);
 	
 	#ifdef DEBUG_OUTPUT
+	fout2 << std::endl << "OUTPUT" << std::endl;
+	for (int z = m_gridZSize-1; z >= 0; z--){
+		for (int x = 0; x < m_gridXSize; x++){
+			fout2 << output.data[z*output.dataDimension[0].stride + x*output.dataDimension[1].stride] << "\t";
+		}
+		fout2 << std::endl << std::endl;
+	}
 	fout.close();
+	fout2.close();	
 	#endif
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 	ros::init(argc, argv, "OccupancyGrid");
+	if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Error) ) {
+   		ros::console::notifyLoggerLevelsChanged();
+	}
 
 	OccupancyGrid o;
 
