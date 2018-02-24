@@ -1,5 +1,6 @@
 build/
 bin/
+devel/
 lib/
 msg_gen/
 srv_gen/
