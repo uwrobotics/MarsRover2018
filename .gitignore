@@ -1,5 +1,6 @@
 build/
 bin/
+devel/
 lib/
 msg_gen/
 srv_gen/
@@ -49,4 +50,8 @@ CATKIN_IGNORE
 # Catkin tools
 .catkin_tools
 
+<<<<<<< HEAD
 *.swp
+=======
+~.swp
+>>>>>>> master
