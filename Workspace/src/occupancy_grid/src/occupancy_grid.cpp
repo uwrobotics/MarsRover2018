@@ -24,6 +24,10 @@ Duo Pointcloud2 data follows (z = forward, x = left, y = down)
 #include <fstream>
 #endif
 
+//accessor for Occupancy Grid Message
+float& oGridDataAcessor (occupancy_grid::OccupancyGrid& oGrid, unsigned int i, unsigned int j, unsigned int  k) {
+	return oGrid.data[i*oGrid.dataDimension[0].stride + j*oGrid.dataDimension[1].stride + k*oGrid.dataDimension[2].stride];
+}
 
 //resolution is in terms of side length of a grid cell
 //z, x max is the max range of the camera (in one direction)
@@ -101,19 +105,21 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input){
 
 	output.dataDimension.push_back(occupancy_grid::GridDataDimension());
 	output.dataDimension.push_back(occupancy_grid::GridDataDimension());
+	output.dataDimension.push_back(occupancy_grid::GridDataDimension());
 
 	output.dataDimension[0].label = "Z(Forward)";
-	output.dataDimension[0].size = m_gridZSize;
-	output.dataDimension[0].stride = m_gridXSize;
-
 	output.dataDimension[1].label = "X(Left)";
+	output.dataDimension[2].label = "Points Detected // Avg. Height // Max Height";
+
+	output.dataDimension[0].size = m_gridZSize;
 	output.dataDimension[1].size = m_gridXSize;
-	output.dataDimension[1].stride = 1;
+	output.dataDimension[2].size = 3;
 
-	output.data.resize(output.dataDimension[0].size * output.dataDimension[1].size, 0);
+	output.dataDimension[0].stride = output.dataDimension[1].size * output.dataDimension[2].size;
+	output.dataDimension[1].stride = output.dataDimension[2].size;
+	output.dataDimension[2].stride = 1;
 
-	std::vector<std::vector<int>> count;
-	count.resize(m_gridZSize, std::vector<int>(m_gridXSize, 0));
+	output.data.resize(output.dataDimension[0].size * output.dataDimension[1].size * output.dataDimension[2].size, 0);
 
 	#ifdef DEBUG_OUTPUT
 	fout.open("/home/wmmc/Documents/OCCUPANCY_GRID_INPUT.txt", std::fstream::app);
@@ -146,8 +152,8 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input){
 			}
 			else
 			{
-			output.data[convZ*output.dataDimension[0].stride + convX*output.dataDimension[1].stride] = height;
-			count[convZ][convX] ++;
+			oGridDataAccessor(output, convZ, convX, 0) ++;
+			oGridDataAccessor(output, convZ, convX. 1) += height;
 			}
 		}
 	}
@@ -155,7 +161,7 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input){
 	for(int z = 0; z < m_gridZSize; z++){
 		for (int x = 0; x < m_gridXSize; x++){
 			if (count[z][x]!=0) {
-				output.data[z*output.dataDimension[0].stride + x*output.dataDimension[1].stride] /= count[z][x];
+				oGridDataAccesor(output, z, x, 1) /= oGridDataAccessor(output, z, x, 0);
 			}
 		}
 	}
@@ -163,10 +169,24 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input){
 	m_pub.publish(output);
 	
 	#ifdef DEBUG_OUTPUT
-	fout2 << std::endl << "OUTPUT" << std::endl;
+	fout2 << std::endl << std::endl << "OUTPUT" << std::endl << "" << std::endl; ///////////////////////////////////////////gbjbsljsbdlkj
 	for (int z = m_gridZSize-1; z >= 0; z--){
 		for (int x = 0; x < m_gridXSize; x++){
-			fout2 << output.data[z*output.dataDimension[0].stride + x*output.dataDimension[1].stride] << "\t";
+			fout2 << oGridDataAccesor(output, z, x, 1) << "\t";
+		}
+		fout2 << std::endl << std::endl;
+	}
+
+	for (int z = m_gridZSize-1; z >= 0; z--){
+		for (int x = 0; x < m_gridXSize; x++){
+			fout2 << oGridDataAccesor(output, z, x, 1) << "\t";
+		}
+		fout2 << std::endl << std::endl;
+	}
+
+	for (int z = m_gridZSize-1; z >= 0; z--){
+		for (int x = 0; x < m_gridXSize; x++){
+			fout2 << oGridDataAccesor(output, z, x, 1) << "\t";
 		}
 		fout2 << std::endl << std::endl;
 	}

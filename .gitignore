@@ -50,8 +50,4 @@ CATKIN_IGNORE
 # Catkin tools
 .catkin_tools
 
-<<<<<<< HEAD
-*.swp
-=======
 ~.swp
->>>>>>> master
