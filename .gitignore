@@ -50,4 +50,7 @@ CATKIN_IGNORE
 # Catkin tools
 .catkin_tools
 
+# Catkin WS
+.catkin_workspace
+
 ~.swp
