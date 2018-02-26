@@ -35,14 +35,19 @@ CDynamicWindow::CDynamicWindow(float curV, float curW, const RobotParams_t& robo
     }
 }
 
-void CDynamicWindow::AssessOccupancyGrid(occupancy_grid::OccupancyGrid::ConstPtr pGrid)
+geometry_msgs::Twist CDynamicWindow::AssessOccupancyGrid(occupancy_grid::OccupancyGrid::ConstPtr pGrid)
 {
     m_pOccupancyGrid = pGrid;
     for (auto& velocityRow : m_dynamicWindowGrid)
     {
         for (auto& dynWndPnt : velocityRow)
         {
-            double distance = OccupancyUtils::CalcDistance(pGrid,dynWndPnt.v,dynWndPnt.w);
+            double distance = OccupancyUtils::CalcDistance(pGrid,
+                                                           dynWndPnt.v,
+                                                           dynWndPnt.w,
+                                                           m_robotParams.robotLength,
+                                                           m_robotParams.robotWidth,
+                                                           m_timestep);
             if (m_curV*m_curV >= 2*distance*m_robotParams.maxLinDecel)
             {
                 dynWndPnt.feasible = false;
@@ -98,10 +103,20 @@ void CDynamicWindow::AssessOccupancyGrid(occupancy_grid::OccupancyGrid::ConstPtr
             }
         }
     }
+    geometry_msgs::Twist ret;
+    ret.linear.y = 0;
+    ret.linear.z = 0;
+    ret.angular.x = 0;
+    ret.angular.y = 0;
+    if (!pBestPoint)
+    {
+        ret.linear.x = 0;
+        ret.angular.z = 0;
+    } else
+    {
+        ret.linear.x = pBestPoint->v;
+        ret.angular.z = pBestPoint->w;
+    }
+    return ret;
 }
 
-double CDynamicWindow::CalcDistance(float v, float w)
-{
-
-    return 0;
-}

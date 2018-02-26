@@ -2,7 +2,7 @@
 #define DYNAMICWINDOW_H
 #include "ros/ros.h"
 #include "occupancy_grid/OccupancyGrid.h"
-
+#include "geometry_msgs/Twist.h"
 
 typedef struct RobotParams
 {
@@ -24,7 +24,7 @@ class CDynamicWindow
 {
 public:
     CDynamicWindow(float curV, float curW, const RobotParams_t& robotParams);
-    void AssessOccupancyGrid(occupancy_grid::OccupancyGrid::ConstPtr pGrid);
+    geometry_msgs::Twist AssessOccupancyGrid(occupancy_grid::OccupancyGrid::ConstPtr pGrid);
 private:
     class DynamicWindowPoint
     {
