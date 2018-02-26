@@ -1,6 +1,7 @@
 #include "DynamicWindow.h"
 #include <cmath>
 #include <algorithm>
+#include "OccupancyUtils.h"
 
 #define INF_DIST 100.0
 
@@ -41,11 +42,12 @@ void CDynamicWindow::AssessOccupancyGrid(occupancy_grid::OccupancyGrid::ConstPtr
     {
         for (auto& dynWndPnt : velocityRow)
         {
-            double distance = CalcDistance(dynWndPnt.v,dynWndPnt.w);
+            double distance = OccupancyUtils::CalcDistance(pGrid,dynWndPnt.v,dynWndPnt.w);
             if (m_curV*m_curV >= 2*distance*m_robotParams.maxLinDecel)
             {
                 dynWndPnt.feasible = false;
-            } else
+            }
+            else
             {
                 dynWndPnt.feasible = true;
                 dynWndPnt.dist = distance;
@@ -96,7 +98,6 @@ void CDynamicWindow::AssessOccupancyGrid(occupancy_grid::OccupancyGrid::ConstPtr
             }
         }
     }
-
 }
 
 double CDynamicWindow::CalcDistance(float v, float w)
