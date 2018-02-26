@@ -106,10 +106,13 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input){
 
 	output.data.resize(output.dataDimension[0].size * output.dataDimension[1].size * output.dataDimension[2].size, 0);
 
+	std::vector<std::vector<std::vector<float>>> oGridPoints;
+	oGridPoints.resize(m_gridZSize, std::vector<std::vector<float>>(m_gridXSize));
 
 	sensor_msgs::PointCloud2ConstIterator<float> iterX (input, "x");
 	sensor_msgs::PointCloud2ConstIterator<float> iterY (input, "y");
 	sensor_msgs::PointCloud2ConstIterator<float> iterZ (input, "z");
+
 	ROS_INFO_STREAM(std::endl<<"New Frame Detected"<<std::endl);
 	ROS_DEBUG_STREAM(std::endl << "Input Data & Conversion" << std::endl);
 	for (;iterZ != iterZ.end(); ++iterX, ++iterY, ++iterZ) {
@@ -117,22 +120,45 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input){
 		int convZ = (*iterZ)/m_gridParams.resolution;
 		int convX = (*iterX)/m_gridParams.resolution + (m_gridXSize/2.0);
 		ROS_DEBUG_STREAM(std::fixed << std::setprecision(3) << "Z: " << *iterZ << "\tX: " << *iterX << "\tY: " << *iterY << "\tconvZ: " << convZ << "\tconvX: " << convX << "\tHeight: " << height << std::endl);
-		if (convZ >= m_gridZSize || convX >= m_gridXSize || convZ < 0 || convX < 0 )//invalid bounds error check
-		{
-			ROS_WARN_STREAM("Point Detected Out of Occupancy Grid Limits"<< std::endl);
+		if (convZ < m_gridZSize && convX < m_gridXSize && convZ >= 0 && convX >= 0 ) {      //invalid bounds error check
+			oGridPoints[convZ][convX].push_back(height);
 		}
-		else
-		{
-			oGridDataAccessor(output, convZ, convX, 0) ++;
-			oGridDataAccessor(output, convZ, convX, 1) += height;
+		else{
+			ROS_WARN_STREAM("Point Detected Out of Occupancy Grid Limits"<< std::endl);
 		}
 	}
 
 	for(int z = 0; z < m_gridZSize; z++){
 		for (int x = 0; x < m_gridXSize; x++){
+			//////////////////////////////////////////////////////////here assign size, sort, determine top and bot 5% and sum and avg
+			std::sort(oGridPoints[z][x].begin(), oGridPoints[z][x].end(), std::greater<float>());
+			
+			//point count
+			oGridDataAccessor(output, z, x, 0) = oGridPoints[z][x].size();	
+
+			float sum = 0;
 			if (oGridDataAccessor(output, z, x, 0)!=0) {
-				oGridDataAccessor(output, z, x, 1) /= oGridDataAccessor(output, z, x, 0);
+				//avg height
+				for(float a : oGridPoints[z][x]) {
+					sum += a;
+				}
+				oGridDataAccessor(output, z, x, 1) = sum / oGridDataAccessor(output, z, x, 0);
+
+				//max height
+				sum = 0;
+				for(int i = 0; i < oGridPoints[z][x].size() * 0.05; i++) {
+					sum += oGridPoints[z][x][i];
+				}
+				oGridDataAccessor(output, z, x, 2) = sum / (unsigned int)(oGridPoints[z][x].size() * 0.05 + 1);
+
+				//min height
+				sum = 0;
+				for(int i = 0, index = oGridPoints[z][x].size() - 1; i < oGridPoints[z][x].size() * 0.05; i++, index--) {
+					sum += oGridPoints[z][x][index];
+				}
+				oGridDataAccessor(output, z, x, 3) = sum / (unsigned int)(oGridPoints[z][x].size() * 0.05 + 1); 
 			}
+			
 		}
 	}
 
