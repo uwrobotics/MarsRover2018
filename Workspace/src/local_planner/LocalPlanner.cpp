@@ -52,4 +52,8 @@ void CLocalPlanner::CurGPSCallback(sensor_msgs::NavSatFix::ConstPtr gps)
 void CLocalPlanner::OccupancyCallback(occupancy_grid::OccupancyGrid::ConstPtr grid)
 {
 
+
+    CDynamicWindow dynamicWindow(m_curVel.linear.x,m_curVel.angular.z,m_robotParams);
+
+    geometry_msgs::Twist chosenVel = dynamicWindow.AssessOccupancyGrid(grid);
 }
