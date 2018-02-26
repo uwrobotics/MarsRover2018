@@ -22,17 +22,17 @@ int main(int argc, char** argv)
     ros::init(argc, argv, "local_planner");
     ros::NodeHandle nh;
 
-/*    RobotParams_t roverParams = {
-            maxAngAccel : 1.0,
-            maxLinAccel : 1.0,
-            maxLinDecel : 1.0,
-            maxV : 1.5,
-            minV : 0.0,
-            maxW : 1.0,
-            robotLength : 1.5,
-            robotWidth : 0.5
-    };*/
-    //CLocalPlanner localPlanner(&nh, roverParams);
+    RobotParams_t roverParams;
+    roverParams.maxAngAccel = 1.0;
+    roverParams.maxLinAccel = 1.0;
+    roverParams.maxLinDecel = 1.0;
+    roverParams.maxV = 1.5;
+    roverParams.minV = 0.0;
+    roverParams.maxW = 1.0;
+    roverParams.robotLength = 1.5;
+    roverParams.robotWidth = 0.5;
+
+    CLocalPlanner localPlanner(&nh, roverParams);
 
     ros::spin();
 

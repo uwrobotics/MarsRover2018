@@ -11,10 +11,10 @@ namespace OccupancyUtils {
         return oGrid->data[i*oGrid->dataDimension[0].stride + j*oGrid->dataDimension[1].stride + k*oGrid->dataDimension[2].stride];
     }
 
-    void PointForCoord(occupancy_grid::OccupancyGrid::ConstPtr& pGrid, double z, double x, int& zOut, int& xOut)
+    void PointForCoord(occupancy_grid::OccupancyGrid::ConstPtr& pGrid, double y, double x, int& zOut, int& xOut)
     {
-        float coordZ = (z)/pGrid->header.gridResolution;
-        float coordX = (x)/pGrid->header.gridResolution + (pGrid->dataDimension[0].stride/2.0);
+        float coordZ = (y)/pGrid->header.gridResolution;
+        float coordX = (-x)/pGrid->header.gridResolution + (pGrid->dataDimension[0].stride/2.0);
         zOut = (int)(coordZ + 0.5);
         xOut = (int)(coordX + 0.5);
     }

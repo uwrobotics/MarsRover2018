@@ -55,5 +55,5 @@ void CLocalPlanner::OccupancyCallback(occupancy_grid::OccupancyGrid::ConstPtr gr
 
     CDynamicWindow dynamicWindow(m_curVel.linear.x,m_curVel.angular.z,m_robotParams);
 
-    geometry_msgs::Twist chosenVel = dynamicWindow.AssessOccupancyGrid(grid);
+    geometry_msgs::Twist chosenVel = dynamicWindow.AssessOccupancyGrid(grid,0);
 }
