@@ -6,10 +6,12 @@ Duo Pointcloud2 data follows (z = forward, x = left, y = down)
 
 #include "ros/ros.h"
 #include <ros/console.h>
+#include <math.h>
 
 //std and ext. lib msg types
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/point_cloud2_iterator.h>
+#include <nav_msgs/OccupancyGrid.h>
 
 //custom msg types
 #include "occupancy_grid/OccupancyGrid.h"
@@ -29,6 +31,7 @@ typedef struct
    float xMax;
    float yOffset;
    float resolution;
+   float mappingScalar;
    int rate;
    int queue_size;
 } gridParams;
@@ -41,12 +44,14 @@ class OccupancyGrid {
 			ros::param::get("xMax", m_gridParams.xMax);
 			ros::param::get("yOffset", m_gridParams.yOffset);
 			ros::param::get("resolution", m_gridParams.resolution);
+			ros::param::get("mappingScalar", m_gridParams.mappingScalar);
 			ros::param::get("rate", m_gridParams.rate);
 			ros::param::get("queue_size", m_gridParams.queue_size);
 
 			//set grid params
 			m_gridZSize = m_gridParams.zMax/m_gridParams.resolution + 1;
 			m_gridXSize = m_gridParams.xMax*2/m_gridParams.resolution + 1;
+
 			//make sure camera is in centre of a cell
 			if (m_gridXSize % 2 == 0) {
 				m_gridXSize++;	
@@ -57,6 +62,7 @@ class OccupancyGrid {
 			//sub & pub
 			m_sub = m_n.subscribe("/duo3d/point_cloud/image_raw", m_gridParams.queue_size, &OccupancyGrid::callback, this);
 			m_pub = m_n.advertise<occupancy_grid::OccupancyGrid>("/OccupancyGrid", m_gridParams.queue_size);
+			m_pub_rviz = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCells", m_gridParams.queue_size);
 		}
 
 		void callback(const sensor_msgs::PointCloud2 input);
@@ -68,7 +74,8 @@ class OccupancyGrid {
 	private:
 		ros::NodeHandle m_n;	
 		ros::Subscriber m_sub;
-		ros::Publisher m_pub;
+		ros::Publisher m_pub;	
+		ros::Publisher m_pub_rviz;
 				
 		int m_gridZSize; 
 		int m_gridXSize;
@@ -106,7 +113,6 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input){
 
 	output.data.resize(output.dataDimension[0].size * output.dataDimension[1].size * output.dataDimension[2].size, 0);
 
-
 	sensor_msgs::PointCloud2ConstIterator<float> iterX (input, "x");
 	sensor_msgs::PointCloud2ConstIterator<float> iterY (input, "y");
 	sensor_msgs::PointCloud2ConstIterator<float> iterZ (input, "z");
@@ -138,6 +144,39 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input){
 
 	m_pub.publish(output);
 
+
+//ouput to rviz to visualize, publishes 4 messages, each corresponds to one element of the third dimension of the occupancy grid message
+	for(int i = 0; i<output.dataDimension[2].size; i++)
+	{
+		nav_msgs::OccupancyGrid gridcells;
+		gridcells.header.frame_id="/occupancy_frame";
+		gridcells.header.stamp=ros::Time::now();
+		gridcells.info.resolution = 1.0;
+		gridcells.info.width=m_gridXSize;
+		gridcells.info.height=m_gridZSize;
+		//set the view to topdownortho in rviz, the display will be in the corretc orientation
+		gridcells.info.origin.position.x = 0.0;
+	    	gridcells.info.origin.position.y = 0.0;
+	    	gridcells.info.origin.position.z = 0.0;
+	    	gridcells.info.origin.orientation.x = 0.0;
+	    	gridcells.info.origin.orientation.y = 0.0;
+	    	gridcells.info.origin.orientation.z = 0.0;
+	    	gridcells.info.origin.orientation.w = 1.0;
+	
+
+		//map the occupancy grid values to standard 0-100 value for display
+		for(int x = 0; x < m_gridXSize; x++){
+			for (int z = 0; z < m_gridZSize; z++){
+				float height = oGridDataAccessor(output, z, x, i);
+		//the function y = 1/ (1 + e^(-x^2)) - 0.5 maps values (both negative and positive to range 0-1; 
+				gridcells.data[x*m_gridXSize + z] = int (  (1.0/ (1+ exp (-height * height)) - 0.5)  *100*m_gridParams.mappingScalar) ;  
+			}
+		}
+		
+		m_pub_rviz.publish(gridcells);
+	}
+
+//output to console for debugging
 	std::stringstream debugString;
 	debugString << std::fixed << std::setprecision(3);
 	
