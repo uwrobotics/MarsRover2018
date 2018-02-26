@@ -1,4 +1,5 @@
 <launch>
+	<param name = "debug" value = "true" type = "bool" />
 	<arg name="cameraConfig" default="$(find occupancy_grid)/cfg/occupancy_grid_config.yaml"/>
 	<rosparam command="load" file="$(arg cameraConfig)"/>
 
@@ -28,8 +29,6 @@
 
 	<node pkg="rqt_gui" type="rqt_gui" name="rqt_gui" args="--perspective-file $(find duo3d_driver)/launch/rqt/depth_view.perspective">
 	</node>
-
-
 
 	<arg name="pi/2" value="1.5707963267948966" />
 	<node pkg="tf" type="static_transform_publisher" name="duo3d_base_link" args="0 0 0 0 0 $(arg pi/2) /duo3d/camera_frame duo3d_camera 100" />
