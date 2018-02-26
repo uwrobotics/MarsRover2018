@@ -128,7 +128,7 @@ include_directories(
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/local_planner.cpp
 # )
-add_library(DynamicWindow DynamicWindow.cpp LocalPlanner.cpp)
+add_library(DynamicWindow DynamicWindow.cpp LocalPlanner.cpp OccupancyUtils.cpp)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
