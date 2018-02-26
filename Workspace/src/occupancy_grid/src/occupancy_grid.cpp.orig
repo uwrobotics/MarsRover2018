@@ -88,7 +88,7 @@ class OccupancyGrid {
 		gridParams m_gridParams;
 };
 
-void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
+void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input){
 	occupancy_grid::OccupancyGrid output;
 
 	output.header.cameraZMax = m_gridParams.zMax;
@@ -116,9 +116,12 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 
 	output.data.resize(output.dataDimension[0].size * output.dataDimension[1].size * output.dataDimension[2].size, 0);
 
+<<<<<<< HEAD
 	std::vector<std::vector<std::vector<float>>> oGridPoints;
 	oGridPoints.resize(m_gridZSize, std::vector<std::vector<float>>(m_gridXSize));
 
+=======
+>>>>>>> occupancyTemp
 	sensor_msgs::PointCloud2ConstIterator<float> iterX (input, "x");
 	sensor_msgs::PointCloud2ConstIterator<float> iterY (input, "y");
 	sensor_msgs::PointCloud2ConstIterator<float> iterZ (input, "z");
@@ -171,12 +174,16 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 				}
 				oGridDataAccessor(output, z, x, 3) = sum / (unsigned int)(oGridPoints[z][x].size() * 0.05 + 1); 
 			}
+			
 		}
 	}
 
 	m_pub.publish(output);
+<<<<<<< HEAD
+=======
 
-	//ouput to rviz to visualize, publishes 4 messages, each corresponds to one element of the third dimension of the occupancy grid message(ie. point count, avg, max, min heights)
+
+//ouput to rviz to visualize, publishes 4 messages, each corresponds to one element of the third dimension of the occupancy grid message
 	for(int i = 0; i<output.dataDimension[2].size; i++)
 	{
 		nav_msgs::OccupancyGrid gridcells;
@@ -205,11 +212,12 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 		}
 		
 		m_pub_rviz.publish(gridcells);
-
 	}
 
+//output to console for debugging
 	std::stringstream debugString;
 	debugString << std::fixed << std::setprecision(3);
+>>>>>>> occupancyTemp
 	
 	if (m_debug) {
 		std::stringstream debugString;
