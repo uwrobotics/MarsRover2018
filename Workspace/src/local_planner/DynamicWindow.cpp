@@ -35,7 +35,8 @@ CDynamicWindow::CDynamicWindow(float curV, float curW, const RobotParams_t& robo
     }
 }
 
-geometry_msgs::Twist CDynamicWindow::AssessOccupancyGrid(occupancy_grid::OccupancyGrid::ConstPtr pGrid)
+geometry_msgs::Twist CDynamicWindow::AssessOccupancyGrid(occupancy_grid::OccupancyGrid::ConstPtr& pGrid,
+                                                         double orientationToGoal)
 {
     m_pOccupancyGrid = pGrid;
     for (auto& velocityRow : m_dynamicWindowGrid)
@@ -91,6 +92,17 @@ geometry_msgs::Twist CDynamicWindow::AssessOccupancyGrid(occupancy_grid::Occupan
             //Assess heading score
             //need current gps heading, heading to gps goal
             double headingScore = 0;
+            double headingChange = dynWndPnt.w*m_timestep;
+            double newHeadingToGoal = fabs(orientationToGoal + headingChange);
+            if (newHeadingToGoal > M_PI)
+            {
+                newHeadingToGoal -= 2*M_PI;
+            }
+            if (newHeadingToGoal < -M_PI)
+            {
+                newHeadingToGoal += 2*M_PI;
+            }
+            headingScore = fabs(M_PI - newHeadingToGoal)/M_PI;
 
             //velocityScore
             double velocityScore = (dynWndPnt.v - m_lowV)/(m_highV - m_lowV);

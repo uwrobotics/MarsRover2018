@@ -24,7 +24,7 @@ class CDynamicWindow
 {
 public:
     CDynamicWindow(float curV, float curW, const RobotParams_t& robotParams);
-    geometry_msgs::Twist AssessOccupancyGrid(occupancy_grid::OccupancyGrid::ConstPtr pGrid);
+    geometry_msgs::Twist AssessOccupancyGrid(occupancy_grid::OccupancyGrid::ConstPtr& pGrid, double orentationToGoal);
 private:
     class DynamicWindowPoint
     {
