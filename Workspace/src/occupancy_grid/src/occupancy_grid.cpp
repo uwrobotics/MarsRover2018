@@ -31,10 +31,15 @@ typedef struct
    float xMax;
    float yOffset;
    float resolution;
-   float mappingScalar;
    int rate;
    int queue_size;
 } gridParams;
+
+typedef struct
+{
+   float mappingScalar;
+   float mappingNormalizer;
+}rvizParams;
 
 class OccupancyGrid {
 	public:
@@ -44,10 +49,11 @@ class OccupancyGrid {
 			ros::param::get("xMax", m_gridParams.xMax);
 			ros::param::get("yOffset", m_gridParams.yOffset);
 			ros::param::get("resolution", m_gridParams.resolution);
-			ros::param::get("mappingScalar", m_gridParams.mappingScalar);
 			ros::param::get("rate", m_gridParams.rate);
 			ros::param::get("queue_size", m_gridParams.queue_size);
 			ros::param::get("debug", m_debug);
+			ros::param::get("mappingScalar", m_rvizParams.mappingScalar);
+			ros::param::get("mappingNormalizer", m_rvizParams.mappingNormalizer);
 
 			//set grid params
 			m_gridZSize = m_gridParams.zMax/m_gridParams.resolution + 1;
@@ -86,6 +92,7 @@ class OccupancyGrid {
 		bool m_debug;
 
 		gridParams m_gridParams;
+		rvizParams m_rvizParams;
 };
 
 void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
@@ -198,14 +205,13 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 		//map the occupancy grid values to standard 0-100 value for display
 		for(int x = 0; x < m_gridXSize; x++){
 			for (int z = 0; z < m_gridZSize; z++){
-				float height = oGridDataAccessor(output, z, x, i);
-		//the function y = 1/ (1 + e^(-x^2)) - 0.5 maps values (both negative and positive to range 0-1; 
-				gridcells.data[x*m_gridXSize + z] = int (  (1.0/ (1+ exp (-height * height)) - 0.5)  *100*m_gridParams.mappingScalar) ;  
+				float height = abs(oGridDataAccessor(output, z, x, i));
+				
+				gridcells.data[x*m_gridXSize + z] = int ( height/m_rvizParams.mappingNormalizer*100*m_rvizParams.mappingScalar) ;  
 			}
 		}
 		
 		m_pub_rviz.publish(gridcells);
-
 	}
 
 	std::stringstream debugString;

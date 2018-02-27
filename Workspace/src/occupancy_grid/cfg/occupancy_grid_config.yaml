@@ -4,5 +4,6 @@ yOffset : 0.115
 yThreshold : 0.20
 resolution: 0.20
 mappingScalar: 1.0;
+mappingNormalizer: 3.0;
 rate: 1
 queue_size: 1
