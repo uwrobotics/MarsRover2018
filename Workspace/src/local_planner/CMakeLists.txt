@@ -128,7 +128,7 @@ include_directories(
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/local_planner.cpp
 # )
-add_library(DynamicWindow DynamicWindow.cpp LocalPlanner.cpp OccupancyUtils.cpp)
+add_library(DynamicWindow src/DynamicWindow.cpp src/LocalPlanner.cpp src/OccupancyUtils.cpp)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -139,7 +139,7 @@ add_library(DynamicWindow DynamicWindow.cpp LocalPlanner.cpp OccupancyUtils.cpp)
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/local_planner_node.cpp)
-add_executable(local_planner LocalPlannerMain.cpp)
+add_executable(local_planner src/LocalPlannerMain.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
