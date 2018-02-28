@@ -54,6 +54,9 @@ class OccupancyGrid {
 			ros::param::get("debug", m_debug);
 			ros::param::get("mappingScalar", m_rvizParams.mappingScalar);
 			ros::param::get("mappingNormalizer", m_rvizParams.mappingNormalizer);
+			
+			std::string pcl2TopicName;
+			ros::param::get("PCL2TopicName", pcl2TopicName);
 
 			//set grid params
 			m_gridZSize = m_gridParams.zMax/m_gridParams.resolution + 1;
@@ -67,7 +70,7 @@ class OccupancyGrid {
 			m_gridCameraX = m_gridXSize/2;
 			
 			//sub & pub
-			m_sub = m_n.subscribe("/duo3d/point_cloud/image_raw", m_gridParams.queue_size, &OccupancyGrid::callback, this);
+			m_sub = m_n.subscribe(pcl2TopicName, m_gridParams.queue_size, &OccupancyGrid::callback, this);
 			m_pub = m_n.advertise<occupancy_grid::OccupancyGrid>("/OccupancyGrid", m_gridParams.queue_size);
 			m_pub_rviz = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCells", m_gridParams.queue_size);
 		}
@@ -177,13 +180,14 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 					sum += oGridPoints[z][x][index];
 				}
 				oGridDataAccessor(output, z, x, 3) = sum / (unsigned int)(oGridPoints[z][x].size() * 0.05 + 1); 
-			}
-		}
+			} 
+		} 
 	}
 
 	m_pub.publish(output);
 
 	//ouput to rviz to visualize, publishes 4 messages, each corresponds to one element of the third dimension of the occupancy grid message(ie. point count, avg, max, min heights)
+/*
 	for(int i = 0; i<output.dataDimension[2].size; i++)
 	{
 		nav_msgs::OccupancyGrid gridcells;
@@ -192,7 +196,7 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 		gridcells.info.resolution = 1.0;
 		gridcells.info.width=m_gridXSize;
 		gridcells.info.height=m_gridZSize;
-		//set the view to topdownortho in rviz, the display will be in the corretc orientation
+		//set the view to topdownortho in rviz, the display will be in the correct orientation
 		gridcells.info.origin.position.x = 0.0;
 	    	gridcells.info.origin.position.y = 0.0;
 	    	gridcells.info.origin.position.z = 0.0;
@@ -214,7 +218,7 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 		m_pub_rviz.publish(gridcells);
 	}
 
-	std::stringstream debugString;
+*/	std::stringstream debugString;
 	debugString << std::fixed << std::setprecision(3);
 	
 	if (m_debug) {
@@ -269,9 +273,9 @@ int main(int argc, char **argv) {
 
 	ros::Rate rate(o.getGridParams().rate);
 	
-if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
-   ros::console::notifyLoggerLevelsChanged();
-}
+	if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
+   		ros::console::notifyLoggerLevelsChanged();
+	}
 
 	while(ros::ok()) {
 		ros::spinOnce();
