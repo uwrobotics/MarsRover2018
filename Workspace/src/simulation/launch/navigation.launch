@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <arg name="no_static_map" default="true"/>
+
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+
+    <param name="base_global_planner" value="global_planner/GlobalPlanner"/>
+    <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS"/>  
+    <rosparam file="$(find simulation)/config/planner.yaml" command="load"/>
+
+    <!-- observation sources located in costmap_common.yaml -->
+    <rosparam file="$(find simulation)/config/costmap_common.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find simulation)/config/costmap_common.yaml" command="load" ns="local_costmap" />
+
+    <!-- local costmap, needs size -->
+    <rosparam file="$(find simulation)/config/costmap_local.yaml" command="load" ns="local_costmap" />
+
+    <!-- global costmap with laser, for odom_navigation_demo -->
+    <rosparam file="$(find simulation)/config/costmap_global_laser.yaml" command="load" ns="global_costmap" if="$(arg no_static_map)"/>
+
+    <!-- <remap from="cmd_vel" to="husky_velocity_controller/cmd_vel"/> -->
+    <remap from="odom" to="odometry/rover_odom"/>
+    <remap from="odom" to="odometry/filtered"/>
+    <remap from="scan" to="scan"/>
+  </node>
+
+</launch>
