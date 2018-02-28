@@ -69,7 +69,12 @@ class OccupancyGrid {
 			//sub & pub
 			m_sub = m_n.subscribe("/duo3d/point_cloud/image_raw", m_gridParams.queue_size, &OccupancyGrid::callback, this);
 			m_pub = m_n.advertise<occupancy_grid::OccupancyGrid>("/OccupancyGrid", m_gridParams.queue_size);
-			m_pub_rviz = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCells", m_gridParams.queue_size);
+
+//if publish 4 message from the same topic, rviz will flash back and forth between the four messages. So using an array of topics.
+			m_pub_rviz[0] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCells1", m_gridParams.queue_size);
+			m_pub_rviz[1] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCells2", m_gridParams.queue_size);
+			m_pub_rviz[2] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCells3", m_gridParams.queue_size);
+			m_pub_rviz[3] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCells4", m_gridParams.queue_size);
 		}
 
 		void callback(const sensor_msgs::PointCloud2 input);
@@ -82,7 +87,7 @@ class OccupancyGrid {
 		ros::NodeHandle m_n;	
 		ros::Subscriber m_sub;
 		ros::Publisher m_pub;	
-		ros::Publisher m_pub_rviz;
+		ros::Publisher m_pub_rviz[4];
 				
 		int m_gridZSize; 
 		int m_gridXSize;
@@ -193,8 +198,8 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 		gridcells.info.width=m_gridXSize;
 		gridcells.info.height=m_gridZSize;
 		//set the view to topdownortho in rviz, the display will be in the corretc orientation
-		gridcells.info.origin.position.x = 0.0;
-	    	gridcells.info.origin.position.y = 0.0;
+		gridcells.info.origin.position.x = i%2 * m_gridXSize + i%2*10.0;;
+	    	gridcells.info.origin.position.y = i/2 * m_gridZSize + i/2*10.0;
 	    	gridcells.info.origin.position.z = 0.0;
 	    	gridcells.info.origin.orientation.x = 0.0;
 	    	gridcells.info.origin.orientation.y = 0.0;
@@ -205,13 +210,13 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 		//map the occupancy grid values to standard 0-100 value for display
 		for(int x = 0; x < m_gridXSize; x++){
 			for (int z = 0; z < m_gridZSize; z++){
-				float height = abs(oGridDataAccessor(output, z, x, i));
+				float cost = oGridDataAccessor(output, z, x, i) + mappingNormalizer;
 				
-				gridcells.data[x*m_gridXSize + z] = int ( height/m_rvizParams.mappingNormalizer*100*m_rvizParams.mappingScalar) ;  
+				gridcells.data[x*m_gridXSize + z] = int ( cost/m_rvizParams.mappingNormalizer/2*100*m_rvizParams.mappingScalar) ;  
 			}
 		}
 		
-		m_pub_rviz.publish(gridcells);
+		m_pub_rviz[i].publish(gridcells);
 	}
 
 	std::stringstream debugString;
