@@ -205,7 +205,8 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 	    	gridcells.info.origin.orientation.y = 0.0;
 	    	gridcells.info.origin.orientation.z = 0.0;
 	    	gridcells.info.origin.orientation.w = 1.0;
-	
+		
+		gridcells.data.resize(m_gridXSize * m_gridZSize);
 
 		//map the occupancy grid values to standard 0-100 value for display
 		for(int x = 0; x < m_gridXSize; x++){
