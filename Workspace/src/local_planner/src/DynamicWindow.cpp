@@ -9,7 +9,7 @@ CDynamicWindow::CDynamicWindow(float curV, float curW, const RobotParams_t& robo
  : m_robotParams(robotParams),
    m_vIncrement(0.1),
    m_wIncrement(0.1),
-   m_timestep(0.5),
+   m_timestep(robotParams.timestep),
    m_curV(curV),
    m_curW(curW),
    m_maxDist(0)
@@ -108,10 +108,13 @@ geometry_msgs::Twist CDynamicWindow::AssessOccupancyGrid(occupancy_grid::Occupan
             double velocityScore = (dynWndPnt.v - m_lowV)/(m_highV - m_lowV);
 
             score = 2.0*headingScore + 0.5*distanceScore + 0.2*velocityScore;
+            ROS_INFO("v=%f, w=%f :  dist=%f, dScore=%f, hScore=%f, vScore=%f, score=%f", dynWndPnt.v, dynWndPnt.w,
+                        dynWndPnt.dist, distanceScore, headingScore, velocityScore, score);
             if (score > highestScore)
             {
                 highestScore = score;
                 pBestPoint = &dynWndPnt;
+                ROS_INFO("new best vel: v=%f, w=%f, score=%f", dynWndPnt.v, dynWndPnt.w, score);
             }
         }
     }

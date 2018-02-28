@@ -49,6 +49,9 @@ private:
     //Parameters
     const RobotParams_t& m_robotParams;
 
+    bool m_bOdomReceived;
+    bool m_bGoalReceived;
+
 
 
 };
