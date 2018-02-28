@@ -138,6 +138,7 @@ class DUO3DDriver
     sensor_msgs::CameraInfo _msg_cam_info[ITEM_COUNT-1];
     // Point cloud publisher
     ros::Publisher _pub_point_cloud;
+    
     // IMU publisher
     ros::Publisher _pub_imu;
     // Temperature publisher
@@ -166,11 +167,11 @@ public:
         for(int i = 0; i < topic_name.size(); i++)
         {
             if(i == POINT_CLOUD)
-                _pub_point_cloud = _nh.advertise<sensor_msgs::PointCloud2>(topic_name[i], 16);
-            else if(i == IMU)
-                _pub_imu = _nh.advertise<sensor_msgs::Imu>(topic_name[i], 100);
-            else if(i == TEMP)
-                _pub_temperature = _nh.advertise<sensor_msgs::Temperature>(topic_name[i], 100);
+                _pub_point_cloud = _nh.advertise<sensor_msgs::PointCloud2>(topic_name[i], 1);
+           // else if(i == IMU)
+               // _pub_imu = _nh.advertise<sensor_msgs::Imu>(topic_name[i],100);
+           // else if(i == TEMP)
+               // _pub_temperature = _nh.advertise<sensor_msgs::Temperature>(topic_name[i], 100);
             else
                 _pub_image[i] = itrans.advertise(topic_name[i], 16);
         }
