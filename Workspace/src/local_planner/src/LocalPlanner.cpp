@@ -35,16 +35,16 @@ CLocalPlanner::CLocalPlanner(ros::NodeHandle *pNh, const RobotParams_t& robotPar
 {
     m_pOccupancySub =  new ros::Subscriber(
             m_pNh->subscribe("occupancy_grid",1,&CLocalPlanner::OccupancyCallback, this));
-    m_pVelSub = new ros::Subscriber(
-            m_pNh->subscribe("current_vel",1,&CLocalPlanner::CurVelCallback, this));
-    m_pCurGpsSub = new ros::Subscriber(
-            m_pNh->subscribe("cur_gps",1,&CLocalPlanner::CurGPSCallback, this));
+    //m_pVelSub = new ros::Subscriber(
+    //        m_pNh->subscribe("current_vel",1,&CLocalPlanner::CurVelCallback, this));
+    //m_pCurGpsSub = new ros::Subscriber(
+    //        m_pNh->subscribe("cur_gps",1,&CLocalPlanner::CurGPSCallback, this));
     m_pGoalGpsSub = new ros::Subscriber(
-            m_pNh->subscribe("goal_gps",1,&CLocalPlanner::GoalGPSCallback, this));
+            m_pNh->subscribe("/local_plan/goal_gps",1,&CLocalPlanner::GoalGPSCallback, this));
     m_pOdometrySub = new ros::Subscriber(
-            m_pNh->subscribe("odometry",1,&CLocalPlanner::OdometryCallback, this));
+            m_pNh->subscribe("/odometry/rover_gps_odom",1,&CLocalPlanner::OdometryCallback, this));
 
-    m_pVelPub = new ros::Publisher(m_pNh->advertise<geometry_msgs::Twist>("local_planner_vel",1));
+    m_pVelPub = new ros::Publisher(m_pNh->advertise<geometry_msgs::Twist>("cmd_vel",1));
 }
 
 void CLocalPlanner::CurVelCallback(geometry_msgs::Twist::ConstPtr vel)
