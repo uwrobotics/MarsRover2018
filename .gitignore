@@ -2,7 +2,9 @@ devel/
 logs/
 build/
 bin/
+devel/
 lib/
+logs/
 msg_gen/
 srv_gen/
 msg/*Action.msg
@@ -50,3 +52,5 @@ CATKIN_IGNORE
 
 # Catkin tools
 .catkin_tools
+
+~.swp
