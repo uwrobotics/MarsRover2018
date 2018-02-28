@@ -12,6 +12,10 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   message_generation
   occupancy_grid
+  robot_localization
+  tf2_ros
+  tf
+  tf2
 )
 
 ## System dependencies are found with CMake's conventions
@@ -109,7 +113,7 @@ add_message_files(
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES local_planner
-  CATKIN_DEPENDS roscpp std_msgs message_runtime
+  CATKIN_DEPENDS roscpp std_msgs message_runtime robot_localization tf2_ros tf2 tf
 #  DEPENDS system_lib
 )
 
@@ -155,7 +159,7 @@ add_dependencies(local_planner  ${catkin_EXPORTED_TARGETS})
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
-target_link_libraries(local_planner ${catkin_LIBRARIES} DynamicWindow)
+target_link_libraries(local_planner DynamicWindow ${catkin_LIBRARIES} )
 
 #############
 ## Install ##
