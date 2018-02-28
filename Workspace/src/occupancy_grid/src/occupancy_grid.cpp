@@ -275,9 +275,9 @@ int main(int argc, char **argv) {
 
 	ros::Rate rate(o.getGridParams().rate);
 	
-if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
-   ros::console::notifyLoggerLevelsChanged();
-}
+	if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
+		ros::console::notifyLoggerLevelsChanged();
+	}
 
 	while(ros::ok()) {
 		ros::spinOnce();
