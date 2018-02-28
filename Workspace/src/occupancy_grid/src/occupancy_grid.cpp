@@ -54,6 +54,9 @@ class OccupancyGrid {
 			ros::param::get("debug", m_debug);
 			ros::param::get("mappingScalar", m_rvizParams.mappingScalar);
 			ros::param::get("mappingNormalizer", m_rvizParams.mappingNormalizer);
+			
+			std::string pcl2TopicName;
+			ros::param::get("PCL2TopicName", pcl2TopicName);
 
 			//set grid params
 			m_gridZSize = m_gridParams.zMax/m_gridParams.resolution + 1;
@@ -67,7 +70,7 @@ class OccupancyGrid {
 			m_gridCameraX = m_gridXSize/2;
 			
 			//sub & pub
-			m_sub = m_n.subscribe("/duo3d/point_cloud/image_raw", m_gridParams.queue_size, &OccupancyGrid::callback, this);
+			m_sub = m_n.subscribe(pcl2TopicName, m_gridParams.queue_size, &OccupancyGrid::callback, this);
 			m_pub = m_n.advertise<occupancy_grid::OccupancyGrid>("/OccupancyGrid", m_gridParams.queue_size);
 
 			//Since rviz will flash back and forth between multiple messages published by the same topic, using an array of topics
@@ -275,9 +278,9 @@ int main(int argc, char **argv) {
 
 	ros::Rate rate(o.getGridParams().rate);
 	
-if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
-   ros::console::notifyLoggerLevelsChanged();
-}
+	if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
+   		ros::console::notifyLoggerLevelsChanged();
+	}
 
 	while(ros::ok()) {
 		ros::spinOnce();
