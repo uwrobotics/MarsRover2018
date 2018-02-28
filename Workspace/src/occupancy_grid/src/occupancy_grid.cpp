@@ -190,7 +190,7 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 	}
 
 	m_pub.publish(output);
-
+/*
 	//ouput to rviz to visualize, publishes 4 messages, each corresponds to one element of the third dimension of the occupancy grid message(ie. point count, avg, max, min heights)
 	for(int i = 0; i<output.dataDimension[2].size; i++)
 	{
@@ -222,7 +222,7 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 		
 		m_pub_rviz[i].publish(gridcells);
 	}
-
+*/
 	std::stringstream debugString;
 	debugString << std::fixed << std::setprecision(3);
 	
