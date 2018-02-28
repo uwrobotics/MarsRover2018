@@ -8,7 +8,7 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2_ros/buffer.h>
 #include <tf/tf.h>
-
+#include <cstdio>
 
 #include <robot_localization/navsat_conversions.h>
 //#include <move_base_msgs/MoveBaseAction.h>
@@ -31,7 +31,9 @@ CLocalPlanner::CLocalPlanner(ros::NodeHandle *pNh, const RobotParams_t& robotPar
    m_pCurGpsSub(nullptr),
    m_pVelSub(nullptr),
    m_pVelPub(nullptr),
-   m_robotParams(robotParams)
+   m_robotParams(robotParams),
+   m_bOdomReceived(false),
+   m_bGoalReceived(false)
 {
     m_pOccupancySub =  new ros::Subscriber(
             m_pNh->subscribe("occupancy_grid",1,&CLocalPlanner::OccupancyCallback, this));
@@ -61,6 +63,8 @@ void CLocalPlanner::GoalGPSCallback(sensor_msgs::NavSatFix::ConstPtr goal)
                                                   m_goalGpsUtmY,
                                                   m_goalGpsUtmZone);
 
+    m_bGoalReceived = true;
+
 }
 
 void CLocalPlanner::CurGPSCallback(sensor_msgs::NavSatFix::ConstPtr gps)
@@ -81,7 +85,7 @@ void CLocalPlanner::OdometryCallback(nav_msgs::Odometry::ConstPtr odometry)
         ROS_ERROR("%s",ex.what());
     }
 
-    ROS_INFO("Generated transform from base_link to utm");
+    //ROS_INFO("Generated transform from base_link to utm");
     m_curGpsUtmX = roverLocToUTM.transform.translation.x;
     m_curGpsUtmY = roverLocToUTM.transform.translation.y;
 
@@ -101,6 +105,10 @@ void CLocalPlanner::OdometryCallback(nav_msgs::Odometry::ConstPtr odometry)
 
     m_orientationToGoal = atan2(-(m_goalGpsUtmX - m_curGpsUtmX),
                                 m_goalGpsUtmY - m_curGpsUtmY) - heading;
+
+    m_bOdomReceived = true;
+    ROS_INFO("Current velocity: v=%f, w=%f",m_curVel.linear.x, m_curVel.angular.z);
+    ROS_INFO("Current pos: x=%f, y=%f, heading=%f",m_curGpsUtmX, m_curGpsUtmY, heading);
 }
 
 
@@ -116,11 +124,23 @@ void CLocalPlanner::OdometryCallback(nav_msgs::Odometry::ConstPtr odometry)
  */
 void CLocalPlanner::OccupancyCallback(occupancy_grid::OccupancyGrid::ConstPtr grid)
 {
-
-
+    if (!m_bOdomReceived || !m_bGoalReceived)
+    {
+        ROS_WARN("ignoring occupancy: not ready");
+        return;
+    }
+    if ((m_curGpsUtmY-m_goalGpsUtmY)*(m_curGpsUtmY-m_goalGpsUtmY) +
+                (m_curGpsUtmX-m_goalGpsUtmX)*(m_curGpsUtmX-m_goalGpsUtmX) < 25)
+    {
+        ROS_INFO("Goal reached\n");
+        return;
+    }
+    ROS_INFO("Received an occupancy grid");
     CDynamicWindow dynamicWindow(m_curVel.linear.x,m_curVel.angular.z,m_robotParams);
-
+    ROS_INFO("Created dynamic window");
     geometry_msgs::Twist chosenVel = dynamicWindow.AssessOccupancyGrid(grid,m_orientationToGoal);
+
+    ROS_INFO("chose v=%f, w=%f", chosenVel.linear.x, chosenVel.angular.z);
 
     m_pVelPub->publish(chosenVel);
 }

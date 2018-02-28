@@ -14,6 +14,7 @@ typedef struct RobotParams
     float maxAngAccel;
     float robotWidth;
     float robotLength;
+    float timestep;
 
 } RobotParams_t;
 
