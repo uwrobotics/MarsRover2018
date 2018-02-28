@@ -1,5 +1,7 @@
 <launch>
 	<param name = "debug" value = "true" type = "bool" />
+	<param name = "PCL2TopicName" value = "/duo3d/point_cloud/image_raw" type = "str" />
+
 	<arg name="cameraConfig" default="$(find occupancy_grid)/cfg/occupancy_grid_config.yaml"/>
 	<rosparam command="load" file="$(arg cameraConfig)"/>
 
