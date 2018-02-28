@@ -2,6 +2,7 @@ build/
 bin/
 devel/
 lib/
+logs/
 msg_gen/
 srv_gen/
 msg/*Action.msg
