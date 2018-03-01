@@ -33,13 +33,11 @@ typedef struct
    float resolution;
    int rate;
    int queue_size;
-} gridParams;
 
-typedef struct
-{
    float mappingScalar;
    float mappingNormalizer;
-}rvizParams;
+} gridParams;
+
 
 class OccupancyGrid {
 	public:
@@ -52,8 +50,13 @@ class OccupancyGrid {
 			ros::param::get("rate", m_gridParams.rate);
 			ros::param::get("queue_size", m_gridParams.queue_size);
 			ros::param::get("debug", m_debug);
-			ros::param::get("mappingScalar", m_rvizParams.mappingScalar);
-			ros::param::get("mappingNormalizer", m_rvizParams.mappingNormalizer);
+			ros::param::get("Scalar", m_gridParams.mappingScalar);
+			ros::param::get("Normalizer", m_gridParams.mappingNormalizer);
+
+			//hard coded values, need to fix later if figure out why rosparam does not work for these two params
+			m_gridParams.mappingScalar = 1.0;
+			m_gridParams.mappingNormalizer = 10.0;
+			
 			
 			std::string pcl2TopicName;
 			ros::param::get("PCL2TopicName", pcl2TopicName);
@@ -100,7 +103,6 @@ class OccupancyGrid {
 		bool m_debug;
 
 		gridParams m_gridParams;
-		rvizParams m_rvizParams;
 };
 
 void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
@@ -190,7 +192,7 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 	}
 
 	m_pub.publish(output);
-/*
+
 	//ouput to rviz to visualize, publishes 4 messages, each corresponds to one element of the third dimension of the occupancy grid message(ie. point count, avg, max, min heights)
 	for(int i = 0; i<output.dataDimension[2].size; i++)
 	{
@@ -210,19 +212,43 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 	    	gridcells.info.origin.orientation.w = 1.0;
 		
 		gridcells.data.resize(m_gridXSize * m_gridZSize);
-
 		//map the occupancy grid values to standard 0-100 value for display
 		for(int x = 0; x < m_gridXSize; x++){
 			for (int z = 0; z < m_gridZSize; z++){
-				float cost = oGridDataAccessor(output, z, x, i) + m_rvizParams.mappingNormalizer;
+
 				
-				gridcells.data[x*m_gridXSize + z] = int ( cost/m_rvizParams.mappingNormalizer/2.0*100*m_rvizParams.mappingScalar) ;  
+				float cost = oGridDataAccessor(output, z, x, i);
+				//ROS_ERROR_STREAM ( "1normalizer: "<< (float)m_gridParams.mappingNormalizer << " scalar: "<<m_gridParams.mappingScalar << " mpas to:"<< (cost/m_gridParams.mappingNormalizer/2.0*100*m_gridParams.mappingScalar) );
+
+
+				//since number of points is typically very large
+				if(i==0)
+				{
+					cost /= 100.0;
+					int map_value = cost ; 
+					
+					if (map_value > 100)
+						map_value = 100;
+
+					gridcells.data[x*m_gridZSize + z] = map_value;
+					
+					
+				}
+
+				else
+				{
+					cost += m_gridParams.mappingNormalizer;
+					gridcells.data[x*m_gridZSize + z] = int ( cost/m_gridParams.mappingNormalizer/2.0 *100*m_gridParams.mappingScalar) ;
+				} 
+
+				
 			}
 		}
 		
 		m_pub_rviz[i].publish(gridcells);
 	}
-*/
+
+
 	std::stringstream debugString;
 	debugString << std::fixed << std::setprecision(3);
 	
@@ -231,7 +257,7 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 		debugString << std::fixed << std::setprecision(3);
 		
 		debugString << std::endl << "Points Detected" << std::endl;
-		for(int z = 0; z < m_gridZSize; z++){
+		for(int z = m_gridZSize-1; z >= 0; z--){
 			for (int x = 0; x < m_gridXSize; x++){
 				debugString << std::setw(8)<< (unsigned int)oGridDataAccessor(output, z, x, 0);			
 			}
@@ -241,7 +267,7 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 	
 		debugString.str("");
 		debugString << std::endl << "Average Height" << std::endl;
-		for(int z = 0; z < m_gridZSize; z++){
+		for(int z = m_gridZSize-1; z >= 0; z--){
 			for (int x = 0; x < m_gridXSize; x++){
 				debugString << oGridDataAccessor(output, z, x, 1) << "\t";
 			}
@@ -251,7 +277,7 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 		
 		debugString.str("");
 		debugString << std::endl << "Average Max Height (Highest 5%)" << std::endl;
-		for(int z = 0; z < m_gridZSize; z++){
+		for(int z = m_gridZSize-1; z >= 0; z--){
 			for (int x = 0; x < m_gridXSize; x++){
 				debugString << oGridDataAccessor(output, z, x, 2) << "\t";
 			}
@@ -261,7 +287,7 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 		
 		debugString.str("");
 		debugString << std::endl << "Average Min Height (Lowest 5%)" << std::endl;
-		for(int z = 0; z < m_gridZSize; z++){
+		for(int z = m_gridZSize-1; z >= 0; z--){
 			for (int x = 0; x < m_gridXSize; x++){
 				debugString << oGridDataAccessor(output, z, x, 3) << "\t";
 			}
