@@ -7,6 +7,8 @@
 
 #include "occupancy_grid/OccupancyGrid.h"
 
+#define DISTANCE_MAX 20.0
+
 namespace OccupancyUtils {
 
 double CalcDistance(occupancy_grid::OccupancyGrid::ConstPtr& pGrid,

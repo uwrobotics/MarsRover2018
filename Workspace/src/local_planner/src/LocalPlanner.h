@@ -12,6 +12,8 @@
 #include "occupancy_grid/OccupancyGrid.h"
 #include "DynamicWindow.h"
 
+#include <geometry_msgs/Point.h>
+
 class CLocalPlanner
 {
 public:
@@ -20,7 +22,8 @@ public:
 private:
     //Subscriber callbacks
     void CurVelCallback(geometry_msgs::Twist::ConstPtr vel);
-    void GoalGPSCallback(sensor_msgs::NavSatFix::ConstPtr goal);
+    //void GoalGPSCallback(sensor_msgs::NavSatFix::ConstPtr goal);
+    void GoalGPSCallback(geometry_msgs::Point::ConstPtr goal);
     void CurGPSCallback(sensor_msgs::NavSatFix::ConstPtr gps);
     void OccupancyCallback(occupancy_grid::OccupancyGrid::ConstPtr grid);
     void OdometryCallback(nav_msgs::Odometry::ConstPtr odemetry);

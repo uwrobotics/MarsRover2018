@@ -14,10 +14,10 @@ CDynamicWindow::CDynamicWindow(float curV, float curW, const RobotParams_t& robo
    m_curW(curW),
    m_maxDist(0)
 {
-    m_lowV = std::min(curV - m_robotParams.maxLinDecel * m_timestep, m_robotParams.minV);
-    m_highV = std::max(curV + m_robotParams.maxLinAccel * m_timestep, m_robotParams.maxV);
-    m_lowW = std::min(curW - m_robotParams.maxAngAccel*m_timestep, -m_robotParams.maxW);
-    m_highW = std::max(curW + m_robotParams.maxAngAccel*m_timestep, m_robotParams.maxW);
+    m_lowV = std::max(curV - m_robotParams.maxLinDecel * m_timestep, m_robotParams.minV);
+    m_highV = std::min(curV + m_robotParams.maxLinAccel * m_timestep, m_robotParams.maxV);
+    m_lowW = std::max(curW - m_robotParams.maxAngAccel*m_timestep, -m_robotParams.maxW);
+    m_highW = std::min(curW + m_robotParams.maxAngAccel*m_timestep, m_robotParams.maxW);
 
     m_dynamicWindowGrid.resize(std::round((m_highV - m_lowV)/m_vIncrement) + 1);
     int row = 0;
@@ -58,7 +58,7 @@ geometry_msgs::Twist CDynamicWindow::AssessOccupancyGrid(occupancy_grid::Occupan
                 dynWndPnt.feasible = true;
                 dynWndPnt.dist = distance;
 
-                if (distance != INF_DIST && distance > m_maxDist)
+                if (distance != DISTANCE_MAX && distance > m_maxDist)
                 {
                     m_maxDist = distance;
                 }
@@ -80,7 +80,7 @@ geometry_msgs::Twist CDynamicWindow::AssessOccupancyGrid(occupancy_grid::Occupan
 
             //Assess distance score
             double distanceScore = 0;
-            if (dynWndPnt.dist == INF_DIST)
+            if (dynWndPnt.dist == DISTANCE_MAX)
             {
                 distanceScore = 1;
             }
@@ -93,7 +93,9 @@ geometry_msgs::Twist CDynamicWindow::AssessOccupancyGrid(occupancy_grid::Occupan
             //need current gps heading, heading to gps goal
             double headingScore = 0;
             double headingChange = dynWndPnt.w*m_timestep;
-            double newHeadingToGoal = fabs(orientationToGoal + headingChange);
+            double newHeadingToGoal = /*fabs*/(orientationToGoal - headingChange);
+
+ROS_INFO("v=%f, w=%f, orientToGoal=%f", dynWndPnt.v, dynWndPnt.w, orientationToGoal);
             if (newHeadingToGoal > M_PI)
             {
                 newHeadingToGoal -= 2*M_PI;
@@ -102,7 +104,8 @@ geometry_msgs::Twist CDynamicWindow::AssessOccupancyGrid(occupancy_grid::Occupan
             {
                 newHeadingToGoal += 2*M_PI;
             }
-            headingScore = fabs(M_PI - newHeadingToGoal)/M_PI;
+ROS_INFO("change=%f, newHeading=%f", headingChange, newHeadingToGoal);
+            headingScore = fabs(M_PI - fabs(newHeadingToGoal))/M_PI;
 
             //velocityScore
             double velocityScore = (dynWndPnt.v - m_lowV)/(m_highV - m_lowV);

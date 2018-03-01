@@ -27,7 +27,6 @@ namespace OccupancyUtils {
         double radius = ((double) v) / w;
         double retDist = 0;
         ///////////
-#define DISTANCE_MAX 20;
 //        function distance = GetDistScore(OccupancyGrid, velocity, robotDims, resolution, timestep)
 //        x = 0;%m
 //                y = 0;%m
@@ -92,7 +91,7 @@ namespace OccupancyUtils {
                     oGridDataAccessor(pGrid,yIndex, xIndexLeftCorn, 0) != 0)
                 {
                     continueChecking = false;
-                    retDist = yIndex * pGrid->header.gridResolution - timestep * v;
+                    retDist = yIndex * pGrid->header.gridResolution;// - timestep * v;
                 }
                 else
                 {
@@ -113,7 +112,7 @@ namespace OccupancyUtils {
 //
             //sample at regular intervals along the arc
             double distTravelled = 0.0;
-            double ds = pGrid->header.gridResolution * 2;
+            double ds = pGrid->header.gridResolution/2.0;
             double dTheta = ds/radius;
 //
             bool done = false;

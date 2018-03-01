@@ -1,4 +1,4 @@
-roverParams_maxAngAccel: 1.0;
+roverParams_maxAngAccel: 0.5;
 roverParams_maxLinAccel: 1.0;
 roverParams_maxLinDecel: 1.0;
 roverParams_maxV: 1.5;
