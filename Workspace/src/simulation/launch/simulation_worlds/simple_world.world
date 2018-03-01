@@ -344,8 +344,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
           <camera>
               <horizontal_fov>1.047</horizontal_fov>  
               <image>
-                  <width>640</width>
-                  <height>480</height>
+                  <width>320</width>
+                  <height>240</height>
                   <format>R8G8B8</format>
               </image>
               <depth_camera>
@@ -358,7 +358,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
           </camera>
           <plugin name="camera_controller" filename="libgazebo_ros_openni_kinect.so">
                <alwaysOn>true</alwaysOn>
-                  <updateRate>30.0</updateRate>
+                  <updateRate>20.0</updateRate>
                   <cameraName>duo3d_camera</cameraName>
                   <frameName>kinect_link</frameName>                   
               <imageTopicName>rgb/image_raw</imageTopicName>
