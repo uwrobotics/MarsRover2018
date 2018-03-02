@@ -12,8 +12,8 @@
 		<param name="frame_rate" value="20.0"/>
 		<rosparam param="image_size">[320, 240]</rosparam>
 		<param name="dense3d_license" value="OVMZU-ZHFE2-9K41K-NQL44-WX3DV"/>
-		<param name="auto_exposure" value="true"/>
-		<param name="vertical_flip" value="true"/>
+		<param name="auto_exposure" value="false"/>
+		<param name="vertical_flip" value="false"/>
 		<param name="horizontal_flip" value="false"/>
 		<param name="gain" value="0"/>
 		<param name="exposure" value="50"/>

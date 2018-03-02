@@ -147,7 +147,7 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 	for (;iterZ != iterZ.end(); ++iterX, ++iterY, ++iterZ) {
 		float height = -1 * (*iterY) + m_gridParams.yOffset;
 		int convZ = (*iterZ)/m_gridParams.resolution;
-		int convX = (*iterX)/m_gridParams.resolution + (m_gridXSize/2.0);
+		int convX = -1*(*iterX)/m_gridParams.resolution + (m_gridXSize/2.0);
 		if (m_debug) {
 			ROS_DEBUG_STREAM(std::fixed << std::setprecision(3) << "Z: " << *iterZ << "\tX: " << *iterX << "\tY: " << *iterY << "\tconvZ: " << convZ << "\tconvX: " << convX << "\tHeight: " << height << std::endl);
 		}	
