@@ -1,9 +1,8 @@
-zMax: 3
-xMax: 3
+zMax: 2.5
+xMax: 10
 yOffset : 0.495
-yThreshold : 0.20
-resolution: 0.20
-mappingScalar: 1.0;
-mappingNormalizer: 3.0;
+resolution: 0.10
+Scalar: 1.0
+Normalizer: 2.5
 rate: 1
 queue_size: 1

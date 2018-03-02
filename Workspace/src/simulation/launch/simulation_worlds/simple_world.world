@@ -358,7 +358,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
           </camera>
           <plugin name="camera_controller" filename="libgazebo_ros_openni_kinect.so">
                <alwaysOn>true</alwaysOn>
-                  <updateRate>30.0</updateRate>
+                  <updateRate>20.0</updateRate>
                   <cameraName>duo3d_camera</cameraName>
                   <frameName>kinect_link</frameName>                   
               <imageTopicName>rgb/image_raw</imageTopicName>
