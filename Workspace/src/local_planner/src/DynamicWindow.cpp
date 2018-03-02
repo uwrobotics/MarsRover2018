@@ -110,7 +110,7 @@ ROS_INFO("change=%f, newHeading=%f", headingChange, newHeadingToGoal);
             //velocityScore
             double velocityScore = (dynWndPnt.v - m_lowV)/(m_highV - m_lowV);
 
-            score = 2.0*headingScore + 0.5*distanceScore + 0.2*velocityScore;
+            score = 1.6*headingScore + 0.9*distanceScore + 0.4*velocityScore;
             ROS_INFO("v=%f, w=%f :  dist=%f, dScore=%f, hScore=%f, vScore=%f, score=%f", dynWndPnt.v, dynWndPnt.w,
                         dynWndPnt.dist, distanceScore, headingScore, velocityScore, score);
             if (score > highestScore)

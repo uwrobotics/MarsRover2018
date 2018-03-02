@@ -3,7 +3,7 @@
 //
 #include "OccupancyUtils.h"
 #include <ros/ros.h>
-#define HEIGHT_THRESH 0.15
+#define HEIGHT_THRESH 0.02
 
 namespace OccupancyUtils {
 
@@ -16,14 +16,14 @@ namespace OccupancyUtils {
     void PointForCoord(occupancy_grid::OccupancyGrid::ConstPtr& pGrid, double y, double x, int& zOut, int& xOut)
     {
         float coordZ = (y)/pGrid->header.gridResolution;
-        float coordX = (-x)/pGrid->header.gridResolution + (pGrid->dataDimension[1].size/2.0);
+        float coordX = (x)/pGrid->header.gridResolution + (pGrid->dataDimension[1].size/2.0);
         zOut = (int)(coordZ + 0.5);
         xOut = (int)(coordX + 0.5);
     }
 
 void odbg(double x, double y, int xi, int yi, occupancy_grid::OccupancyGrid::ConstPtr& grid)
 {
-ROS_INFO("checking (%f,%f) --> (%d,%d) -- height=%f",x,y,xi,yi,oGridDataAccessor(grid,yi,xi,1));
+//ROS_INFO("checking (%f,%f) --> (%d,%d) -- height=%f",x,y,xi,yi,oGridDataAccessor(grid,yi,xi,1));
 }  
 
     double CalcDistance(occupancy_grid::OccupancyGrid::ConstPtr& pGrid,
@@ -40,7 +40,7 @@ ROS_INFO("v=%f,w=%f",v,w);
 //                y = 0;%m
 //                distanceMax=10;
 //
-        double safetyBubble = 0.0 * v;
+        double safetyBubble = 0.1;// * v;
         double bufferFromCenter = safetyBubble + robotWidth / 2;
 
         //not moving
@@ -150,6 +150,7 @@ odbg(bufferFromCenter,yIndex*pGrid->header.gridResolution,xIndexRightCorn,yIndex
 //
                 distTravelled += ds;
 //
+//ROS_INFO("distTravelled=%f",distTravelled);
                 int centerXIndex = 0;//round(frontCenterX/resolution + size(OccupancyGrid,2)/2);
                 int centerYIndex = 0;//round(frontCenterY/resolution + 1);
                 int rightXIndex = 0;//round(frontRightX/resolution + size(OccupancyGrid,2)/2);
@@ -182,9 +183,9 @@ odbg(bufferFromCenter,yIndex*pGrid->header.gridResolution,xIndexRightCorn,yIndex
 odbg(frontCenterX,frontCenterY, centerXIndex,centerYIndex,pGrid);
 odbg(frontRightX,frontRightY, rightXIndex,rightYIndex,pGrid);
 odbg(frontLeftX,frontLeftY, leftXIndex,leftYIndex,pGrid);
- if ((oGridDataAccessor(pGrid,centerYIndex,centerXIndex,0) > HEIGHT_THRESH) ||
-                        (oGridDataAccessor(pGrid,rightYIndex,rightXIndex,0) > HEIGHT_THRESH) ||
-                        (oGridDataAccessor(pGrid,leftYIndex,leftXIndex,0) > HEIGHT_THRESH))
+ if ((oGridDataAccessor(pGrid,centerYIndex,centerXIndex,1) > HEIGHT_THRESH) ||
+                        (oGridDataAccessor(pGrid,rightYIndex,rightXIndex,1) > HEIGHT_THRESH) ||
+                        (oGridDataAccessor(pGrid,leftYIndex,leftXIndex,1) > HEIGHT_THRESH))
                 {
                     retDist = distTravelled - timestep * v;
                     done = true;
@@ -205,7 +206,7 @@ odbg(frontLeftX,frontLeftY, leftXIndex,leftYIndex,pGrid);
         /////////////
 
 
-
+ROS_INFO("Traveled %f",retDist);
         return retDist;
     }
 
