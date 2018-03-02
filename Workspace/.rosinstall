@@ -1,0 +1,21 @@
+# IT IS UNLIKELY YOU WANT TO EDIT THIS FILE BY HAND,
+# UNLESS FOR REMOVING ENTRIES.
+# IF YOU WANT TO CHANGE THE ROS ENVIRONMENT VARIABLES
+# USE THE rosinstall TOOL INSTEAD.
+# IF YOU CHANGE IT, USE rosinstall FOR THE CHANGES TO TAKE EFFECT
+- git: {local-name: Workspace/src/dependencies/husky, uri: 'https://github.com/husky/husky.git',
+    version: kinetic-devel}
+- git: {local-name: Workspace/src/dependencies/lms1xx, uri: 'https://github.com/clearpathrobotics/LMS1xx.git'}
+- git: {local-name: Workspace/src/dependencies/ros_controllers, uri: 'https://github.com/ros-controls/ros_controllers'}
+- git: {local-name: Workspace/src/dependencies/ros_control, uri: 'https://github.com/ros-controls/ros_control.git'}
+- git: {local-name: Workspace/src/dependencies/interactive_marker_twist_server, uri: 'https://github.com/ros-visualization/interactive_marker_twist_server'}
+- git: {local-name: Workspace/src/dependencies/pointcloud_to_laserscan, uri: 'https://github.com/ros-perception/pointcloud_to_laserscan.git',
+    version: indigo-devel}
+- git: {local-name: Workspace/src/dependencies/twist_mux, uri: 'https://github.com/ros-teleop/twist_mux',
+    version: kinetic-devel}
+- git: {local-name: Workspace/src/dependencies/duo3d_driver, uri: 'https://github.com/duo3d/duo3d_driver.git'}
+- git: {local-name: Workspace/src/dependencies/pointgrey_camera_driver, uri: 'https://github.com/ros-drivers/pointgrey_camera_driver.git'}
+- git: {local-name: Workspace/src/dependencies/robot_localization, uri: 'https://github.com/cra-ros-pkg/robot_localization.git'}
+- git: {local-name: Workspace/src/dependencies/geometry2, uri: 'https://github.com/ros/geometry2.git'}
+- git: {local-name: Workspace/src/dependencies/realtime_tools, uri: 'https://github.com/ros-controls/realtime_tools.git'}
+- git: {local-name: Workspace/src/dependencies/control_toolbox, uri: 'https://github.com/ros-controls/control_toolbox.git'}
