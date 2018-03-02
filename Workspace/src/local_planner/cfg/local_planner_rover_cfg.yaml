@@ -4,6 +4,6 @@ roverParams_maxLinDecel: 1.0;
 roverParams_maxV: 1.5;
 roverParams_minV: 0.0;
 roverParams_maxW: 1.0;
-roverParams_robotLength: 1.5;
-roverParams_robotWidth: 0.5;
+roverParams_robotLength: 0.25;
+roverParams_robotWidth: 0.1;
 roverParams_timestep: 0.5;

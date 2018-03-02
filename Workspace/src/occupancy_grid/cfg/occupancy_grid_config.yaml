@@ -1,6 +1,6 @@
 zMax: 3
-xMax: 1.5
-yOffset : 0.115
+xMax: 3
+yOffset : 0.495
 yThreshold : 0.20
 resolution: 0.20
 mappingScalar: 1.0;
