@@ -54,8 +54,8 @@ class OccupancyGrid {
 			ros::param::get("Normalizer", m_gridParams.mappingNormalizer);
 
 			//hard coded values, need to fix later if figure out why rosparam does not work for these two params
-			m_gridParams.mappingScalar = 1.0;
-			m_gridParams.mappingNormalizer = 10.0;
+			//m_gridParams.mappingScalar = 1.0;
+			//m_gridParams.mappingNormalizer = 5.0;
 			
 			
 			std::string pcl2TopicName;
@@ -197,7 +197,7 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 	for(int i = 0; i<output.dataDimension[2].size; i++)
 	{
 		nav_msgs::OccupancyGrid gridcells;
-		gridcells.header.frame_id="/occupancy_frame";
+		gridcells.header.frame_id="/duo3d_camera";
 		gridcells.header.stamp=ros::Time::now();
 		gridcells.info.resolution = 1.0;
 		gridcells.info.width=m_gridXSize;
@@ -211,36 +211,48 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 	    	gridcells.info.origin.orientation.z = 0.0;
 	    	gridcells.info.origin.orientation.w = 1.0;
 		
-		gridcells.data.resize(m_gridXSize * m_gridZSize);
+		gridcells.data.resize(m_gridXSize * m_gridZSize, 0.0);
 		//map the occupancy grid values to standard 0-100 value for display
 		for(int x = 0; x < m_gridXSize; x++){
 			for (int z = 0; z < m_gridZSize; z++){
 
 				
 				float cost = oGridDataAccessor(output, z, x, i);
+				//gridcells.data[x*m_gridZSize + z] = cost;
 				//ROS_ERROR_STREAM ( "1normalizer: "<< (float)m_gridParams.mappingNormalizer << " scalar: "<<m_gridParams.mappingScalar << " mpas to:"<< (cost/m_gridParams.mappingNormalizer/2.0*100*m_gridParams.mappingScalar) );
 
+				
 
 				//since number of points is typically very large
 				if(i==0)
 				{
-					cost /= 100.0;
+					cost /= 1.0;
 					int map_value = cost ; 
 					
 					if (map_value > 100)
 						map_value = 100;
 
-					gridcells.data[x*m_gridZSize + z] = map_value;
+					gridcells.data[z*m_gridXSize + x] = map_value;
 					
 					
 				}
 
 				else
 				{
-					cost += m_gridParams.mappingNormalizer;
-					gridcells.data[x*m_gridZSize + z] = int ( cost/m_gridParams.mappingNormalizer/2.0 *100*m_gridParams.mappingScalar) ;
+					if(cost <=0)
+						cost=0;
+					else{
+					//cost += m_gridParams.mappingNormalizer;
+					cost = int ( cost/m_gridParams.mappingNormalizer *100*m_gridParams.mappingScalar);
+					
+					if(cost >= 100)
+						cost = 100;
+					gridcells.data[z*m_gridXSize + x] = cost;
+					}
 				} 
-
+				
+				
+				
 				
 			}
 		}
