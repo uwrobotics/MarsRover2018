@@ -85,7 +85,7 @@ install:
 before_script:
   # source dependencies: install using wstool.
   - cd $CI_SOURCE_PATH/Workspace
-  - wstool init src ROSINSTALL_FILE.rosinstall
+  - wstool init src $ROSINSTALL_FILE.rosinstall
   - wstool up
   # package depdencies: install using rosdep.
   - cd $CI_SOURCE_PATH/Workspace
