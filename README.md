@@ -3,6 +3,15 @@
 
 All software for the 2018 UWRT Mars Rover
 
+
+To get all required dependencies, run: 
+```
+rosinstall dependencies.rosinstall
+rosdep install --from-paths src --ignore-src -r -y
+```
+Put all future dependencies in the dependencies.rosinstall file
+
+
 # Simulation
 Ensure that all submodules are loaded, and that the husky submodule is on the kinetic-devel branch. 
 Comment out the spawn_husky node in "husky/husky_gazebo/launch/spawn_husky.launch" and the GPS and IMU sensors in
