@@ -22,3 +22,7 @@
 - git:
       uri: https://github.com/ros-drivers/pointgrey_camera_driver.git
       local-name: Workspace/src/dependencies/pointgrey_camera_driver
+- git:
+      uri: https://github.com/ros/message_generation.git
+      local-name: Workspace/src/dependencies/message_generation
+      version: kinetic-devel
