@@ -64,7 +64,8 @@ class BallTracker:
         except CvBridgeError as e:
             rospy.logerr(e)
 
-        detection_msg = self.processImage(cv_image)
+        contours = self.processImage(cv_image)
+        detection_msg = self.findDetections(contours)
         self.detection_pub.publish(detection_msg)
 
     def processImage(self, cv_image):
@@ -81,7 +82,9 @@ class BallTracker:
         mask_clr = cv2.dilate(mask_clr, kernel_clr, iterations=self.mask_iterations)
 
         contours = cv2.findContours(mask_clr.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+        return contours
 
+    def findDetections(self, contours):
         isDetected = False
         detection = None
         if contours and len(contours) > 0:
