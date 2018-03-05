@@ -27,49 +27,48 @@
 #include <socketcan_bridge/topic_to_socketcan.h>
 
 #include <can_msgs/Frame.h>
-#include <socketcan_interface/socketcan.h>
 #include <socketcan_interface/dummy.h>
+#include <socketcan_interface/socketcan.h>
 
 #include <gtest/gtest.h>
-#include <ros/ros.h>
 #include <list>
+#include <ros/ros.h>
 
-class frameCollector
-{
-  public:
-    std::list<can::Frame> frames;
+class frameCollector {
+public:
+  std::list<can::Frame> frames;
 
-    frameCollector() {}
+  frameCollector() {}
 
-    void frameCallback(const can::Frame& f)
-    {
-      frames.push_back(f);
-    }
+  void frameCallback(const can::Frame &f) { frames.push_back(f); }
 };
 
-TEST(TopicToSocketCANTest, checkCorrectData)
-{
+TEST(TopicToSocketCANTest, checkCorrectData) {
   ros::NodeHandle nh(""), nh_param("~");
 
   // create the dummy interface
-  boost::shared_ptr<can::DummyInterface> driver_ = boost::make_shared<can::DummyInterface>(true);
+  boost::shared_ptr<can::DummyInterface> driver_ =
+      boost::make_shared<can::DummyInterface>(true);
 
   // start the to topic bridge.
-  socketcan_bridge::TopicToSocketCAN to_socketcan_bridge(&nh, &nh_param, driver_);
+  socketcan_bridge::TopicToSocketCAN to_socketcan_bridge(&nh, &nh_param,
+                                                         driver_);
   to_socketcan_bridge.setup();
 
   // init the driver to test stateListener (not checked automatically).
   driver_->init("string_not_used", true);
 
   // register for messages on received_messages.
-  ros::Publisher publisher_ = nh.advertise<can_msgs::Frame>("sent_messages", 10);
+  ros::Publisher publisher_ =
+      nh.advertise<can_msgs::Frame>("sent_messages", 10);
 
   // create a frame collector.
   frameCollector frame_collector_;
 
   //  driver->createMsgListener(&frameCallback);
-  can::CommInterface::FrameListener::Ptr frame_listener_ = driver_->createMsgListener(
-            can::CommInterface::FrameDelegate(&frame_collector_, &frameCollector::frameCallback));
+  can::CommInterface::FrameListener::Ptr frame_listener_ =
+      driver_->createMsgListener(can::CommInterface::FrameDelegate(
+          &frame_collector_, &frameCollector::frameCallback));
 
   // create a message
   can_msgs::Frame msg;
@@ -78,12 +77,11 @@ TEST(TopicToSocketCANTest, checkCorrectData)
   msg.is_error = false;
   msg.id = 0x1337;
   msg.dlc = 8;
-  for (uint8_t i=0; i < msg.dlc; i++)
-  {
+  for (uint8_t i = 0; i < msg.dlc; i++) {
     msg.data[i] = i;
   }
 
-  msg.header.frame_id = "0";  // "0" for no frame.
+  msg.header.frame_id = "0"; // "0" for no frame.
   msg.header.stamp = ros::Time::now();
 
   // send the can_frame::Frame message to the sent_messages topic.
@@ -103,8 +101,7 @@ TEST(TopicToSocketCANTest, checkCorrectData)
   EXPECT_EQ(received.data, msg.data);
 }
 
-TEST(TopicToSocketCANTest, checkInvalidFrameHandling)
-{
+TEST(TopicToSocketCANTest, checkInvalidFrameHandling) {
   // - tries to send a non-extended frame with an id larger than 11 bits.
   //   that should not be sent.
   // - verifies that sending one larger than 11 bits actually works.
@@ -114,27 +111,32 @@ TEST(TopicToSocketCANTest, checkInvalidFrameHandling)
   ros::NodeHandle nh(""), nh_param("~");
 
   // create the dummy interface
-  boost::shared_ptr<can::DummyInterface> driver_ = boost::make_shared<can::DummyInterface>(true);
+  boost::shared_ptr<can::DummyInterface> driver_ =
+      boost::make_shared<can::DummyInterface>(true);
 
   // start the to topic bridge.
-  socketcan_bridge::TopicToSocketCAN to_socketcan_bridge(&nh, &nh_param, driver_);
+  socketcan_bridge::TopicToSocketCAN to_socketcan_bridge(&nh, &nh_param,
+                                                         driver_);
   to_socketcan_bridge.setup();
 
   // register for messages on received_messages.
-  ros::Publisher publisher_ = nh.advertise<can_msgs::Frame>("sent_messages", 10);
+  ros::Publisher publisher_ =
+      nh.advertise<can_msgs::Frame>("sent_messages", 10);
 
   // create a frame collector.
   frameCollector frame_collector_;
 
   //  add callback to the dummy interface.
-  can::CommInterface::FrameListener::Ptr frame_listener_ = driver_->createMsgListener(
-          can::CommInterface::FrameDelegate(&frame_collector_, &frameCollector::frameCallback));
+  can::CommInterface::FrameListener::Ptr frame_listener_ =
+      driver_->createMsgListener(can::CommInterface::FrameDelegate(
+          &frame_collector_, &frameCollector::frameCallback));
 
   // create a message
   can_msgs::Frame msg;
   msg.is_extended = false;
-  msg.id = (1<<11)+1;  // this is an illegal CAN packet... should not be sent.
-  msg.header.frame_id = "0";  // "0" for no frame.
+  msg.id =
+      (1 << 11) + 1; // this is an illegal CAN packet... should not be sent.
+  msg.header.frame_id = "0"; // "0" for no frame.
   msg.header.stamp = ros::Time::now();
 
   // send the can_frame::Frame message to the sent_messages topic.
@@ -146,7 +148,7 @@ TEST(TopicToSocketCANTest, checkInvalidFrameHandling)
   EXPECT_EQ(frame_collector_.frames.size(), 0);
 
   msg.is_extended = true;
-  msg.id = (1<<11)+1;  // now it should be alright.
+  msg.id = (1 << 11) + 1; // now it should be alright.
   // send the can_frame::Frame message to the sent_messages topic.
   publisher_.publish(msg);
   ros::WallDuration(1.0).sleep();
@@ -156,7 +158,6 @@ TEST(TopicToSocketCANTest, checkInvalidFrameHandling)
   // wipe the frame queue.
   frame_collector_.frames.clear();
 
-
   // finally, check if frames with a dlc > 8 are discarded.
   msg.dlc = 10;
   publisher_.publish(msg);
@@ -165,8 +166,7 @@ TEST(TopicToSocketCANTest, checkInvalidFrameHandling)
   EXPECT_EQ(frame_collector_.frames.size(), 0);
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
   ros::init(argc, argv, "test_to_topic");
   ros::WallDuration(1.0).sleep();
   testing::InitGoogleTest(&argc, argv);

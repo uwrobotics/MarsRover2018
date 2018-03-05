@@ -28,42 +28,39 @@
 #ifndef SOCKETCAN_BRIDGE_SOCKETCAN_TO_TOPIC_H
 #define SOCKETCAN_BRIDGE_SOCKETCAN_TO_TOPIC_H
 
-#include <socketcan_interface/socketcan.h>
-#include <socketcan_bridge/sensor_data.h>
 #include <can_msgs/Frame.h>
-#include <ros/ros.h>
 #include <can_node_ids/can_rx_id.h>
-#include <vector>
+#include <ros/ros.h>
+#include <socketcan_bridge/sensor_data.h>
+#include <socketcan_interface/socketcan.h>
 #include <string>
+#include <vector>
 
-namespace socketcan_bridge
-{
-    class SocketCANToTopic
-    {
-        public:
-            SocketCANToTopic(boost::shared_ptr<can::DriverInterface> driver);
-            ~SocketCANToTopic();
-            void init();
-            void cleanup();
+namespace socketcan_bridge {
+class SocketCANToTopic {
+public:
+  SocketCANToTopic(boost::shared_ptr<can::DriverInterface> driver);
+  ~SocketCANToTopic();
+  void init();
+  void cleanup();
 
-        private:
-            SensorData sensorData_;
-            ros::NodeHandle nh_;
-            boost::shared_ptr<can::DriverInterface> driver_;
-            std::vector<ros::Publisher*> topics_;
-            std::vector<std::string> topic_names_;
+private:
+  SensorData sensorData_;
+  ros::NodeHandle nh_;
+  boost::shared_ptr<can::DriverInterface> driver_;
+  std::vector<ros::Publisher *> topics_;
+  std::vector<std::string> topic_names_;
 
-            can::CommInterface::FrameListener::Ptr frame_listener_;
-            can::StateInterface::StateListener::Ptr state_listener_;
+  can::CommInterface::FrameListener::Ptr frame_listener_;
+  can::StateInterface::StateListener::Ptr state_listener_;
 
-            void getParams(ros::NodeHandle& nh);
-            void frameToMessage(const can::Frame& f, can_msgs::Frame& m);
-            void frameCallback(const can::Frame& f);
-            void stateCallback(const can::State& s);
-            uint32_t readData(uint8_t message[], uint8_t dlc);
-            bool publishTopic(std::vector<std::string>& topic_list);
-    };
-};  // namespace socketcan_bridge
+  void getParams(ros::NodeHandle &nh);
+  void frameToMessage(const can::Frame &f, can_msgs::Frame &m);
+  void frameCallback(const can::Frame &f);
+  void stateCallback(const can::State &s);
+  uint32_t readData(uint8_t message[], uint8_t dlc);
+  bool publishTopic(std::vector<std::string> &topic_list);
+};
+}; // namespace socketcan_bridge
 
-
-#endif  // SOCKETCAN_BRIDGE_SOCKETCAN_TO_TOPIC_H
+#endif // SOCKETCAN_BRIDGE_SOCKETCAN_TO_TOPIC_H

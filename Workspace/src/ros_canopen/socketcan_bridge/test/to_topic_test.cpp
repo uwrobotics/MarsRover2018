@@ -27,37 +27,32 @@
 #include <socketcan_bridge/socketcan_to_topic.h>
 
 #include <can_msgs/Frame.h>
-#include <socketcan_interface/socketcan.h>
 #include <socketcan_interface/dummy.h>
+#include <socketcan_interface/socketcan.h>
 
 #include <gtest/gtest.h>
-#include <ros/ros.h>
 #include <list>
+#include <ros/ros.h>
 
-class msgCollector
-{
-  public:
-    std::list<can_msgs::Frame> messages;
+class msgCollector {
+public:
+  std::list<can_msgs::Frame> messages;
 
-    msgCollector() {}
+  msgCollector() {}
 
-    void msgCallback(const can_msgs::Frame& f)
-    {
-      messages.push_back(f);
-    }
+  void msgCallback(const can_msgs::Frame &f) { messages.push_back(f); }
 };
 
-
-TEST(SocketCANToTopicTest, checkCorrectData)
-{
+TEST(SocketCANToTopicTest, checkCorrectData) {
   ros::NodeHandle nh(""), nh_param("~");
 
   // create the dummy interface
-  boost::shared_ptr<can::DummyInterface> driver_ = boost::make_shared<can::DummyInterface>(true);
+  boost::shared_ptr<can::DummyInterface> driver_ =
+      boost::make_shared<can::DummyInterface>(true);
 
   // start the to topic bridge.
   socketcan_bridge::SocketCANToTopic to_topic_bridge(&nh, &nh_param, driver_);
-  to_topic_bridge.setup();  // initiate the message callbacks
+  to_topic_bridge.setup(); // initiate the message callbacks
 
   // init the driver to test stateListener (not checked automatically).
   driver_->init("string_not_used", true);
@@ -66,7 +61,8 @@ TEST(SocketCANToTopicTest, checkCorrectData)
   msgCollector message_collector_;
 
   // register for messages on received_messages.
-  ros::Subscriber subscriber_ = nh.subscribe("received_messages", 1, &msgCollector::msgCallback, &message_collector_);
+  ros::Subscriber subscriber_ = nh.subscribe(
+      "received_messages", 1, &msgCollector::msgCallback, &message_collector_);
 
   // create a can frame
   can::Frame f;
@@ -75,8 +71,7 @@ TEST(SocketCANToTopicTest, checkCorrectData)
   f.is_error = false;
   f.id = 0x1337;
   f.dlc = 8;
-  for (uint8_t i=0; i < f.dlc; i++)
-  {
+  for (uint8_t i = 0; i < f.dlc; i++) {
     f.data[i] = i;
   }
 
@@ -98,8 +93,7 @@ TEST(SocketCANToTopicTest, checkCorrectData)
   EXPECT_EQ(received.data, f.data);
 }
 
-TEST(SocketCANToTopicTest, checkInvalidFrameHandling)
-{
+TEST(SocketCANToTopicTest, checkInvalidFrameHandling) {
   // - tries to send a non-extended frame with an id larger than 11 bits.
   //   that should not be sent.
   // - verifies that sending one larger than 11 bits actually works.
@@ -110,22 +104,24 @@ TEST(SocketCANToTopicTest, checkInvalidFrameHandling)
   ros::NodeHandle nh(""), nh_param("~");
 
   // create the dummy interface
-  boost::shared_ptr<can::DummyInterface> driver_ = boost::make_shared<can::DummyInterface>(true);
+  boost::shared_ptr<can::DummyInterface> driver_ =
+      boost::make_shared<can::DummyInterface>(true);
 
   // start the to topic bridge.
   socketcan_bridge::SocketCANToTopic to_topic_bridge(&nh, &nh_param, driver_);
-  to_topic_bridge.setup();  // initiate the message callbacks
+  to_topic_bridge.setup(); // initiate the message callbacks
 
   // create a frame collector.
   msgCollector message_collector_;
 
   // register for messages on received_messages.
-  ros::Subscriber subscriber_ = nh.subscribe("received_messages", 1, &msgCollector::msgCallback, &message_collector_);
+  ros::Subscriber subscriber_ = nh.subscribe(
+      "received_messages", 1, &msgCollector::msgCallback, &message_collector_);
 
   // create a message
   can::Frame f;
   f.is_extended = false;
-  f.id = (1<<11)+1;  // this is an illegal CAN packet... should not be sent.
+  f.id = (1 << 11) + 1; // this is an illegal CAN packet... should not be sent.
 
   // send the can::Frame over the driver.
   // driver_->send(f);
@@ -136,7 +132,7 @@ TEST(SocketCANToTopicTest, checkInvalidFrameHandling)
   EXPECT_EQ(message_collector_.messages.size(), 0);
 
   f.is_extended = true;
-  f.id = (1<<11)+1;  // now it should be alright.
+  f.id = (1 << 11) + 1; // now it should be alright.
 
   driver_->send(f);
   ros::WallDuration(1.0).sleep();
@@ -144,8 +140,7 @@ TEST(SocketCANToTopicTest, checkInvalidFrameHandling)
   EXPECT_EQ(message_collector_.messages.size(), 1);
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
   ros::init(argc, argv, "test_to_topic");
   ros::WallDuration(1.0).sleep();
   testing::InitGoogleTest(&argc, argv);
