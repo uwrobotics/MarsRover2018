@@ -10,6 +10,6 @@ sudo pip install -r requirements.txt
 find $CI_SOURCE_PATH/Workspace/src -name '*.py' -exec pycodestyle {} \; | grep ".*" > /dev/null
 if [ $? -ne 1 ]
 then
-    echo "Incorrect formatting in some C++ files, run clang-format to fix"
+    echo "Incorrect formatting in some Python files, check formatting using pycodestyle"
     exit 1;
 fi
