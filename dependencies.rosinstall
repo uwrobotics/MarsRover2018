@@ -30,7 +30,3 @@
       uri: https://github.com/RethinkRobotics-opensource/gennodejs.git
       local-name: Workspace/src/dependencies/gennodejs
       version: kinetic-devel
-- git:
-      uri: https://github.com/clearpathrobotics/cpr_multimaster_tools.git
-      local-name: Workspace/src/dependencies/cpr_multimaster_tools
-      version: kinetic-devel
