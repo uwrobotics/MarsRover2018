@@ -88,6 +88,12 @@ before_script:
   - wstool init $CI_SOURCE_PATH $ROSINSTALL_FILE
   # package depdencies: install using rosdep.
   - cd $CI_SOURCE_PATH/Workspace
+  ####### Update this when Travis supports ROS Kinetic ##########
+  # Prevents the multimaster package from being built 
+  # This is only needed because Indigo does not have the multimaster package
+  # Instead, remove cpr_multimaster_tools from the rosinstall, and rely on rosdep to locate the dependencies
+  touch $CI_SOURCE_PATH/src/multimaster_launch/CATKIN_IGNORE
+
   - rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO
 
 # Compile and test (mark the build as failed if any step fails). If the
