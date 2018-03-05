@@ -28,49 +28,53 @@
 #include <ros/ros.h>
 #include <signal.h>
 #include <socketcan_bridge/topic_to_socketcan.h>
-#include <socketcan_interface/string.h>
 #include <socketcan_interface/threading.h>
+#include <socketcan_interface/string.h>
 #include <string>
+
 
 sig_atomic_t volatile request_shutdown = 0;
 
-void sigIntHandler(int sig) { request_shutdown = 1; }
+void sigIntHandler(int sig)
+{
+    request_shutdown = 1;
+}
 
-int main(int argc, char *argv[]) {
-  ros::init(argc, argv, "topic_to_socketcan_node");
-  ros::NodeHandle nh_param;
 
-  signal(SIGINT, sigIntHandler);
+int main(int argc, char *argv[])
+{
+    ros::init(argc, argv, "topic_to_socketcan_node");
+    ros::NodeHandle nh_param;
 
-  std::string transmitter_interface;
-  nh_param.param<std::string>("/transmitter_interface", transmitter_interface,
-                              "can0");
+    signal(SIGINT, sigIntHandler);
 
-  boost::shared_ptr<can::ThreadedSocketCANInterface> driver =
-      boost::make_shared<can::ThreadedSocketCANInterface>();
+    std::string transmitter_interface;
+    nh_param.param<std::string>("/transmitter_interface", transmitter_interface, "can0");
 
-  if (!driver->init(transmitter_interface,
-                    0)) // initialize device at can_device, 0 for no loopback.
-  {
-    ROS_FATAL("Failed to initialize transmitter_interface at %s",
-              transmitter_interface.c_str());
-    return 1;
-  } else {
-    ROS_INFO("CAN transmitter successfully connected to %s.",
-             transmitter_interface.c_str());
-  }
+    boost::shared_ptr<can::ThreadedSocketCANInterface> driver = boost::make_shared<can::ThreadedSocketCANInterface> ();
 
-  socketcan_bridge::TopicToSocketCAN can_transmitter(driver);
-  can_transmitter.init();
+    if (!driver->init(transmitter_interface, 0))  // initialize device at can_device, 0 for no loopback.
+    {
+        ROS_FATAL("Failed to initialize transmitter_interface at %s", transmitter_interface.c_str());
+        return 1;
+    }
+    else
+    {
+        ROS_INFO("CAN transmitter successfully connected to %s.", transmitter_interface.c_str());
+    }
 
-  while (!request_shutdown) {
-    ros::spinOnce();
-  }
+    socketcan_bridge::TopicToSocketCAN can_transmitter(driver);
+    can_transmitter.init();
 
-  driver->shutdown();
-  driver.reset();
+    while (!request_shutdown)
+    {
+        ros::spinOnce();
+    }
 
-  ros::shutdown();
+    driver->shutdown();
+    driver.reset();
 
-  return 0;
+    ros::shutdown();
+
+    return 0;
 }

@@ -29,74 +29,74 @@
 #include <socketcan_interface/string.h>
 #include <string>
 
-namespace socketcan_bridge {
-TopicToSocketCAN::TopicToSocketCAN(
-    boost::shared_ptr<can::DriverInterface> driver) {
-  driver_ = driver;
-}
+namespace socketcan_bridge
+{
+    TopicToSocketCAN::TopicToSocketCAN(boost::shared_ptr<can::DriverInterface> driver)
+    {
+        driver_ = driver;
+    }
 
-void TopicToSocketCAN::init() {
-  state_listener_ =
-      driver_->createStateListener(can::StateInterface::StateDelegate(
-          this, &TopicToSocketCAN::stateCallback));
-  can_topic_ = nh_.subscribe<can_msgs::Frame>(
-      "/CAN_transmitter", 10,
-      boost::bind(&TopicToSocketCAN::msgCallback, this, _1));
+    void TopicToSocketCAN::init()
+    {
+        state_listener_ = driver_->createStateListener(can::StateInterface::StateDelegate(this, &TopicToSocketCAN::stateCallback));
+        can_topic_ = nh_.subscribe<can_msgs::Frame>("/CAN_transmitter", 10, boost::bind(&TopicToSocketCAN::msgCallback, this, _1));
 
-  ROS_INFO("CAN transmitter initialization complete");
-}
+        ROS_INFO("CAN transmitter initialization complete");
+    }
 
-void TopicToSocketCAN::messageToFrame(const can_msgs::Frame &m, can::Frame &f) {
-  f.id = m.id;
-  f.dlc = m.dlc;
-  f.is_error = m.is_error;
-  f.is_rtr = m.is_rtr;
-  f.is_extended = m.is_extended;
+    void TopicToSocketCAN::messageToFrame(const can_msgs::Frame& m, can::Frame& f)
+    {
+        f.id = m.id;
+        f.dlc = m.dlc;
+        f.is_error = m.is_error;
+        f.is_rtr = m.is_rtr;
+        f.is_extended = m.is_extended;
 
-  for (int i = 0; i < 8; i++) // always copy all data, regardless of dlc.
-  {
-    f.data[i] = m.data[i];
-  }
-}
+        for (int i = 0; i < 8; i++)  // always copy all data, regardless of dlc.
+        {
+            f.data[i] = m.data[i];
+        }
+    }
 
-void TopicToSocketCAN::msgCallback(const can_msgs::Frame::ConstPtr &msg) {
-  // ROS_DEBUG("Message came from sent_messages topic");
+    void TopicToSocketCAN::msgCallback(const can_msgs::Frame::ConstPtr& msg)
+    {
+        // ROS_DEBUG("Message came from sent_messages topic");
 
-  // translate it to the socketcan frame type.
+        // translate it to the socketcan frame type.
 
-  can_msgs::Frame m = *msg.get(); // ROS message
-  can::Frame f;                   // socketcan type
+        can_msgs::Frame m = *msg.get();  // ROS message
+        can::Frame f;  // socketcan type
 
-  // Convert ROS message to CAN frame
-  messageToFrame(m, f);
+        // Convert ROS message to CAN frame
+        messageToFrame(m, f);
 
-  if (!f.isValid()) // check if the id and flags are appropriate.
-  {
-    // ROS_WARN("Refusing to send invalid frame: %s.", can::tostring(f,
-    // true).c_str());
-    // can::tostring cannot be used for dlc > 8 frames. It causes an crash
-    // due to usage of boost::array for the data array. The should always work.
-    ROS_ERROR(
-        "Invalid frame from topic: id: %#04x, length: %d, is_extended: %d",
-        m.id, m.dlc, m.is_extended);
-    return;
-  }
+        if (!f.isValid())  // check if the id and flags are appropriate.
+        {
+            // ROS_WARN("Refusing to send invalid frame: %s.", can::tostring(f, true).c_str());
+            // can::tostring cannot be used for dlc > 8 frames. It causes an crash
+            // due to usage of boost::array for the data array. The should always work.
+            ROS_ERROR("Invalid frame from topic: id: %#04x, length: %d, is_extended: %d", m.id, m.dlc, m.is_extended);
+            return;
+        }
 
-  bool res = driver_->send(f);
-  if (!res) {
-    ROS_ERROR("Failed to send message: %s.", can::tostring(f, true).c_str());
-  }
-}
+        bool res = driver_->send(f);
+        if (!res)
+        {
+            ROS_ERROR("Failed to send message: %s.", can::tostring(f, true).c_str());
+        }
+    }
 
-void TopicToSocketCAN::stateCallback(const can::State &s) {
-  std::string err;
-  driver_->translateError(s.internal_error, err);
-  if (!s.internal_error) {
-    ROS_INFO("State: %s, asio: %s", err.c_str(),
-             s.error_code.message().c_str());
-  } else {
-    ROS_ERROR("Error: %s, asio: %s", err.c_str(),
-              s.error_code.message().c_str());
-  }
-}
-}; // namespace socketcan_bridge
+    void TopicToSocketCAN::stateCallback(const can::State & s)
+    {
+        std::string err;
+        driver_->translateError(s.internal_error, err);
+        if (!s.internal_error)
+        {
+            ROS_INFO("State: %s, asio: %s", err.c_str(), s.error_code.message().c_str());
+        }
+        else
+        {
+            ROS_ERROR("Error: %s, asio: %s", err.c_str(), s.error_code.message().c_str());
+        }
+    }
+};  // namespace socketcan_bridge

@@ -28,30 +28,33 @@
 #ifndef SOCKETCAN_BRIDGE_TOPIC_TO_SOCKETCAN_H
 #define SOCKETCAN_BRIDGE_TOPIC_TO_SOCKETCAN_H
 
+#include <socketcan_interface/socketcan.h>
 #include <can_msgs/Frame.h>
 #include <ros/ros.h>
-#include <socketcan_interface/socketcan.h>
-#include <string>
 #include <vector>
+#include <string>
 
-namespace socketcan_bridge {
-class TopicToSocketCAN {
-public:
-  TopicToSocketCAN(boost::shared_ptr<can::DriverInterface> driver);
-  void init();
+namespace socketcan_bridge
+{
+    class TopicToSocketCAN
+    {
+        public:
+            TopicToSocketCAN(boost::shared_ptr<can::DriverInterface> driver);
+            void init();
 
-private:
-  ros::NodeHandle nh_;
-  ros::Subscriber can_topic_;
-  boost::shared_ptr<can::DriverInterface> driver_;
+        private:
+            ros::NodeHandle nh_;
+            ros::Subscriber can_topic_;
+            boost::shared_ptr<can::DriverInterface> driver_;
 
-  can::StateInterface::StateListener::Ptr state_listener_;
+            can::StateInterface::StateListener::Ptr state_listener_;
 
-  void getParams(ros::NodeHandle &nh);
-  void messageToFrame(const can_msgs::Frame &m, can::Frame &f);
-  void msgCallback(const can_msgs::Frame::ConstPtr &msg);
-  void stateCallback(const can::State &s);
-};
-}; // namespace socketcan_bridge
+            void getParams(ros::NodeHandle& nh);
+            void messageToFrame(const can_msgs::Frame& m, can::Frame& f);
+            void msgCallback(const can_msgs::Frame::ConstPtr& msg);
+            void stateCallback(const can::State & s);
+    };
+};  // namespace socketcan_bridge
 
-#endif // SOCKETCAN_BRIDGE_TOPIC_TO_SOCKETCAN_H
+
+#endif  // SOCKETCAN_BRIDGE_TOPIC_TO_SOCKETCAN_H

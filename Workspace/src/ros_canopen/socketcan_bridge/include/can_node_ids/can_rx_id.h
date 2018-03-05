@@ -10,9 +10,10 @@
 
 /*    New IDs     */
 
-#define LIMIT_SWITCHES 3
-#define SCIENCE 7         // TODO
-#define CURRENT_SENSORS 9 // TODO
-#define THERMISTORS 10    // TODO
+#define LIMIT_SWITCHES  	3
+#define SCIENCE	      		7 	//TODO
+#define CURRENT_SENSORS     9 	//TODO
+#define THERMISTORS      	10 	//TODO
+
 
 #endif
