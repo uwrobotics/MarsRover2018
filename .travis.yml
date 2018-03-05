@@ -85,8 +85,7 @@ install:
 before_script:
   # source dependencies: install using wstool.
   - cd $CI_SOURCE_PATH/Workspace
-  - wstool init src $ROSINSTALL_FILE
-  - wstool up
+  - wstool init $CI_SOURCE_PATH $ROSINSTALL_FILE
   # package depdencies: install using rosdep.
   - cd $CI_SOURCE_PATH/Workspace
   - rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO
