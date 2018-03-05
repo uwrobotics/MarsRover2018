@@ -6,7 +6,7 @@ then
     exit 1;
 fi
 
-sudo pip install -r requirements.txt
+sudo pip install -r $CI_SOURCE_PATH/ci/requirements.txt
 find $CI_SOURCE_PATH/Workspace/src -name '*.py' -exec pycodestyle {} \; | grep ".*" > /dev/null
 if [ $? -ne 1 ]
 then
