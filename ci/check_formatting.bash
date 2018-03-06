@@ -7,9 +7,12 @@ then
 fi
 
 sudo pip install -r $CI_SOURCE_PATH/ci/requirements.txt
-find $CI_SOURCE_PATH/Workspace/src -name '*.py' -exec pycodestyle {} \; | grep ".*" > /dev/null
-if [ $? -ne 1 ]
+if [[ $(find $CI_SOURCE_PATH/Workspace/src -name '*.py') ]]
 then
-    echo "Incorrect formatting in some Python files, check formatting using pycodestyle"
-    exit 1;
+	find $CI_SOURCE_PATH/Workspace/src -name '*.py' -exec pycodestyle {} \; | grep ".*" > /dev/null
+	if [ $? -ne 1 ]
+	then
+    		echo "Incorrect formatting in some Python files, check formatting using pycodestyle"
+    		exit 1;
+	fi
 fi
