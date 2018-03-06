@@ -83,12 +83,21 @@ public:
     //Gaussian Elimination
     void gElim();
     
+    //Inverse
+    Matrix Inv();
+    
     //Ir solves the system of linear equation. The matrix should be a square matrix, and should have unique solution.
     //The parameter is the b vector.  Ax = b
     Matrix solve(Matrix & b);
     
     //Forms an augumented matrix. It basically returns a matrix that joins two matrices and turns it into 1 matrix.
     Matrix augMatrix(const Matrix & right);
+    
+    //Forms matrix without the selected row(i) and col(j)
+    Matrix Minor(int i, int j);
+    
+    //Computes the Determinant. Returns Float
+    float Det();
     
     //It fills the matrix with the array that is given. The array is 1D, but it takes care of the filling
     void fillMatrix(int rows, int cols, float values[]);

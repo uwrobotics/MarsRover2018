@@ -228,6 +228,78 @@ void Matrix::gElim()
         }
         return;
     }
+
+//Matrix Matrix::Minor(int i, int j){
+//    
+//}
+//
+//float Matrix::Det(){
+//    
+//}
+
+Matrix Matrix::Inv(){
+    if(this->row != this->col){
+        cout<<"Not invertible!"<<endl;
+        return Matrix();
+    }
+    Matrix Original = Matrix(this->row, this->col);
+    Matrix Result = eye(this->row);
+    Original = *this;
+    int i = 0;
+    int j = 0;
+    for (i = 0; i<(Original.row-1); i++) //i is the current row
+    {
+        int prevLeadingCo = Original.mat[i][i];
+        //swapping rows to have row with largest first element to be the pivot
+        for(j = (i+1); j<Original.row; j++)
+        {
+            int currentLeadingCo = Original.mat[j][i];
+            if(abs(currentLeadingCo) > abs(prevLeadingCo)){
+                Original.rowSwap(i, j);
+                Result.rowSwap(i, j);
+                prevLeadingCo = currentLeadingCo;
+            }
+        }
+        
+        //Making it into Upper Triangular
+        for(int k = (i+1); k<Original.row; k++)
+        {
+            float f = Original.mat[k][i]/Original.mat[i][i];
+            for(int c = 0; c<Original.col; c++)
+            {
+                Original.mat[k][c] = Original.mat[k][c] - f*Original.mat[i][c];
+                Result.mat[k][c] = Result.mat[k][c] - f*Result.mat[i][c];
+            }
+        }
+        //uncomment for debugging
+        //Result.print();
+    }
+    
+    for(i = Original.row-1; i>=0; i--)
+    {
+        for(int k = (i-1); k>=0; k--)
+        {
+            float f = Original.mat[k][i]/Original.mat[i][i];
+            for(int c = Original.col-1; c>=0; c--)
+            {
+                Original.mat[k][c] = Original.mat[k][c] - f*Original.mat[i][c];
+                Result.mat[k][c] = Result.mat[k][c] - f*Result.mat[i][c];
+            }
+        }
+        //Result.print();
+    }
+    for (int i = 0; i<Result.row; i++)
+    {
+        float factor = Original.mat[i][i];
+        for (int j = 0; j<Result.col; j++)
+        {
+            Result.mat[i][j] = Result.mat[i][j]/factor;
+            Original.mat[i][j] = Original.mat[i][j]/factor;
+        }
+    }
+    //Original.print();
+    return Result;
+}
     
 Matrix Matrix::solve(Matrix & b){
         Matrix Solution = Matrix(this->row, 1);

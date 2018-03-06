@@ -141,6 +141,13 @@ int main(int argc, const char * argv[]) {
     Matrix Answer = A.solve(b);
     Answer.print();
     
+    cout<<endl<<endl<<"Testing Inv: "<<endl<<endl;
+    Matrix M = Matrix(5,5);
+    float MValues[25] = {9,3,1,4,-5, 3,6,7,8,11, 4,5,6,7,8, 7,8,2,4,6, 89,3,2,7,0};
+    M.fillMatrix(5, 5, MValues);
+    M.print();
+    Matrix Inv = M.Inv();
+    Inv.print();
     
     return 0;
 }
