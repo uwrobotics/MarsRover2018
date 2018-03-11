@@ -6,6 +6,39 @@
 #include <map>
 #include <string>
 
+/*
+void callback(const sensor_msgs::Joy::ConstPtr& joy)
+{
+   ROS_INFO("hi");
+}
+*/
+int main(int argc, char *argv[])
+{
+  ros::init(argc, argv, "drive_lis_pub");
+
+  /*
+  ros::Subscriber state_select;
+ 
+  ros::NodeHandle n("");
+  
+  state_select = n.subscribe<sensor_msgs::Joy>("drive_joy", 1, callback);
+
+  teleop_twist_joy::TeleopTwistJoy joy_teleop(&nh, &nh_param);
+  */
+  ros::NodeHandle nh(""), nh_param("~");
+  teleop_twist_joy::TeleopTwistJoy joy_teleop(&nh, &nh_param);
+
+  ros::spin();
+}
+
+#include "geometry_msgs/Twist.h"
+#include "ros/ros.h"
+#include "sensor_msgs/Joy.h"
+#include "teleop_twist.h"
+
+#include <map>
+#include <string>
+
 
 namespace teleop_twist_joy
 {

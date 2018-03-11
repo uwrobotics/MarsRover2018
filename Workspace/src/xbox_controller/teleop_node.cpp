@@ -10,8 +10,12 @@ class StateSelect{
   void callback(const sensor_msgs::Joy::ConstPtr& joy);
   StateSelect(){
  	joy_sub = n.subscribe<sensor_msgs::Joy>("joy", 1, &StateSelect::callback, this);
+ 	drive_pub = n.advertise<sensor_msgs::Joy>("drive_joy", 1);
+ 	science_pub = n.advertise<sensor_msgs::Joy>("science_joy", 1);
+ 	arm_pub = n.advertise<sensor_msgs::Joy>("arm_joy", 1);
 	i = DRIVE;
 	count = 0;
+	pressed=false;
   }
   private: 
 	ros::NodeHandle n, nh, nh_param;
@@ -22,7 +26,8 @@ class StateSelect{
   	ros::Publisher arm_pub;
 	enum topics {DRIVE,ARM,SCIENCE};
   	int i;
-        int count;
+    int count;
+    bool pressed;
 };
 
 void StateSelect::callback(const sensor_msgs::Joy::ConstPtr& joy)
@@ -32,36 +37,37 @@ void StateSelect::callback(const sensor_msgs::Joy::ConstPtr& joy)
   if (joy->buttons[6] == 1)
   	bool exit=true;
 
+  ROS_INFO("Button state: %d", pressed);
+
   // logic to cycle through different states
-  if (joy->buttons[8]==1){
-	ros::Duration(0.2).sleep();
-	i++;
+  if (joy->buttons[8]==1 && !pressed){
+//	ros::Duration(0.2).sleep();
+	i++; 
 	if (i>=3) i=DRIVE;
+	pressed=true;
   }
+  else pressed=false;
+
+  if (joy->buttons[8] != 1) pressed = false; 
+  else pressed = true; 
 
   	if (i==DRIVE) {
-		  while (joy->buttons[6] == 1)
-		  {}
 		  //ROS_INFO("Button State: %d", joy->buttons[8]);		
 		  ROS_INFO("Outputting to Drive");
 		  
-		  //pub_drive.publish("");
+		  drive_pub.publish(joy);
 		  //ros::Duration(2).sleep();
 	} 
 	
 	else if (i==ARM) {
-		while (joy->buttons[6] == 1)
-		{}	
 		ROS_INFO("Outputting to Arm");
-		teleop_twist_joy::TeleopTwistJoy joy_teleop(&nh, &nh_param);
-	        //pub_arm.publish("");
+		//teleop_twist_joy::TeleopTwistJoy joy_teleop(&nh, &nh_param);
+	    	arm_pub.publish(joy);
 	}
 	
 	else if (i==SCIENCE) {
-		while (joy->buttons[6] == 1)
-		{}	
 		ROS_INFO("Outputting to Science");
-		//pub_science.publish(" ");
+		science_pub.publish(joy);
 	}
   
   else {
@@ -72,7 +78,7 @@ void StateSelect::callback(const sensor_msgs::Joy::ConstPtr& joy)
 
 int main(int argc, char *argv[])
 {
-  ros::init(argc, argv, "teleop_twist_joy_node");
+  ros::init(argc, argv, "teleop_node");
 
   StateSelect state_obj;
 

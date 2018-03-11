@@ -198,5 +198,9 @@ include_directories(
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
-add_executable(xbox teleop_twist_joy.cpp teleop_node.cpp)
+catkin_package()
+
+add_executable(xbox teleop_node.cpp)
+add_executable(state drive_lis_sub.cpp)
 target_link_libraries(xbox ${catkin_LIBRARIES})
+target_link_libraries(state ${catkin_LIBRARIES})
