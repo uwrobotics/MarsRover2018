@@ -21,7 +21,7 @@ Rename all mesh paths in "simulation/launch/simulation_worlds/simple_world.world
 in your workspace.
 
 # Coding Standards
-For `C++` code, we follow the ROS coding guidelines. There is a `.clang_format` file that can automatically format your C++ code in the correct style.
+For **C++** code, we follow the ROS coding guidelines. There is a `.clang_format` file that can automatically format your C++ code in the correct style.
 
 To run the formatter, install the package `clang-format`
 ```
@@ -33,7 +33,7 @@ cd <folder containing repository>/Workspace/src
 find . -name '*.h' -or -name '*.hpp' -or -name '*.cpp' | xargs clang-format -i -style=file $1
 ```
 
-For `Python 2.7` code, we follow the PEP8 standard. Install `pycodestyle` to find any styling errors.
+For **Python 2.7** code, we follow the PEP8 standard. Install `pycodestyle` to find any styling errors.
 ```
 sudo pip install pycodestyle
 ```
