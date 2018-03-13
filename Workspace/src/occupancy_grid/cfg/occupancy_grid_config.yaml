@@ -4,5 +4,5 @@ yOffset : 0.495
 resolution: 0.10
 Scalar: 1.0
 Normalizer: 2.5
-rate: 1
+rate: 30
 queue_size: 1
