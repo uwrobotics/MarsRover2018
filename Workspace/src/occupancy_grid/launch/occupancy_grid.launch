@@ -1,5 +1,5 @@
 <launch>
-	<param name = "debug" value = "false" type = "bool" />
+	<param name = "logging" value = "false" type = "bool" />
 	<param name = "PCL2TopicName" value = "/duo3d/point_cloud/image_raw" type = "str" />
 
 	<arg name="cameraConfig" default="$(find occupancy_grid)/cfg/occupancy_grid_config.yaml"/>
@@ -13,7 +13,7 @@
 		<rosparam param="image_size">[320, 240]</rosparam>
 		<param name="dense3d_license" value="OVMZU-ZHFE2-9K41K-NQL44-WX3DV"/>
 		<param name="auto_exposure" value="true"/>
-		<param name="vertical_flip" value="true"/>
+		<param name="vertical_flip" value="false"/>
 		<param name="horizontal_flip" value="false"/>
 		<param name="gain" value="0"/>
 		<param name="exposure" value="50"/>

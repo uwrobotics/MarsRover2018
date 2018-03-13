@@ -2,6 +2,7 @@
 NOTE:
 Duo Pointcloud2 data follows (z = forward, x = left, y = down)
 
+Optimized for ~1500 points detected per grid square
 */
 
 #include "ros/ros.h"
@@ -49,7 +50,7 @@ class OccupancyGrid {
 			ros::param::get("resolution", m_gridParams.resolution);
 			ros::param::get("rate", m_gridParams.rate);
 			ros::param::get("queue_size", m_gridParams.queue_size);
-			ros::param::get("debug", m_debug);
+			ros::param::get("logging", m_log);
 			ros::param::get("Scalar", m_gridParams.mappingScalar);
 			ros::param::get("Normalizer", m_gridParams.mappingNormalizer);
 
@@ -81,6 +82,7 @@ class OccupancyGrid {
 			m_pub_rviz[1] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCells2", m_gridParams.queue_size);
 			m_pub_rviz[2] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCells3", m_gridParams.queue_size);
 			m_pub_rviz[3] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCells4", m_gridParams.queue_size);
+
 		}
 
 		void callback(const sensor_msgs::PointCloud2 input);
@@ -100,7 +102,7 @@ class OccupancyGrid {
 		int m_gridCameraZ;
 		int m_gridCameraX;
 
-		bool m_debug;
+		bool m_log;
 
 		gridParams m_gridParams;
 };
@@ -115,9 +117,9 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 	output.header.gridCameraX = m_gridCameraX;
 	output.header.cameraYOffset = m_gridParams.yOffset;
 
-	output.dataDimension.push_back(occupancy_grid::GridDataDimension());
-	output.dataDimension.push_back(occupancy_grid::GridDataDimension());
-	output.dataDimension.push_back(occupancy_grid::GridDataDimension());
+	output.dataDimension.emplace_back(std::move(occupancy_grid::GridDataDimension()));
+	output.dataDimension.emplace_back(std::move(occupancy_grid::GridDataDimension()));
+	output.dataDimension.emplace_back(std::move(occupancy_grid::GridDataDimension()));
 
 	output.dataDimension[0].label = "Z(Forward)";
 	output.dataDimension[1].label = "X(Left)";
@@ -133,64 +135,64 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 
 	output.data.resize(output.dataDimension[0].size * output.dataDimension[1].size * output.dataDimension[2].size, 0);
 
-	std::vector<std::vector<std::vector<float>>> oGridPoints;
-	oGridPoints.resize(m_gridZSize, std::vector<std::vector<float>>(m_gridXSize));
+	std::vector<std::vector<float>> oGridPoints;
+	oGridPoints.resize(m_gridZSize * m_gridXSize, std::vector<float>());
 
 	sensor_msgs::PointCloud2ConstIterator<float> iterX (input, "x");
 	sensor_msgs::PointCloud2ConstIterator<float> iterY (input, "y");
 	sensor_msgs::PointCloud2ConstIterator<float> iterZ (input, "z");
 
-	ROS_INFO_STREAM(std::endl<<"New Frame Detected"<<std::endl);
-	if (m_debug) {
-		ROS_DEBUG_STREAM(std::endl << "Input Data & Conversion" << std::endl);
-	}
+	ROS_INFO_STREAM_COND(m_log, std::endl<<"New Frame Detected"<<std::endl);
+	ROS_DEBUG_STREAM_COND(m_log, std::endl << "Input Data & Conversion" << std::endl);
+
 	for (;iterZ != iterZ.end(); ++iterX, ++iterY, ++iterZ) {
-		float height = -1 * (*iterY) + m_gridParams.yOffset;
+		float height = (-1 * (*iterY) + m_gridParams.yOffset);
 		int convZ = (*iterZ)/m_gridParams.resolution;
-		int convX = (*iterX)/m_gridParams.resolution + (m_gridXSize/2.0);
-		if (m_debug) {
-			ROS_DEBUG_STREAM(std::fixed << std::setprecision(3) << "Z: " << *iterZ << "\tX: " << *iterX << "\tY: " << *iterY << "\tconvZ: " << convZ << "\tconvX: " << convX << "\tHeight: " << height << std::endl);
-		}	
+		int convX = 1*(*iterX)/m_gridParams.resolution + (m_gridXSize/2.0);
+		
+		ROS_DEBUG_STREAM_COND(m_log, std::fixed << std::setprecision(3) << "Z: " << *iterZ << "\tX: " << *iterX << "\tY: " << *iterY << "\tconvZ: " << convZ << "\tconvX: " << convX << "\tHeight: " << height << std::endl);
+
 		if (convZ < m_gridZSize && convX < m_gridXSize && convZ >= 0 && convX >= 0 ) {      //invalid bounds error check
-			oGridPoints[convZ][convX].push_back(height);
+			oGridPoints[convZ * m_gridXSize + convX].reserve(1500);			
+			oGridPoints[convZ * m_gridXSize + convX].emplace_back(height);
 		}
 		else{
-			ROS_WARN_STREAM("Point Detected Out of Occupancy Grid Limits"<< std::endl);
+			ROS_DEBUG_STREAM_COND(m_log, "Point Detected Out of Occupancy Grid Limits"<< std::endl);
 		}
 	}
 
 	for(int z = 0; z < m_gridZSize; z++){
 		for (int x = 0; x < m_gridXSize; x++){
-			std::sort(oGridPoints[z][x].begin(), oGridPoints[z][x].end(), std::greater<float>());
+			std::sort(oGridPoints[z * m_gridXSize + x].begin(), oGridPoints[z * m_gridXSize + x].end(), std::greater<float>());
 			
 			//point count
-			oGridDataAccessor(output, z, x, 0) = oGridPoints[z][x].size();	
+			oGridDataAccessor(output, z, x, 0) = oGridPoints[z * m_gridXSize + x].size();	
 
 			float sum = 0;
 			if (oGridDataAccessor(output, z, x, 0)!=0) {
 				//avg height
-				for(float a : oGridPoints[z][x]) {
+				for(float a : oGridPoints[z * m_gridXSize + x]) {
 					sum += a;
 				}
 				oGridDataAccessor(output, z, x, 1) = sum / oGridDataAccessor(output, z, x, 0);
 
 				//max height
 				sum = 0;
-				for(int i = 0; i < oGridPoints[z][x].size() * 0.05; i++) {
-					sum += oGridPoints[z][x][i];
+				for(int i = 0; i < oGridPoints[z * m_gridXSize + x].size() * 0.05; i++) {
+					sum += oGridPoints[z * m_gridXSize + x][i];
 				}
-				oGridDataAccessor(output, z, x, 2) = sum / (unsigned int)(oGridPoints[z][x].size() * 0.05 + 1);
+				oGridDataAccessor(output, z, x, 2) = sum / (unsigned int)(oGridPoints[z * m_gridXSize + x].size() * 0.05 + 1);
 
 				//min height
 				sum = 0;
-				for(int i = 0, index = oGridPoints[z][x].size() - 1; i < oGridPoints[z][x].size() * 0.05; i++, index--) {
-					sum += oGridPoints[z][x][index];
+				for(int i = 0, index = oGridPoints[z * m_gridXSize + x].size() - 1; i < oGridPoints[z * m_gridXSize + x].size() * 0.05; i++, index--) {
+					sum += oGridPoints[z * m_gridXSize + x][index];
 				}
-				oGridDataAccessor(output, z, x, 3) = sum / (unsigned int)(oGridPoints[z][x].size() * 0.05 + 1); 
+				oGridDataAccessor(output, z, x, 3) = sum / (unsigned int)(oGridPoints[z * m_gridXSize + x].size() * 0.05 + 1); 
 			}
 		}
 	}
-
+	
 	m_pub.publish(output);
 
 	//ouput to rviz to visualize, publishes 4 messages, each corresponds to one element of the third dimension of the occupancy grid message(ie. point count, avg, max, min heights)
@@ -250,21 +252,13 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 					gridcells.data[z*m_gridXSize + x] = cost;
 					}
 				} 
-				
-				
-				
-				
 			}
 		}
 		
 		m_pub_rviz[i].publish(gridcells);
 	}
 
-
-	std::stringstream debugString;
-	debugString << std::fixed << std::setprecision(3);
-	
-	if (m_debug) {
+	if (m_log) {
 		std::stringstream debugString;
 		debugString << std::fixed << std::setprecision(3);
 		
@@ -306,7 +300,7 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 			debugString << std::endl;
 		}
 		ROS_DEBUG_STREAM(debugString.str());	
-	}
+	} 
 }
 	
 int main(int argc, char **argv) {
@@ -315,9 +309,9 @@ int main(int argc, char **argv) {
 	OccupancyGrid o;
 
 	ros::Rate rate(o.getGridParams().rate);
-	
+
 	if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
-   		ros::console::notifyLoggerLevelsChanged();
+		ros::console::notifyLoggerLevelsChanged();
 	}
 
 	while(ros::ok()) {
