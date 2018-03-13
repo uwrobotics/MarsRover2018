@@ -4,9 +4,7 @@
 	<node name="drive_lis_pub" pkg="xbox_controller" type="joy_to_twist" />
 	
 	<node name="joy_launcher" pkg="joy" type="joy_node">
-	
-	<param name="controller" type="string" value="/dev/input/by-id/usb-©Microsoft_Corporation_Controller_15D5CD4-joystick" />
-	
+		<param name="dev" type="string" value="/dev/input/by-id/usb-©Microsoft_Corporation_Controller_15D5CD4-joystick" />
 	</node>
 
 	<!-- implement this if you want to test on a turtle bot simulutation, drive 
