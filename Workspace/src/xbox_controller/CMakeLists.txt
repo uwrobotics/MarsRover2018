@@ -11,6 +11,8 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  sensor_msgs
+  geometry_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -200,7 +202,7 @@ include_directories(
 
 catkin_package()
 
-add_executable(xbox teleop_node.cpp)
-add_executable(state drive_lis_sub.cpp)
-target_link_libraries(xbox ${catkin_LIBRARIES})
-target_link_libraries(state ${catkin_LIBRARIES})
+add_executable(state_select teleop_node.cpp)
+add_executable(joy_to_twist drive_lis_sub.cpp)
+target_link_libraries(state_select ${catkin_LIBRARIES})
+target_link_libraries(joy_to_twist ${catkin_LIBRARIES})

@@ -1,7 +1,6 @@
 #include "ros/ros.h"
 #include "sensor_msgs/Joy.h"
 #include "std_msgs/String.h"
-#include "teleop_twist.h"
 
 /*
 This code implements an algorithm that cycles through different branches when a
