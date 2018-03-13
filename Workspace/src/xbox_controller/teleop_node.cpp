@@ -1,83 +1,86 @@
 #include "ros/ros.h"
-#include "teleop_twist.h"
-#include "std_msgs/String.h"
 #include "sensor_msgs/Joy.h"
+#include "std_msgs/String.h"
+#include "teleop_twist.h"
 
-//typedef ::sensor_msgs::Joy_<std::allocator<void> > Joy;
+/*
+This code implements an algorithm that cycles through different branches when a
+button is pressed.
+The button used to switch between branches is the CENTER XBOX BUTTON. (The big
+circular button with an X).
 
-class StateSelect{
-  public:
-  void callback(const sensor_msgs::Joy::ConstPtr& joy);
-  StateSelect(){
- 	joy_sub = n.subscribe<sensor_msgs::Joy>("joy", 1, &StateSelect::callback, this);
- 	drive_pub = n.advertise<sensor_msgs::Joy>("drive_joy", 1);
- 	science_pub = n.advertise<sensor_msgs::Joy>("science_joy", 1);
- 	arm_pub = n.advertise<sensor_msgs::Joy>("arm_joy", 1);
-	i = DRIVE;
-	count = 0;
-	pressed=false;
+The order of cycle goes like : Drive --> Arm --> Science --> Drive......
+
+*/
+
+// A class that contains publishers and subscribers as the data members, and the
+// call-back function as the member function
+
+class StateSelect {
+public:
+  void callback(const sensor_msgs::Joy::ConstPtr &joy);
+
+  StateSelect() { // Constructor
+    // Subscriber
+    joy_sub =
+        n.subscribe<sensor_msgs::Joy>("joy", 1, &StateSelect::callback, this);
+
+    // Publisher to three separate branches
+    drive_pub = n.advertise<sensor_msgs::Joy>("drive_joy", 1);
+    science_pub = n.advertise<sensor_msgs::Joy>("science_joy", 1);
+    arm_pub = n.advertise<sensor_msgs::Joy>("arm_joy", 1);
+
+    // Logic Variables Initialization
+    i = DRIVE;       // Starts at the drive branch
+    pressed = false; // Initially, the change button is assumed to be NOT
+                     // PRESSED
   }
-  private: 
-	ros::NodeHandle n, nh, nh_param;
 
-  	ros::Subscriber joy_sub;
-  	ros::Publisher drive_pub;
-  	ros::Publisher science_pub;
-  	ros::Publisher arm_pub;
-	enum topics {DRIVE,ARM,SCIENCE};
-  	int i;
-    int count;
-    bool pressed;
+private:
+  ros::NodeHandle n;
+
+  ros::Subscriber joy_sub;
+  ros::Publisher drive_pub;
+  ros::Publisher science_pub;
+  ros::Publisher arm_pub;
+  enum topics { DRIVE, ARM, SCIENCE };
+  int i; // Variable thats holds the current state index
+  bool pressed;
 };
 
-void StateSelect::callback(const sensor_msgs::Joy::ConstPtr& joy)
-{
-  ROS_INFO("Count: %d", count);
-  count++;
-  if (joy->buttons[6] == 1)
-  	bool exit=true;
-
-  ROS_INFO("Button state: %d", pressed);
+// Callback function: Called everytime there is an update on the joy-stick
+void StateSelect::callback(const sensor_msgs::Joy::ConstPtr &joy) {
 
   // logic to cycle through different states
-  if (joy->buttons[8]==1 && !pressed){
-//	ros::Duration(0.2).sleep();
-	i++; 
-	if (i>=3) i=DRIVE;
-	pressed=true;
+  if (joy->buttons[8] == 1 && !pressed) {
+    i++;
+    if (i >= 3)
+      i = DRIVE; // Cycle back to drive after science branch
+    pressed = true;
+  } else
+    pressed = false;
+
+  // The algorithm below is required to counter controller debouncing.
+  if (joy->buttons[8] != 1)
+    pressed = false;
+  else
+    pressed = true;
+
+  if (i == DRIVE) {
+    drive_pub.publish(joy);
   }
-  else pressed=false;
 
-  if (joy->buttons[8] != 1) pressed = false; 
-  else pressed = true; 
+  else if (i == ARM) {
+    arm_pub.publish(joy);
+  }
 
-  	if (i==DRIVE) {
-		  //ROS_INFO("Button State: %d", joy->buttons[8]);		
-		  ROS_INFO("Outputting to Drive");
-		  
-		  drive_pub.publish(joy);
-		  //ros::Duration(2).sleep();
-	} 
-	
-	else if (i==ARM) {
-		ROS_INFO("Outputting to Arm");
-		//teleop_twist_joy::TeleopTwistJoy joy_teleop(&nh, &nh_param);
-	    	arm_pub.publish(joy);
-	}
-	
-	else if (i==SCIENCE) {
-		ROS_INFO("Outputting to Science");
-		science_pub.publish(joy);
-	}
-  
-  else {
-	//Do Nothing
-	ROS_INFO("Outputting nowhere");
+  else if (i == SCIENCE) {
+    science_pub.publish(joy);
   }
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
+  // Initializes Node
   ros::init(argc, argv, "teleop_node");
 
   StateSelect state_obj;

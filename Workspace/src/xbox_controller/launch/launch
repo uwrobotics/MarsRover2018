@@ -1,4 +1,0 @@
-<launch>
-	<node name="teleop_node" pkg="xbox_controller" type="teleop_node" />
-	<node name="drive_lis_pub" pkg="xbox_controller" type="drive_lis_pub" />
-</launch>
