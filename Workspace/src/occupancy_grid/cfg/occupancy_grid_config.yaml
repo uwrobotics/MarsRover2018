@@ -1,8 +1,8 @@
 zMax: 2.5
-xMax: 2.5
-yOffset : 0.3
-resolution: 0.03
+xMax: 28.57
+yOffset : 0.495
+resolution: 0.05
 Scalar: 1.0
 Normalizer: 2.5
-rate: 1
+rate: 1000
 queue_size: 1
