@@ -105,7 +105,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+   INCLUDE_DIRS include
 #  LIBRARIES xbox_controller
 #  CATKIN_DEPENDS roscpp rospy std_msgs
 #  DEPENDS system_lib
@@ -202,7 +202,7 @@ include_directories(
 
 catkin_package()
 
-add_executable(state_select teleop_node.cpp)
-add_executable(joy_to_twist drive_lis_sub.cpp)
+add_executable(state_select src/teleop_node.cpp)
+add_executable(joy_to_twist src/drive_lis_sub.cpp)
 target_link_libraries(state_select ${catkin_LIBRARIES})
 target_link_libraries(joy_to_twist ${catkin_LIBRARIES})
