@@ -194,7 +194,10 @@ namespace socketcan_bridge
                 uint32_t limit_switch = 0;
                 limit_switch = msg.data[3] << 24 | msg.data[2] << 16 | msg.data[1] << 8 | msg.data[0];
                 limit_switch_msg_.data = limit_switch;
-                topics_["/limitSwitches"]->publish(limit_switch_msg_);
+                if (topics_["/limitSwitches"])
+                {
+                    topics_["/limitSwitches"]->publish(limit_switch_msg_);
+                }
             }
             else if (message_type == "armJointEncoder1" ||
                      message_type == "armJointEncoder2" ||
@@ -213,7 +216,10 @@ namespace socketcan_bridge
                 encoder_mutex_.lock();
                 encoder_msg_.data[msg.id % 300] = encoder_value; // all encoder message IDs are in the 300 range
                 encoder_mutex_.unlock();
-                topics_["/absoluteEncoders"]->publish(encoder_msg_);
+                if (topics_["/absoluteEncoders"])
+                {
+                    topics_["/absoluteEncoders"]->publish(encoder_msg_);
+                }
             }
             else if (message_type == "endEffectorEncoder")
             {
