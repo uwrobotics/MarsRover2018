@@ -24,6 +24,53 @@ float& oGridDataAccessor (occupancy_grid::OccupancyGrid& oGrid, unsigned int i, 
 	return oGrid.data[i*oGrid.dataDimension[0].stride + j*oGrid.dataDimension[1].stride + k*oGrid.dataDimension[2].stride];
 }
 
+void apply_filter (occupancy_grid::OccupancyGrid& oGrid, unsigned int input_channel, unsigned int output_channel, std::vector<float> kernel, unsigned int kernel_size) {
+		
+	int extension_row = 0, extension_col = 0, weighted_sum = 0;
+	int grid_row_size = oGrid.dataDimension[0].size, grid_col_size = oGrid.dataDimension[1].size;
+
+	for (int i = 0; i<kernel_size; i++)
+	  for (int j=0; j<kernel_size; j++)
+	     weighted_sum += kernel[i*kernel_size+j];
+
+	//row --- z
+	for (int oGrid_row = 0; oGrid_row < grid_row_size; oGrid_row++) {
+	// col == x
+	  for (int oGrid_col = 0; oGrid_col < grid_col_size ; oGrid_col++){
+		float sum = 0;
+
+		for (int kernel_row = 0; kernel_row < kernel_size; kernel_row++)
+		{
+	           //kernerl_size/2 - kernel_row can be negative
+		   if (oGrid_row -(kernel_size/2 - kernel_row)  <= 0)
+			extension_row = 0;
+		   else if (oGrid_row - (kernel_size/2 - kernel_row)  >= grid_row_size)
+			extension_row = grid_row_size-1;
+
+		   else
+			extension_row = oGrid_row - (kernel_size/2 - kernel_row);
+		
+		   for (int kernel_col = 0; kernel_col < kernel_size; kernel_col++)
+		   {
+			//kernerl_size/2 - kernel_col can be negative
+			if (oGrid_col -(kernel_size/2 - kernel_col)  <= 0)
+				extension_col = 0;
+			else if (oGrid_col - (kernel_size/2 - kernel_col)  >= grid_col_size)
+				extension_col = grid_col_size-1;
+
+			else
+				extension_col = oGrid_col - (kernel_size/2 - kernel_col);
+
+			sum += float ( kernel[kernel_row * kernel_size + kernel_col] * oGridDataAccessor(oGrid, extension_row, extension_col, input_channel) );
+			oGridDataAccessor(oGrid, extension_row, extension_col, input_channel) = sum/weighted_sum;
+		    }
+		 }
+
+	  }
+	}
+
+}
+
 //resolution is in terms of side length of a grid cell
 //z, x max is the max range of the camera (in one direction)
 typedef struct 
@@ -53,15 +100,17 @@ class OccupancyGrid {
 			ros::param::get("logging", m_log);
 			ros::param::get("Scalar", m_gridParams.mappingScalar);
 			ros::param::get("Normalizer", m_gridParams.mappingNormalizer);
-
-			//hard coded values, need to fix later if figure out why rosparam does not work for these two params
-			//m_gridParams.mappingScalar = 1.0;
-			//m_gridParams.mappingNormalizer = 5.0;
-			
 			
 			std::string pcl2TopicName;
 			ros::param::get("PCL2TopicName", pcl2TopicName);
 
+			ros::param::get("kernel_size", kernel_size);
+			ros::param::get("gaussian_blur_kernel", gaussian_blur_kernel);
+			ros::param::get("gaussian_hor_kernel", gaussian_blur_kernel);
+			ros::param::get("gaussian_ver_kernel", gaussian_blur_kernel);
+			ros::param::get("hor_slope_kernel", gaussian_blur_kernel);
+			ros::param::get("ver_slope_kernel", gaussian_blur_kernel);
+			
 			//set grid params
 			m_gridZSize = m_gridParams.zMax/m_gridParams.resolution + 1;
 			m_gridXSize = m_gridParams.xMax*2/m_gridParams.resolution + 1;
@@ -82,6 +131,8 @@ class OccupancyGrid {
 			m_pub_rviz[1] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCells2", m_gridParams.queue_size);
 			m_pub_rviz[2] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCells3", m_gridParams.queue_size);
 			m_pub_rviz[3] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCells4", m_gridParams.queue_size);
+			m_pub_rviz[4] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCells5", m_gridParams.queue_size);
+			m_pub_rviz[5] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCells6", m_gridParams.queue_size);
 
 		}
 
@@ -95,16 +146,23 @@ class OccupancyGrid {
 		ros::NodeHandle m_n;	
 		ros::Subscriber m_sub;
 		ros::Publisher m_pub;	
-		ros::Publisher m_pub_rviz[4];
+		ros::Publisher m_pub_rviz[6];
 				
 		int m_gridZSize; 
 		int m_gridXSize;
 		int m_gridCameraZ;
 		int m_gridCameraX;
+		int kernel_size;
 
 		bool m_log;
 
 		gridParams m_gridParams;
+		
+		std::vector<float> gaussian_blur_kernel;
+		std::vector<float> gaussian_hor_kernel;
+		std::vector<float> gaussian_ver_kernel;
+		std::vector<float> hor_slope_kernel;
+		std::vector<float> ver_slope_kernel;
 };
 
 void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
@@ -123,11 +181,11 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 
 	output.dataDimension[0].label = "Z(Forward)";
 	output.dataDimension[1].label = "X(Left)";
-	output.dataDimension[2].label = "Points Detected // Avg. Height // Max Height // Min Height";
+	output.dataDimension[2].label = "Points Detected // Avg. Height // Max Height // Min Height // Gaussian Blur // Gaussian Blur * Slope // temp (vertical slope)";
 
 	output.dataDimension[0].size = m_gridZSize;
 	output.dataDimension[1].size = m_gridXSize;
-	output.dataDimension[2].size = 4;
+	output.dataDimension[2].size = 7;
 
 	output.dataDimension[0].stride = output.dataDimension[1].size * output.dataDimension[2].size;
 	output.dataDimension[1].stride = output.dataDimension[2].size;
@@ -192,11 +250,23 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 			}
 		}
 	}
+
+	//gaussian_blur
+	apply_filter (output, 1, 4, gaussian_blur_kernel, kernel_size); 
+
+	//gaussian_blur * slope
+	apply_filter (output, 1, 5, gaussian_hor_kernel, kernel_size);
+	apply_filter (output, 1, 6, gaussian_ver_kernel, kernel_size); 
+	for(int z = 0; z < m_gridZSize; z++){
+		for (int x = 0; x < m_gridXSize; x++){
+			oGridDataAccessor(output, z, x, 5) = oGridDataAccessor(output, z, x, 5) * oGridDataAccessor(output, z, x, 5) + oGridDataAccessor(output, z, x, 6) * oGridDataAccessor(output, z, x, 5);
+		}
+	}
 	
 	m_pub.publish(output);
 
 	//ouput to rviz to visualize, publishes 4 messages, each corresponds to one element of the third dimension of the occupancy grid message(ie. point count, avg, max, min heights)
-	for(int i = 0; i<output.dataDimension[2].size; i++)
+	for(int i = 0; i<output.dataDimension[2].size-1; i++)
 	{
 		nav_msgs::OccupancyGrid gridcells;
 		gridcells.header.frame_id="/duo3d_camera";
@@ -218,25 +288,19 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 		for(int x = 0; x < m_gridXSize; x++){
 			for (int z = 0; z < m_gridZSize; z++){
 
-				
 				float cost = oGridDataAccessor(output, z, x, i);
-				//gridcells.data[x*m_gridZSize + z] = cost;
 				//ROS_ERROR_STREAM ( "1normalizer: "<< (float)m_gridParams.mappingNormalizer << " scalar: "<<m_gridParams.mappingScalar << " mpas to:"<< (cost/m_gridParams.mappingNormalizer/2.0*100*m_gridParams.mappingScalar) );
 
 				
-
 				//since number of points is typically very large
 				if(i==0)
 				{
-					cost /= 1.0;
-					int map_value = cost ; 
+					int map_value = (int)cost ; 
 					
 					if (map_value > 100)
 						map_value = 100;
 
-					gridcells.data[z*m_gridXSize + x] = map_value;
-					
-					
+					gridcells.data[z*m_gridXSize + x] = map_value;	
 				}
 
 				else
@@ -244,12 +308,11 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 					if(cost <=0)
 						cost=0;
 					else{
-					//cost += m_gridParams.mappingNormalizer;
-					cost = int ( cost/m_gridParams.mappingNormalizer *100*m_gridParams.mappingScalar);
+						cost = int ( cost/m_gridParams.mappingNormalizer *100*m_gridParams.mappingScalar);
 					
-					if(cost >= 100)
-						cost = 100;
-					gridcells.data[z*m_gridXSize + x] = cost;
+						if(cost >= 100)
+							cost = 100;
+						gridcells.data[z*m_gridXSize + x] = cost;
 					}
 				} 
 			}
