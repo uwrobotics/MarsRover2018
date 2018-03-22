@@ -150,6 +150,8 @@ target_link_libraries(occupancy_grid
   ${catkin_LIBRARIES}
 )
 
+add_dependencies(occupancy_grid occupancy_grid_generate_messages_cpp)
+
 #############
 ## Install ##
 #############
