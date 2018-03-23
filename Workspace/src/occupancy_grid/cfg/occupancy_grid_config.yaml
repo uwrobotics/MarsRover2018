@@ -1,7 +1,7 @@
 zMax: 2.5
-xMax: 28.57
+xMax: 10
 yOffset : 0.495
-resolution: 0.05
+resolution: 0.1
 Scalar: 1.0
 Normalizer: 2.5
 rate: 30

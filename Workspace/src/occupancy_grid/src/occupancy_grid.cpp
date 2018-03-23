@@ -26,25 +26,25 @@ float& oGridDataAccessor (occupancy_grid::OccupancyGrid& oGrid, unsigned int i, 
 
 void apply_filter (occupancy_grid::OccupancyGrid& oGrid, unsigned int input_channel, unsigned int output_channel, std::vector<float> kernel, unsigned int kernel_size) {
 		
-	int extension_row = 0, extension_col = 0, weighted_sum = 0;
+	int extension_row = 0, extension_col = 0;
 	int grid_row_size = oGrid.dataDimension[0].size, grid_col_size = oGrid.dataDimension[1].size;
+	float weighted_sum = 0;
 
 	for (int i = 0; i<kernel_size; i++)
 	  for (int j=0; j<kernel_size; j++)
-	     weighted_sum += kernel[i*kernel_size+j];
+	     weighted_sum += std::abs(kernel[i*kernel_size+j]);
 
 	//row --- z
 	for (int oGrid_row = 0; oGrid_row < grid_row_size; oGrid_row++) {
 	// col == x
 	  for (int oGrid_col = 0; oGrid_col < grid_col_size ; oGrid_col++){
 		float sum = 0;
-
 		for (int kernel_row = 0; kernel_row < kernel_size; kernel_row++)
 		{
 	           //kernerl_size/2 - kernel_row can be negative
-		   if (oGrid_row -(kernel_size/2 - kernel_row)  <= 0)
+		   if (oGrid_row -(kernel_size/2 - kernel_row)  < 0)
 			extension_row = 0;
-		   else if (oGrid_row - (kernel_size/2 - kernel_row)  >= grid_row_size)
+		   else if (oGrid_row - (kernel_size/2 - kernel_row)  > (grid_row_size-1))
 			extension_row = grid_row_size-1;
 
 		   else
@@ -53,23 +53,27 @@ void apply_filter (occupancy_grid::OccupancyGrid& oGrid, unsigned int input_chan
 		   for (int kernel_col = 0; kernel_col < kernel_size; kernel_col++)
 		   {
 			//kernerl_size/2 - kernel_col can be negative
-			if (oGrid_col -(kernel_size/2 - kernel_col)  <= 0)
+			if (oGrid_col -(kernel_size/2 - kernel_col)  < 0)
 				extension_col = 0;
-			else if (oGrid_col - (kernel_size/2 - kernel_col)  >= grid_col_size)
+			else if (oGrid_col - (kernel_size/2 - kernel_col)  > (grid_col_size-1))
 				extension_col = grid_col_size-1;
 
 			else
 				extension_col = oGrid_col - (kernel_size/2 - kernel_col);
 
 			sum += float ( kernel[kernel_row * kernel_size + kernel_col] * oGridDataAccessor(oGrid, extension_row, extension_col, input_channel) );
-			oGridDataAccessor(oGrid, extension_row, extension_col, input_channel) = sum/weighted_sum;
+			
+			//ROS_ERROR_STREAM ( "ogridValue: " << oGridDataAccessor(oGrid, extension_row, extension_col, input_channel) << " sum: "<<sum << " weight: "<< weighted_sum<< " weighted sum: "<<sum/weighted_sum);
 		    }
 		 }
+
+		 oGridDataAccessor(oGrid, oGrid_row, oGrid_col, output_channel) = sum/weighted_sum;
 
 	  }
 	}
 
 }
+
 
 //resolution is in terms of side length of a grid cell
 //z, x max is the max range of the camera (in one direction)
@@ -106,10 +110,10 @@ class OccupancyGrid {
 
 			ros::param::get("kernel_size", kernel_size);
 			ros::param::get("gaussian_blur_kernel", gaussian_blur_kernel);
-			ros::param::get("gaussian_hor_kernel", gaussian_blur_kernel);
-			ros::param::get("gaussian_ver_kernel", gaussian_blur_kernel);
-			ros::param::get("hor_slope_kernel", gaussian_blur_kernel);
-			ros::param::get("ver_slope_kernel", gaussian_blur_kernel);
+			ros::param::get("gaussian_hor_kernel", gaussian_hor_kernel);
+			ros::param::get("gaussian_ver_kernel", gaussian_ver_kernel);
+			ros::param::get("hor_slope_kernel", hor_slope_kernel);
+			ros::param::get("ver_slope_kernel", ver_slope_kernel);
 			
 			//set grid params
 			m_gridZSize = m_gridParams.zMax/m_gridParams.resolution + 1;
@@ -251,6 +255,8 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 		}
 	}
 
+
+
 	//gaussian_blur
 	apply_filter (output, 1, 4, gaussian_blur_kernel, kernel_size); 
 
@@ -259,13 +265,15 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 	apply_filter (output, 1, 6, gaussian_ver_kernel, kernel_size); 
 	for(int z = 0; z < m_gridZSize; z++){
 		for (int x = 0; x < m_gridXSize; x++){
-			oGridDataAccessor(output, z, x, 5) = oGridDataAccessor(output, z, x, 5) * oGridDataAccessor(output, z, x, 5) + oGridDataAccessor(output, z, x, 6) * oGridDataAccessor(output, z, x, 5);
+			float squared_slope = oGridDataAccessor(output, z, x, 5) * oGridDataAccessor(output, z, x, 5) + oGridDataAccessor(output, z, x, 6) * oGridDataAccessor(output, z, x, 6);
+			oGridDataAccessor(output, z, x, 5) = std::sqrt (squared_slope);
 		}
 	}
+
 	
 	m_pub.publish(output);
 
-	//ouput to rviz to visualize, publishes 4 messages, each corresponds to one element of the third dimension of the occupancy grid message(ie. point count, avg, max, min heights)
+	//ouput to rviz to visualize, publishes 6 messages, each corresponds to one element of the third dimension of the occupancy grid message(ie. point count, avg, max, min heights)
 	for(int i = 0; i<output.dataDimension[2].size-1; i++)
 	{
 		nav_msgs::OccupancyGrid gridcells;
