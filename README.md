@@ -4,9 +4,10 @@
 All software for the 2018 UWRT Mars Rover
 
 
-To get all required dependencies, run: 
+To get all required dependencies, navigate to the project root directory and run: 
 ```
-rosinstall dependencies.rosinstall
+cd Workspace
+wstool init ../ dependencies.rosinstall
 rosdep install --from-paths src --ignore-src -r -y
 ```
 Put all future dependencies in the dependencies.rosinstall file
