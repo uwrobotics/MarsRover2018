@@ -138,7 +138,6 @@ class DUO3DDriver
     sensor_msgs::CameraInfo _msg_cam_info[ITEM_COUNT-1];
     // Point cloud publisher
     ros::Publisher _pub_point_cloud;
-    
     // IMU publisher
     ros::Publisher _pub_imu;
     // Temperature publisher
