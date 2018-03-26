@@ -41,7 +41,7 @@ void apply_filter (occupancy_grid::OccupancyGrid& oGrid, unsigned int input_chan
 		float sum = 0;
 		for (int kernel_row = 0; kernel_row < kernel_size; kernel_row++)
 		{
-	           //kernerl_size/2 - kernel_row can be negative
+	           //kernel_size/2 - kernel_row can be negative
 		   if (oGrid_row -(kernel_size/2 - kernel_row)  < 0)
 			extension_row = 0;
 		   else if (oGrid_row - (kernel_size/2 - kernel_row)  > (grid_row_size-1))
@@ -52,7 +52,7 @@ void apply_filter (occupancy_grid::OccupancyGrid& oGrid, unsigned int input_chan
 		
 		   for (int kernel_col = 0; kernel_col < kernel_size; kernel_col++)
 		   {
-			//kernerl_size/2 - kernel_col can be negative
+			//kernel_size/2 - kernel_col can be negative
 			if (oGrid_col -(kernel_size/2 - kernel_col)  < 0)
 				extension_col = 0;
 			else if (oGrid_col - (kernel_size/2 - kernel_col)  > (grid_col_size-1))
@@ -112,8 +112,9 @@ class OccupancyGrid {
 			ros::param::get("gaussian_blur_kernel", gaussian_blur_kernel);
 			ros::param::get("gaussian_hor_kernel", gaussian_hor_kernel);
 			ros::param::get("gaussian_ver_kernel", gaussian_ver_kernel);
-			ros::param::get("hor_slope_kernel", hor_slope_kernel);
-			ros::param::get("ver_slope_kernel", ver_slope_kernel);
+			ros::param::get("gaussian_hor_norm_kernel", gaussian_hor_norm_kernel);
+			ros::param::get("gaussian_ver_norm_kernel", gaussian_ver_norm_kernel);
+
 			
 			//set grid params
 			m_gridZSize = m_gridParams.zMax/m_gridParams.resolution + 1;
@@ -131,13 +132,13 @@ class OccupancyGrid {
 			m_pub = m_n.advertise<occupancy_grid::OccupancyGrid>("/OccupancyGrid", m_gridParams.queue_size);
 
 			//Since rviz will flash back and forth between multiple messages published by the same topic, using an array of topics
-			m_pub_rviz[0] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCells1", m_gridParams.queue_size);
-			m_pub_rviz[1] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCells2", m_gridParams.queue_size);
-			m_pub_rviz[2] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCells3", m_gridParams.queue_size);
-			m_pub_rviz[3] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCells4", m_gridParams.queue_size);
-			m_pub_rviz[4] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCells5", m_gridParams.queue_size);
-			m_pub_rviz[5] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCells6", m_gridParams.queue_size);
-
+			m_pub_rviz[0] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCellsPointsDetected", m_gridParams.queue_size);
+			m_pub_rviz[1] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCellsAvg", m_gridParams.queue_size);
+			m_pub_rviz[2] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCellsMax", m_gridParams.queue_size);
+			m_pub_rviz[3] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCellsMin", m_gridParams.queue_size);
+			m_pub_rviz[4] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCellsBlur", m_gridParams.queue_size);
+			m_pub_rviz[5] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCellsSlope", m_gridParams.queue_size);
+			m_pub_rviz[6] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCellsNormSlope", m_gridParams.queue_size);
 		}
 
 		void callback(const sensor_msgs::PointCloud2 input);
@@ -150,7 +151,7 @@ class OccupancyGrid {
 		ros::NodeHandle m_n;	
 		ros::Subscriber m_sub;
 		ros::Publisher m_pub;	
-		ros::Publisher m_pub_rviz[6];
+		ros::Publisher m_pub_rviz[7];
 				
 		int m_gridZSize; 
 		int m_gridXSize;
@@ -163,10 +164,10 @@ class OccupancyGrid {
 		gridParams m_gridParams;
 		
 		std::vector<float> gaussian_blur_kernel;
-		std::vector<float> gaussian_hor_kernel;
 		std::vector<float> gaussian_ver_kernel;
-		std::vector<float> hor_slope_kernel;
-		std::vector<float> ver_slope_kernel;
+		std::vector<float> gaussian_hor_kernel;
+		std::vector<float> gaussian_ver_norm_kernel;
+		std::vector<float> gaussian_hor_norm_kernel;
 };
 
 void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
@@ -185,7 +186,7 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 
 	output.dataDimension[0].label = "Z(Forward)";
 	output.dataDimension[1].label = "X(Left)";
-	output.dataDimension[2].label = "Points Detected // Avg. Height // Max Height // Min Height // Gaussian Blur // Gaussian Blur * Slope // temp (vertical slope)";
+	output.dataDimension[2].label = "Points Detected // Avg. Height // Max Height // Min Height // Gaussian Blur // Gaussian Blur * Slope // Gaussian Blur * Slope (Normalized)";
 
 	output.dataDimension[0].size = m_gridZSize;
 	output.dataDimension[1].size = m_gridXSize;
