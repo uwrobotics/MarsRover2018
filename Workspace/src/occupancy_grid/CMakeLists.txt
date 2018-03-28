@@ -8,9 +8,8 @@ add_compile_options(-std=c++11)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  roscpp
   message_generation
-  
+  roscpp
 )
 
 ## System dependencies are found with CMake's conventions
@@ -149,6 +148,8 @@ add_executable(occupancy_grid src/occupancy_grid.cpp)
 target_link_libraries(occupancy_grid
   ${catkin_LIBRARIES}
 )
+
+add_dependencies(occupancy_grid occupancy_grid_generate_messages_cpp)
 
 #############
 ## Install ##

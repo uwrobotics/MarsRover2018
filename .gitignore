@@ -33,6 +33,10 @@ msg/_*.py
 # qcreator stuff
 CMakeLists.txt.user
 
+#clion stuff
+*/cmake-build-debug/
+*/.idea/
+
 srv/_*.py
 *.pcd
 *.pyc
