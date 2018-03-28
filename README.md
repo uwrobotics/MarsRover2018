@@ -3,6 +3,16 @@
 
 All software for the 2018 UWRT Mars Rover
 
+
+To get all required dependencies, navigate to the project root directory and run: 
+```
+cd Workspace
+wstool init ../ dependencies.rosinstall
+rosdep install --from-paths src --ignore-src -r -y
+```
+Put all future dependencies in the dependencies.rosinstall file
+
+
 # Simulation
 Ensure that all submodules are loaded, and that the husky submodule is on the kinetic-devel branch. 
 Comment out the spawn_husky node in "husky/husky_gazebo/launch/spawn_husky.launch" and the GPS and IMU sensors in
@@ -10,3 +20,26 @@ Comment out the spawn_husky node in "husky/husky_gazebo/launch/spawn_husky.launc
 
 Rename all mesh paths in "simulation/launch/simulation_worlds/simple_world.world" to point to the appropriate directory
 in your workspace.
+
+# Coding Standards
+For **C++** code, we follow the ROS coding guidelines. There is a `.clang_format` file that can automatically format your C++ code in the correct style.
+
+To run the formatter, install the package `clang-format`
+```
+sudo apt install clang-format
+```
+Once the package is installed, you can run the following command:
+```
+cd <folder containing repository>/Workspace/src
+find . -name '*.h' -or -name '*.hpp' -or -name '*.cpp' | xargs clang-format -i -style=file $1
+```
+
+For **Python 2.7** code, we follow the PEP8 standard. Install `pycodestyle` to find any styling errors.
+```
+sudo pip install pycodestyle
+```
+To check your Python files:
+```
+cd <folder containing repository>/Workspace/src
+find . -name '*.py' -exec pycodestyle {} \;
+```

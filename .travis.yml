@@ -79,20 +79,20 @@ before_install:
 install:
   - cd $CI_SOURCE_PATH
   - git submodule update --recursive --remote
-  - cd $CI_SOURCE_PATH/Workspace
-  - catkin_make
-  - source devel/setup.bash
 
 # Install all dependencies, using wstool first and rosdep second.
 # wstool looks for a ROSINSTALL_FILE defined in the environment variables.
 before_script:
   # source dependencies: install using wstool.
+  - cd $CI_SOURCE_PATH/ci
+  - bash check_formatting.bash
   - cd $CI_SOURCE_PATH/Workspace
-  - wstool init
-  - if [[ -f $ROSINSTALL_FILE ]] ; then wstool merge $ROSINSTALL_FILE ; fi
-  - wstool up
+  - wstool init $CI_SOURCE_PATH $ROSINSTALL_FILE
   # package depdencies: install using rosdep.
-  - cd $CI_SOURCE_PATH/Workspace
+  ####### Update this when Travis supports ROS Kinetic ##########
+  # Prevents dependencies from being built to avoid issues with rosdep not finding kinetic only packages
+  # When Travis supports Kinetic, update accordingly
+  - touch $CI_SOURCE_PATH/Workspace/src/dependencies/CATKIN_IGNORE
   - rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO
 
 # Compile and test (mark the build as failed if any step fails). If the
