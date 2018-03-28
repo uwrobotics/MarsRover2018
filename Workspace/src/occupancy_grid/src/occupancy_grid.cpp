@@ -136,8 +136,7 @@ public:
         m_pub_rviz[3] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCellsMin", m_gridParams.queue_size);
         m_pub_rviz[4] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCellsBlur", m_gridParams.queue_size);
         m_pub_rviz[5] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCellsBlurSlope", m_gridParams.queue_size);
-        m_pub_rviz[6] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCellsBlurSlopeNorm",
-                                                               m_gridParams.queue_size);
+        m_pub_rviz[6] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCellsBlurSlopeNorm", m_gridParams.queue_size);
     }
 
     void callback(const sensor_msgs::PointCloud2 input);
