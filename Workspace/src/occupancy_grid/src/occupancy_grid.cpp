@@ -89,27 +89,28 @@ public:
         std::vector<float> param;
         ROS_ASSERT(ros::param::get("gaussian_blur_kernel", param));
         m_gaussian_blur_kernel.setSize(sqrt(param.size()));
-        for (int i = 0; i < m_gaussian_blur_kernel.size(); i++) {
+        for (int i = 0; i < m_gaussian_blur_kernel.size() * m_gaussian_blur_kernel.size(); i++) {
             m_gaussian_blur_kernel.push_back(param[i]);
         }
+
         ROS_ASSERT(ros::param::get("gaussian_hor_kernel", param));
         m_gaussian_hor_kernel.setSize(sqrt(param.size()));
-        for (int i = 0; i < m_gaussian_hor_kernel.size(); i++) {
+        for (int i = 0; i < m_gaussian_hor_kernel.size() * m_gaussian_hor_kernel.size(); i++) {
             m_gaussian_hor_kernel.push_back(param[i]);
         }
         ROS_ASSERT(ros::param::get("gaussian_ver_kernel", param));
         m_gaussian_ver_kernel.setSize(sqrt(param.size()));
-        for (int i = 0; i < m_gaussian_ver_kernel.size(); i++) {
+        for (int i = 0; i < m_gaussian_ver_kernel.size() * m_gaussian_ver_kernel.size(); i++) {
             m_gaussian_ver_kernel.push_back(param[i]);
         }
         ROS_ASSERT(ros::param::get("gaussian_hor_norm_kernel", param));
         m_gaussian_hor_norm_kernel.setSize(sqrt(param.size()));
-        for (int i = 0; i < m_gaussian_hor_norm_kernel.size(); i++) {
+        for (int i = 0; i < m_gaussian_hor_norm_kernel.size() * m_gaussian_hor_norm_kernel.size(); i++) {
             m_gaussian_hor_norm_kernel.push_back(param[i]);
         }
         ROS_ASSERT(ros::param::get("gaussian_ver_norm_kernel", param));
         m_gaussian_ver_norm_kernel.setSize(sqrt(param.size()));
-        for (int i = 0; i < m_gaussian_ver_norm_kernel.size(); i++) {
+        for (int i = 0; i < m_gaussian_ver_norm_kernel.size() * m_gaussian_ver_norm_kernel.size(); i++) {
             m_gaussian_ver_norm_kernel.push_back(param[i]);
         }
 
@@ -136,7 +137,8 @@ public:
         m_pub_rviz[3] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCellsMin", m_gridParams.queue_size);
         m_pub_rviz[4] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCellsBlur", m_gridParams.queue_size);
         m_pub_rviz[5] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCellsBlurSlope", m_gridParams.queue_size);
-        m_pub_rviz[6] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCellsBlurSlopeNorm", m_gridParams.queue_size);
+        m_pub_rviz[6] = m_n.advertise<nav_msgs::OccupancyGrid>("/OccupancyGridCellsBlurSlopeNorm",
+                                                               m_gridParams.queue_size);
     }
 
     void callback(const sensor_msgs::PointCloud2 input);
@@ -210,16 +212,15 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
         int convZ = (*iterZ) / m_gridParams.resolution;
         int convX = 1 * (*iterX) / m_gridParams.resolution + (m_gridXSize / 2.0);
 
-        ROS_DEBUG_STREAM_COND(m_log,
-                              std::fixed << std::setprecision(3) << "Z: " << *iterZ << "\tX: " << *iterX << "\tY: "
+        /* ROS_DEBUG_STREAM_COND(m_log, std::fixed << std::setprecision(3) << "Z: " << *iterZ << "\tX: " << *iterX << "\tY: "
                                          << *iterY << "\tconvZ: " << convZ << "\tconvX: " << convX << "\tHeight: "
                                          << height << std::endl);
-
+*/
         if (convZ < m_gridZSize && convX < m_gridXSize && convZ >= 0 && convX >= 0) {      //invalid bounds error check
             oGridPoints[convZ * m_gridXSize + convX].reserve(1500);
             oGridPoints[convZ * m_gridXSize + convX].emplace_back(height);
         } else {
-            ROS_DEBUG_STREAM_COND(m_log, "Point Detected Out of Occupancy Grid Limits" << std::endl);
+            //ROS_DEBUG_STREAM_COND(m_log, "Point Detected Out of Occupancy Grid Limits" << std::endl);
         }
     }
 
@@ -256,9 +257,15 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
                 oGridDataAccessor(output, z, x, 3) =
                         sum / (unsigned int) (oGridPoints[z * m_gridXSize + x].size() * 0.05 + 1);
             }
+        }
+    }
+
+    for (int z = 0; z < m_gridZSize; z++) {
+        for (int x = 0; x < m_gridXSize; x++) {
             int zExtended = 0;
             int xExtended = 0;
-            float weightedSum[5];
+            float weightedSum[5]{0};
+            //ROS_ERROR_STREAM(z<< " "<<x<<std::endl);
             //ASSUMES ALL KERNELS ARE SAME SIZE (5)
             for (int row = 0; row < m_gaussian_blur_kernel.size(); row++) {
                 zExtended = z - m_gaussian_blur_kernel.size() / 2 + row;
@@ -267,7 +274,6 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
                 } else if (zExtended >= m_gridZSize) {
                     zExtended = m_gridZSize - 1;
                 }
-
                 for (int col = 0; col < m_gaussian_blur_kernel.size(); col++) {
                     xExtended = x - m_gaussian_blur_kernel.size() / 2 + col;
                     if (xExtended < 0) {
@@ -286,8 +292,10 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
                             oGridDataAccessor(output, zExtended, xExtended, 1) * m_gaussian_hor_norm_kernel[row][col];
                     weightedSum[4] +=
                             oGridDataAccessor(output, zExtended, xExtended, 1) * m_gaussian_ver_norm_kernel[row][col];
+                    //ROS_ERROR_STREAM(row<<" "<<col<<" "<< m_gaussian_blur_kernel[row][col]<<" "<<(output, zExtended, xExtended, 1) << " " <<weightedSum[0]<<std::endl);
                 }
             }
+            //ROS_ERROR_STREAM(weightedSum[0]<<std::endl);
             //gaussian blur
             oGridDataAccessor(output, z, x, 4) = weightedSum[0];
             //normalized slope + gaussian blur
@@ -309,7 +317,7 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
         gridcells.info.resolution = 1.0;
         gridcells.info.width = m_gridXSize;
         gridcells.info.height = m_gridZSize;
-        //set the view to topdownortho in rviz, the display will be in the corretc orientation. Buttom left: point count, buttom right: avg, top left: max, top right: min
+        //set the view to topdownortho in rviz, the display will be in the correct orientation. Bottom left: point count, bottom right: avg, top left: max, top right: min
         gridcells.info.origin.position.x = i % 2 * m_gridXSize + i % 2 * 10.0;
         gridcells.info.origin.position.y = i / 2 * m_gridZSize + i / 2 * 10.0;
         gridcells.info.origin.position.z = 0.0;
@@ -415,7 +423,7 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
         ROS_DEBUG_STREAM(debugString.str());
 
         debugString.str("");
-        debugString << std::endl << "Blurred Slopes" << std::endl;
+        debugString << std::endl << "Norm Slopes" << std::endl;
         for (int z = m_gridZSize - 1; z >= 0; z--) {
             for (int x = 0; x < m_gridXSize; x++) {
                 debugString << oGridDataAccessor(output, z, x, 6) << "\t";
