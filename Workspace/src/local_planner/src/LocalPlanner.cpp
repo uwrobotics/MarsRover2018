@@ -24,6 +24,8 @@
 #include <visualization_msgs/Marker.h>
 #include <std_msgs/Int32MultiArray.h>
 
+#define IGNORE_DANGER_THRESHOLD 0.50
+
 CLocalPlanner::CLocalPlanner(ros::NodeHandle *pNh, const RobotParams_t& robotParams)
  : m_pNh(pNh),
    m_pOccupancySub(nullptr),
@@ -33,7 +35,11 @@ CLocalPlanner::CLocalPlanner(ros::NodeHandle *pNh, const RobotParams_t& robotPar
    m_pVelPub(nullptr),
    m_robotParams(robotParams),
    m_bOdomReceived(false),
-   m_bGoalReceived(false)
+   m_bGoalReceived(false),
+   m_bVelocityReady(true),
+   m_pVelPubThread(nullptr),
+   m_distanceSinceLastRightDanger(1000),
+   m_distanceSinceLastLeftDanger(1000)
 {
     m_pOccupancySub =  new ros::Subscriber(
             m_pNh->subscribe("/OccupancyGrid",1,&CLocalPlanner::OccupancyCallback, this));
@@ -47,6 +53,9 @@ CLocalPlanner::CLocalPlanner(ros::NodeHandle *pNh, const RobotParams_t& robotPar
             m_pNh->subscribe("/odometry/filtered",1,&CLocalPlanner::OdometryCallback, this));
 
     m_pVelPub = new ros::Publisher(m_pNh->advertise<geometry_msgs::Twist>("cmd_vel",1));
+
+    m_pVelPubThread =  new std::thread(&CLocalPlanner::VelocityPublisher, this);
+
 }
 
 void CLocalPlanner::CurVelCallback(geometry_msgs::Twist::ConstPtr vel)
@@ -159,11 +168,61 @@ void CLocalPlanner::OccupancyCallback(occupancy_grid::OccupancyGrid::ConstPtr gr
         return;
     }
     ROS_INFO("Received an occupancy grid");
-    CDynamicWindow dynamicWindow(m_curVel.linear.x,m_curVel.angular.z,m_robotParams);
+    CDynamicWindow dynamicWindow(m_curVel.linear.x,m_curVel.angular.z,m_robotParams, (m_distanceSinceLastLeftDanger < IGNORE_DANGER_THRESHOLD),
+                                                                                     (m_distanceSinceLastRightDanger < IGNORE_DANGER_THRESHOLD));
     ROS_INFO("Created dynamic window");
     geometry_msgs::Twist chosenVel = dynamicWindow.AssessOccupancyGrid(grid,m_orientationToGoal);
 
+    //Check for any danger conditions
+    double distSinceLastCheck = sqrt( (m_curGpsUtmX - m_lastDwaCoordUtmX)*(m_curGpsUtmX - m_lastDwaCoordUtmX) +
+                                        (m_curGpsUtmY - m_lastDwaCoordUtmY)*(m_curGpsUtmY - m_lastDwaCoordUtmY) );
+    if (dynamicWindow.FoundDangerOnRight())
+    {
+        m_distanceSinceLastRightDanger = 0;
+        ROS_INFO("There was danger on right");
+    }
+    else
+    {
+        m_distanceSinceLastRightDanger += distSinceLastCheck;
+    }
+    if (dynamicWindow.FoundDangerOnLeft())
+    {
+        m_distanceSinceLastLeftDanger = 0;
+        ROS_INFO("there was danger on left");
+    }
+    else
+    {
+        m_distanceSinceLastLeftDanger += distSinceLastCheck;
+    }
+    ROS_INFO("Distance since danger: left: %f, right %f", m_distanceSinceLastLeftDanger, m_distanceSinceLastRightDanger);
+    m_lastDwaCoordUtmX = m_curGpsUtmX;
+    m_lastDwaCoordUtmY = m_curGpsUtmY;
+
     ROS_INFO("chose v=%f, w=%f", chosenVel.linear.x, chosenVel.angular.z);
 
-    m_pVelPub->publish(chosenVel);
+    std::unique_lock<std::mutex> lock(m_velMutex);
+    m_targetVel = chosenVel;
+    m_bVelocityReady = true;
+    lock.unlock();
+}
+
+
+void CLocalPlanner::VelocityPublisher()
+{
+    ros::Rate rate(10);
+    while (ros::ok())
+    {
+        std::unique_lock<std::mutex> lock(m_velMutex);
+        if (m_bVelocityReady)
+        {
+            geometry_msgs::Twist vel = m_targetVel;
+            lock.unlock();
+            m_pVelPub->publish(vel);
+        }
+        else
+        {
+            lock.unlock();
+        }
+        rate.sleep();
+    }
 }

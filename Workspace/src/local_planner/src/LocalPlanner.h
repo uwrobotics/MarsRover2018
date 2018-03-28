@@ -13,6 +13,8 @@
 #include "DynamicWindow.h"
 
 #include <geometry_msgs/Point.h>
+#include <thread>
+#include <mutex>
 
 class CLocalPlanner
 {
@@ -27,6 +29,7 @@ private:
     void CurGPSCallback(sensor_msgs::NavSatFix::ConstPtr gps);
     void OccupancyCallback(occupancy_grid::OccupancyGrid::ConstPtr grid);
     void OdometryCallback(nav_msgs::Odometry::ConstPtr odemetry);
+    void VelocityPublisher();
 
 
     //Ros handlers
@@ -55,8 +58,17 @@ private:
     bool m_bOdomReceived;
     bool m_bGoalReceived;
 
+    //velocity publishing
+    std::mutex m_velMutex;
+    geometry_msgs::Twist m_targetVel;
+    bool m_bVelocityReady;
+    std::thread* m_pVelPubThread;
 
-
+    //tracking lost obstacles
+    double m_distanceSinceLastRightDanger;
+    double m_distanceSinceLastLeftDanger;
+    double m_lastDwaCoordUtmX;
+    double m_lastDwaCoordUtmY;
 };
 
 

@@ -5,19 +5,30 @@
 
 #define INF_DIST 100.0
 
-CDynamicWindow::CDynamicWindow(float curV, float curW, const RobotParams_t& robotParams)
+CDynamicWindow::CDynamicWindow(float curV, float curW, const RobotParams_t& robotParams, bool bDangerOnLeft, bool bDangerOnRight)
  : m_robotParams(robotParams),
    m_vIncrement(0.1),
    m_wIncrement(0.1),
    m_timestep(robotParams.timestep),
    m_curV(curV),
    m_curW(curW),
-   m_maxDist(0)
+   m_maxDist(0),
+   m_bFoundDangerOnRight(false),
+   m_bFoundDangerOnLeft(false)
 {
     m_lowV = std::max(curV - m_robotParams.maxLinDecel * m_timestep, m_robotParams.minV);
     m_highV = std::min(curV + m_robotParams.maxLinAccel * m_timestep, m_robotParams.maxV);
     m_lowW = std::max(curW - m_robotParams.maxAngAccel*m_timestep, -m_robotParams.maxW);
     m_highW = std::min(curW + m_robotParams.maxAngAccel*m_timestep, m_robotParams.maxW);
+
+    if (bDangerOnRight)
+    {
+        m_lowW = std::max(m_lowW, 0.0f);
+    }
+    if (bDangerOnLeft)
+    {
+        m_highW = std::min(m_highW, 0.0f);
+    }
 
     m_dynamicWindowGrid.resize(std::round((m_highV - m_lowV)/m_vIncrement) + 1);
     int row = 0;
@@ -43,15 +54,18 @@ geometry_msgs::Twist CDynamicWindow::AssessOccupancyGrid(occupancy_grid::Occupan
     {
         for (auto& dynWndPnt : velocityRow)
         {
+            bool foundDanger = false;
             double distance = OccupancyUtils::CalcDistance(pGrid,
                                                            dynWndPnt.v,
                                                            dynWndPnt.w,
                                                            m_robotParams.robotLength,
                                                            m_robotParams.robotWidth,
-                                                           m_timestep);
-            if (m_curV*m_curV >= 2*distance*m_robotParams.maxLinDecel)
+                                                           m_timestep,
+                                                           foundDanger);
+            if (/*m_curV*m_curV*/std::max(m_curV*m_curV, dynWndPnt.v*dynWndPnt.v)  >= 2*distance*m_robotParams.maxLinDecel)
             {
                 dynWndPnt.feasible = false;
+                ROS_INFO("Rejecting v=%f, w=%f",dynWndPnt.v,dynWndPnt.w);
             }
             else
             {
@@ -63,6 +77,21 @@ geometry_msgs::Twist CDynamicWindow::AssessOccupancyGrid(occupancy_grid::Occupan
                     m_maxDist = distance;
                 }
 
+            }
+
+            if (foundDanger)
+            {
+                //Note the danger of the point.
+                if (dynWndPnt.w > 0)
+                {
+                    ROS_INFO("Left danger for v:%f, w=%f",dynWndPnt.v,dynWndPnt.w);
+                    m_bFoundDangerOnLeft = true;
+                }
+                else if (dynWndPnt.w < 0)
+                {
+                    ROS_INFO("Right danger for v:%f, w=%f",dynWndPnt.v,dynWndPnt.w);
+                    m_bFoundDangerOnRight = true;
+                }
             }
         }
     }
@@ -95,7 +124,7 @@ geometry_msgs::Twist CDynamicWindow::AssessOccupancyGrid(occupancy_grid::Occupan
             double headingChange = dynWndPnt.w*m_timestep;
             double newHeadingToGoal = /*fabs*/(orientationToGoal - headingChange);
 
-ROS_INFO("v=%f, w=%f, orientToGoal=%f", dynWndPnt.v, dynWndPnt.w, orientationToGoal);
+//ROS_INFO("v=%f, w=%f, orientToGoal=%f", dynWndPnt.v, dynWndPnt.w, orientationToGoal);
             if (newHeadingToGoal > M_PI)
             {
                 newHeadingToGoal -= 2*M_PI;
@@ -104,13 +133,13 @@ ROS_INFO("v=%f, w=%f, orientToGoal=%f", dynWndPnt.v, dynWndPnt.w, orientationToG
             {
                 newHeadingToGoal += 2*M_PI;
             }
-ROS_INFO("change=%f, newHeading=%f", headingChange, newHeadingToGoal);
+//ROS_INFO("change=%f, newHeading=%f", headingChange, newHeadingToGoal);
             headingScore = fabs(M_PI - fabs(newHeadingToGoal))/M_PI;
 
             //velocityScore
             double velocityScore = (dynWndPnt.v - m_lowV)/(m_highV - m_lowV);
 
-            score = 1.6*headingScore + 0.9*distanceScore + 0.4*velocityScore;
+            score = 1.5*headingScore + 0.9*distanceScore + 0.4*velocityScore;
             ROS_INFO("v=%f, w=%f :  dist=%f, dScore=%f, hScore=%f, vScore=%f, score=%f", dynWndPnt.v, dynWndPnt.w,
                         dynWndPnt.dist, distanceScore, headingScore, velocityScore, score);
             if (score > highestScore)

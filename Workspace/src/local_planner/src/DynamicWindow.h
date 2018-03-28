@@ -24,8 +24,12 @@ typedef struct RobotParams
 class CDynamicWindow
 {
 public:
-    CDynamicWindow(float curV, float curW, const RobotParams_t& robotParams);
+    CDynamicWindow(float curV, float curW, const RobotParams_t& robotParams, bool bDangerOnLeft, bool bDangerOnRight);
     geometry_msgs::Twist AssessOccupancyGrid(occupancy_grid::OccupancyGrid::ConstPtr& pGrid, double orentationToGoal);
+
+    //Take note of any obstacles on the sides that may leave the camera cone on the next
+    bool FoundDangerOnRight() {return m_bFoundDangerOnRight;}
+    bool FoundDangerOnLeft() {return m_bFoundDangerOnLeft;}
 private:
     class DynamicWindowPoint
     {
@@ -73,6 +77,10 @@ private:
 
     //Keeping track
     double m_maxDist;
+
+    //Take note of any obstacles on the sides that may leave the camera cone on the next
+    bool m_bFoundDangerOnRight;
+    bool m_bFoundDangerOnLeft;
 
 };
 

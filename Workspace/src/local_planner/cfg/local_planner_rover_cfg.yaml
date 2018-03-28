@@ -1,9 +1,9 @@
 roverParams_maxAngAccel: 0.5;
 roverParams_maxLinAccel: 1.0;
-roverParams_maxLinDecel: 1.0;
+roverParams_maxLinDecel: 1.4;
 roverParams_maxV: 1.5;
 roverParams_minV: 0.0;
 roverParams_maxW: 1.0;
-roverParams_robotLength: 0.25;
+roverParams_robotLength: 0.75;
 roverParams_robotWidth: 0.57;
 roverParams_timestep: 0.5;

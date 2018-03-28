@@ -14,7 +14,8 @@ namespace OccupancyUtils {
 double CalcDistance(occupancy_grid::OccupancyGrid::ConstPtr& pGrid,
                     float v, float w,
                     float robotLength, float robotWidth,
-                    float timestep);
+                    float timestep,
+                    bool& foundDanger);
 void PointForCoord(occupancy_grid::OccupancyGrid::ConstPtr& pGrid,
                    double z, double x, int& zOut, int& xOut);
 
