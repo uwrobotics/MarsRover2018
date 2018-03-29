@@ -63,7 +63,7 @@ TeleopTwistJoy::TeleopTwistJoy(ros::NodeHandle *nh, ros::NodeHandle *nh_param) {
   // The line below needs to be changed to publish to the MarsRover driver
   // system, currently it publishes to a turtle bot sim.
   pimpl_->cmd_vel_pub =
-      nh->advertise<geometry_msgs::Twist>("/turtle1/cmd_vel", 1, true);
+      nh->advertise<geometry_msgs::Twist>("/cmd_vel", 1, true);
   pimpl_->joy_sub = nh->subscribe<sensor_msgs::Joy>(
       "drive_joy", 1, &TeleopTwistJoy::Impl::joyCallback, pimpl_);
 

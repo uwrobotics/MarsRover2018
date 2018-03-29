@@ -30,3 +30,7 @@
       uri: https://github.com/RethinkRobotics-opensource/gennodejs.git
       local-name: Workspace/src/dependencies/gennodejs
       version: kinetic-devel
+- git:
+      uri: https://github.com/ros/geometry.git
+      local-name: Workspace/src/dependencies/geometry
+      version: indigo-devel
