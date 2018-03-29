@@ -310,9 +310,9 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
     m_pub.publish(output);
 
     //ouput to rviz to visualize, publishes 7 messages, each corresponds to one element of the third dimension of the occupancy grid message(ie. point count, avg, max, min heights)
-    for (int i = 0; i < output.dataDimension[2].size - 1; i++) {
+    for (int i = 0; i < output.dataDimension[2].size; i++) {
         nav_msgs::OccupancyGrid gridcells;
-        gridcells.header.frame_id = "/duo3d_camera";
+        gridcells.header.frame_id = "/base_link";
         gridcells.header.stamp = ros::Time::now();
         gridcells.info.resolution = 1.0;
         gridcells.info.width = m_gridXSize;
