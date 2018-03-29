@@ -28,4 +28,6 @@
 		<param name="speckle_window_size" value="256"/>
 		<param name="speckle_range" value="2"/>
     	</node>
+
+	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find occupancy_grid)/launch/OccupancyVisualization.rviz"/>
 </launch>
