@@ -29,6 +29,17 @@ CDynamicWindow::CDynamicWindow(float curV, float curW, const RobotParams_t& robo
     {
         m_highW = std::min(m_highW, 0.0f);
     }
+    if (bDangerOnLeft && bDangerOnRight)
+    {
+        m_lowW = -m_wIncrement;
+        m_highW = m_wIncrement;
+    }
+    if (m_lowW > m_highW)
+    {
+        double temp = m_lowW;
+        m_lowW = m_highW;
+        m_highW = temp;
+    }
 
     m_dynamicWindowGrid.resize(std::round((m_highV - m_lowV)/m_vIncrement) + 1);
     int row = 0;

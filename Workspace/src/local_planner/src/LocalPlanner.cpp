@@ -24,7 +24,7 @@
 #include <visualization_msgs/Marker.h>
 #include <std_msgs/Int32MultiArray.h>
 
-#define IGNORE_DANGER_THRESHOLD 0.50
+#define IGNORE_DANGER_THRESHOLD 0.750
 
 CLocalPlanner::CLocalPlanner(ros::NodeHandle *pNh, const RobotParams_t& robotParams)
  : m_pNh(pNh),
@@ -39,7 +39,8 @@ CLocalPlanner::CLocalPlanner(ros::NodeHandle *pNh, const RobotParams_t& robotPar
    m_bVelocityReady(true),
    m_pVelPubThread(nullptr),
    m_distanceSinceLastRightDanger(1000),
-   m_distanceSinceLastLeftDanger(1000)
+   m_distanceSinceLastLeftDanger(1000),
+   m_bGoalReached(false)
 {
     m_pOccupancySub =  new ros::Subscriber(
             m_pNh->subscribe("/OccupancyGrid",1,&CLocalPlanner::OccupancyCallback, this));
@@ -79,6 +80,7 @@ void CLocalPlanner::GoalGPSCallback(geometry_msgs::Point::ConstPtr goal)
 
 
     m_bGoalReceived = true;
+    m_bGoalReached = false;
 
     ROS_INFO("New goal: x=%f, y=%f",m_goalGpsUtmX, m_goalGpsUtmY);
 }
@@ -164,6 +166,7 @@ void CLocalPlanner::OccupancyCallback(occupancy_grid::OccupancyGrid::ConstPtr gr
     if ((m_curGpsUtmY-m_goalGpsUtmY)*(m_curGpsUtmY-m_goalGpsUtmY) +
                 (m_curGpsUtmX-m_goalGpsUtmX)*(m_curGpsUtmX-m_goalGpsUtmX) < 1)
     {
+        m_bGoalReached = true;
         ROS_INFO("Goal reached\n");
         return;
     }
@@ -215,7 +218,16 @@ void CLocalPlanner::VelocityPublisher()
         std::unique_lock<std::mutex> lock(m_velMutex);
         if (m_bVelocityReady)
         {
-            geometry_msgs::Twist vel = m_targetVel;
+            geometry_msgs::Twist vel;
+            if (!m_bGoalReached)
+            {
+                vel = m_targetVel;
+            }
+            else
+            {
+                vel.linear.x = 0;
+                vel.angular.z = 0;
+            }
             lock.unlock();
             m_pVelPub->publish(vel);
         }

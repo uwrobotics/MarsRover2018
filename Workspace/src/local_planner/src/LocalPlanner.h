@@ -57,6 +57,7 @@ private:
 
     bool m_bOdomReceived;
     bool m_bGoalReceived;
+    bool m_bGoalReached;
 
     //velocity publishing
     std::mutex m_velMutex;

@@ -3,11 +3,11 @@
 //
 #include "OccupancyUtils.h"
 #include <ros/ros.h>
-#define HEIGHT_THRESH 0.02
+#define HEIGHT_THRESH 0.10
 
 //DANGER ZONE
 #define DANGER_ZONE_X_DIST 1.25 //times robotWidth
-#define DANGER_ZONE_Y_DIST 0.45 //meters
+#define DANGER_ZONE_Y_DIST 0.40 //meters
 
 namespace OccupancyUtils {
     typedef enum {
@@ -82,7 +82,7 @@ void odbg(double x, double y, int xi, int yi, occupancy_grid::OccupancyGrid::Con
 //                y = 0;%m
 //                distanceMax=10;
 //
-        double safetyBubble = 0.4 * v;
+        double safetyBubble = 0.2 + 0.2 * v;
         double bufferFromCenter = safetyBubble + robotWidth / 2;
         double halfRobotWidth = robotWidth/2;
 
