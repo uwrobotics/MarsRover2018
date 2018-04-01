@@ -6,4 +6,6 @@
 
 	<node pkg="occupancy_grid" type="occupancy_grid" name="occupancy_grid">
 	</node>
+
+	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find occupancy_grid)/launch/OccupancyVisualization.rviz"/>
 </launch>
