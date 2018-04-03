@@ -8,11 +8,12 @@ from std_msgs.msg import Float64
 
 class NorthFinder:
 
-    def __init__(self):
+    def __init__(self, sub_topic='odometry/filtered',
+                 pub_topic='/angle'):
         rospy.init_node('north_finder')
         self.subscriber = rospy.Subscriber(
-            'odometry/filtered', Odometry, self.odom_to_yaw)
-        self.publisher = rospy.Publisher('/angle', Float64, queue_size=1)
+            sub_topic, Odometry, self.odom_to_yaw)
+        self.publisher = rospy.Publisher(pub_topic, Float64, queue_size=1)
 
     # Converts filtered odometry into a heading angle,
     # and then publishes the angle
