@@ -24,15 +24,17 @@ public:
     joy_sub =
         n.subscribe<sensor_msgs::Joy>("joy", 1, &StateSelect::callback, this);
 
-    // Publisher to three separate branches
+    // Publisher to four separate branches
     drive_pub = n.advertise<sensor_msgs::Joy>("drive_joy", 1);
     science_pub = n.advertise<sensor_msgs::Joy>("science_joy", 1);
     arm_pub = n.advertise<sensor_msgs::Joy>("arm_joy", 1);
+    autonomy_pub = n.advertise<sensor_msgs::Joy>("autonomy_joy", 1);
 
     // Logic Variables Initialization
     i = DRIVE;       // Starts at the drive branch
     pressed = false; // Initially, the change button is assumed to be NOT
                      // PRESSED
+    sensor_msgs::Joy empty_joy_msg; // empty joy message needed when switching states
   }
 
 private:
@@ -42,7 +44,8 @@ private:
   ros::Publisher drive_pub;
   ros::Publisher science_pub;
   ros::Publisher arm_pub;
-  enum topics { DRIVE, ARM, SCIENCE };
+  ros::Publisher autonomy_pub;
+  enum topics { DRIVE, ARM, SCIENCE, AUTONOMY };
   int i; // Variable thats holds the current state index
   bool pressed;
 };
@@ -52,8 +55,22 @@ void StateSelect::callback(const sensor_msgs::Joy::ConstPtr &joy) {
 
   // logic to cycle through different states
   if (joy->buttons[8] == 1 && !pressed) {
+    // Send empty message
+    if (i == DRIVE)
+      drive_pub.publish(empty_joy_msg);
+
+    else if (i == ARM)
+      arm_pub.publish(empty_joy_msg);
+
+
+    else if (i == SCIENCE)
+      science_pub.publish(empty_joy_msg);
+
+    else if (i == AUTONOMY)
+      autonomy_pub.publish(empty_joy_msg);
+
     i++;
-    if (i >= 3)
+    if (i >= 4)
       i = DRIVE; // Cycle back to drive after science branch
     pressed = true;
   } else
@@ -65,17 +82,17 @@ void StateSelect::callback(const sensor_msgs::Joy::ConstPtr &joy) {
   else
     pressed = true;
 
-  if (i == DRIVE) {
+  if (i == DRIVE)
     drive_pub.publish(joy);
-  }
 
-  else if (i == ARM) {
+  else if (i == ARM)
     arm_pub.publish(joy);
-  }
 
-  else if (i == SCIENCE) {
+  else if (i == SCIENCE)
     science_pub.publish(joy);
-  }
+
+  else if (i == AUTONOMY)
+    autonomy_pub.publish(joy);
 }
 
 int main(int argc, char *argv[]) {
