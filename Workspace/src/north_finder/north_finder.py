@@ -7,7 +7,7 @@ from std_msgs.msg import Float64
 
 # Converts filtered odometry into a heading angle,
 # and then publishes the angle
-# Valid andles are from 180 to -180, where East is 0
+# Valid andles are from -90 to 270, where North is 0
 class NorthFinder:
 
     def __init__(self, sub_topic='odometry/filtered',
@@ -24,7 +24,7 @@ class NorthFinder:
             data.pose.pose.orientation.z,
             data.pose.pose.orientation.w)
         euler = tf.transformations.euler_from_quaternion(quaternion)
-        yaw = euler[2] / math.pi * 180
+        yaw = (euler[2] / math.pi * 180) + 90 # Make North 0
         output_message = Float64()
         output_message.data = yaw
         rospy.logdebug("Publishing yaw: %f", yaw)
