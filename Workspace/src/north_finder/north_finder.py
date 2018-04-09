@@ -5,7 +5,9 @@ import math
 from nav_msgs.msg import Odometry
 from std_msgs.msg import Float64
 
-
+# Converts filtered odometry into a heading angle,
+# and then publishes the angle
+# Valid andles are from 180 to -180, where East is 0
 class NorthFinder:
 
     def __init__(self, sub_topic='odometry/filtered',
@@ -15,8 +17,6 @@ class NorthFinder:
             sub_topic, Odometry, self.odom_to_yaw)
         self.publisher = rospy.Publisher(pub_topic, Float64, queue_size=1)
 
-    # Converts filtered odometry into a heading angle,
-    # and then publishes the angle
     def odom_to_yaw(self, data):
         quaternion = (
             data.pose.pose.orientation.x,
