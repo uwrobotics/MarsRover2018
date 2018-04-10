@@ -34,7 +34,24 @@ public:
     i = DRIVE;       // Starts at the drive branch
     pressed = false; // Initially, the change button is assumed to be NOT
                      // PRESSED
-    sensor_msgs::Joy empty_joy_msg; // empty joy message needed when switching states
+    
+    // populate timestamp, axes and buttons of empty joy msg, make into function?
+    empty_joy_msg.header.stamp = ros::Time().now();
+
+    // get size of buttons and axes arrays
+    int num_buttons = empty_joy_msg.buttons.size();
+    int num_axes = empty_joy_msg.axes.size();
+
+    // loop through each set, set all values to 0
+    for (int j = 0; j < num_buttons; j++)
+    {
+      empty_joy_msg.buttons[j] = 0;
+    }
+
+    for (int k = 0; k < num_axes; k++)
+    {
+      empty_joy_msg.axes[k] = 0.0;
+    }
   }
 
 private:
@@ -48,6 +65,7 @@ private:
   enum topics { DRIVE, ARM, SCIENCE, AUTONOMY };
   int i; // Variable thats holds the current state index
   bool pressed;
+  sensor_msgs::Joy empty_joy_msg; // empty joy message needed when switching states
 };
 
 // Callback function: Called everytime there is an update on the joy-stick
