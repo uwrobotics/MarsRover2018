@@ -137,6 +137,8 @@ include_directories(
 add_executable(twist2roboteq_node src/twist2roboteq_node.cpp)
 add_executable(twist2roboteq_odom src/twist2roboteq_odom.cpp)
 
+add_dependencies(twist2roboteq_node ${catkin_EXPORTED_TARGETS})
+add_dependencies(twist2roboteq_odom ${catkin_EXPORTED_TARGETS})
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use

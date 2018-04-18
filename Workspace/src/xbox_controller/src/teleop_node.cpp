@@ -8,7 +8,10 @@ button is pressed.
 The button used to switch between branches is the CENTER XBOX BUTTON. (The big
 circular button with an X).
 
-The order of cycle goes like : Drive --> Arm --> Science --> Drive......
+When in drive mode, hold a to activate the joysticks and turn as desired,
+alternatively, use the rb button to enter turbo mode and go quicker 
+
+The order of cycle goes like : Drive --> Arm --> Science --> Autonomy --> Drive......
 
 */
 
@@ -34,8 +37,9 @@ public:
     i = DRIVE;       // Starts at the drive branch
     pressed = false; // Initially, the change button is assumed to be NOT
                      // PRESSED
-    
-    // populate timestamp, axes and buttons of empty joy msg, make into function?
+
+    // populate timestamp, axes and buttons of empty joy msg, make into
+    // function?
     empty_joy_msg.header.stamp = ros::Time().now();
 
     // get size of buttons and axes arrays
@@ -43,13 +47,11 @@ public:
     int num_axes = empty_joy_msg.axes.size();
 
     // loop through each set, set all values to 0
-    for (int j = 0; j < num_buttons; j++)
-    {
+    for (int j = 0; j < num_buttons; j++) {
       empty_joy_msg.buttons[j] = 0;
     }
 
-    for (int k = 0; k < num_axes; k++)
-    {
+    for (int k = 0; k < num_axes; k++) {
       empty_joy_msg.axes[k] = 0.0;
     }
   }
@@ -62,10 +64,11 @@ private:
   ros::Publisher science_pub;
   ros::Publisher arm_pub;
   ros::Publisher autonomy_pub;
-  enum topics { DRIVE, ARM, SCIENCE, AUTONOMY };
+  enum topics { DRIVE, ARM, SCIENCE, AUTONOMY, NUM_TOPICS };
   int i; // Variable thats holds the current state index
   bool pressed;
-  sensor_msgs::Joy empty_joy_msg; // empty joy message needed when switching states
+  sensor_msgs::Joy
+  empty_joy_msg; // empty joy message needed when switching states
 };
 
 // Callback function: Called everytime there is an update on the joy-stick
@@ -80,7 +83,6 @@ void StateSelect::callback(const sensor_msgs::Joy::ConstPtr &joy) {
     else if (i == ARM)
       arm_pub.publish(empty_joy_msg);
 
-
     else if (i == SCIENCE)
       science_pub.publish(empty_joy_msg);
 
@@ -88,8 +90,8 @@ void StateSelect::callback(const sensor_msgs::Joy::ConstPtr &joy) {
       autonomy_pub.publish(empty_joy_msg);
 
     i++;
-    if (i >= 4)
-      i = DRIVE; // Cycle back to drive after science branch
+    if (i >= NUM_TOPICS)
+      i = DRIVE; // Cycle back to drive after autonomy branch
     pressed = true;
   } else
     pressed = false;
