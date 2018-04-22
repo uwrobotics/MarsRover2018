@@ -3,7 +3,8 @@
 //
 #include "OccupancyUtils.h"
 #include <ros/ros.h>
-#define HEIGHT_THRESH 0.10
+#define HEIGHT_THRESH 0.15
+#define SLOPE_THRESH 0.10
 
 //DANGER ZONE
 #define DANGER_ZONE_X_DIST 1.25 //times robotWidth
@@ -56,7 +57,8 @@ void odbg(double x, double y, int xi, int yi, occupancy_grid::OccupancyGrid::Con
             return INVALID_POINT;
         }
         odbg(x,y,xInGrid,zInGrid,pGrid);
-        if (oGridDataAccessor(pGrid, zInGrid, xInGrid, 1) > HEIGHT_THRESH)
+        if (oGridDataAccessor(pGrid, zInGrid, xInGrid, 4) > HEIGHT_THRESH ||
+            oGridDataAccessor(pGrid, zInGrid, xInGrid, 5) > SLOPE_THRESH )
         {
             return NOT_TRAVERSABLE;
         }

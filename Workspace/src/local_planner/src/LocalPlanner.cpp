@@ -24,7 +24,7 @@
 #include <visualization_msgs/Marker.h>
 #include <std_msgs/Int32MultiArray.h>
 
-#define IGNORE_DANGER_THRESHOLD 0.750
+#define IGNORE_DANGER_THRESHOLD 0.50
 
 CLocalPlanner::CLocalPlanner(ros::NodeHandle *pNh, const RobotParams_t& robotParams)
  : m_pNh(pNh),
@@ -51,7 +51,7 @@ CLocalPlanner::CLocalPlanner(ros::NodeHandle *pNh, const RobotParams_t& robotPar
     m_pGoalGpsSub = new ros::Subscriber(
             m_pNh->subscribe("/local_plan/goal_gps",1,&CLocalPlanner::GoalGPSCallback, this));
     m_pOdometrySub = new ros::Subscriber(
-            m_pNh->subscribe("/odometry/filtered",1,&CLocalPlanner::OdometryCallback, this));
+            m_pNh->subscribe("/odometry/rover_gps_odom",1,&CLocalPlanner::OdometryCallback, this));
 
     m_pVelPub = new ros::Publisher(m_pNh->advertise<geometry_msgs::Twist>("cmd_vel",1));
 
