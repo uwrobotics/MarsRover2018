@@ -24,7 +24,7 @@
 #include <visualization_msgs/Marker.h>
 #include <std_msgs/Int32MultiArray.h>
 
-#define IGNORE_DANGER_THRESHOLD 0.50
+#define IGNORE_DANGER_THRESHOLD 0.0//0.250
 
 CLocalPlanner::CLocalPlanner(ros::NodeHandle *pNh, const RobotParams_t& robotParams)
  : m_pNh(pNh),
