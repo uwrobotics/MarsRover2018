@@ -45,14 +45,39 @@ CDynamicWindow::CDynamicWindow(float curV, float curW, const RobotParams_t& robo
     int row = 0;
     for (auto& velocityRow : m_dynamicWindowGrid)
     {
-        unsigned long rowSize = std::round((m_highW - m_lowW) / m_wIncrement) + 1;
-        velocityRow.reserve(rowSize);
-        for (int col = 0; col < rowSize; col++) {
-            velocityRow.emplace_back(m_lowV + row * m_vIncrement,
+        double velocity = m_lowV + row * m_vIncrement;
+        if (std::round(velocity * 1000) == 0)
+        {
+            unsigned long rowSize = std::round((m_highW - m_lowW) / m_wIncrement) + 1;
+            velocityRow.reserve(rowSize);
+            for (int col = 0; col < rowSize; col++) {
+                velocityRow.emplace_back(m_lowV + row * m_vIncrement,
                                      m_lowW + col * m_wIncrement);
+            }
+
         }
+        else {
+
+            double maxRad = 10;
+            double radIncrement = 0.5;
 
 
+            unsigned long rowSize = 2 * std::round(maxRad / radIncrement) + 1;
+
+            double curRad = -radIncrement;
+            for (double curRad = -radIncrement; curRad > -maxRad; curRad -= radIncrement)
+            {
+                velocityRow.emplace_back(velocity,
+                                         velocity / curRad);
+            }
+            velocityRow.emplace_back(velocity,0);
+
+            for (double curRad = radIncrement; curRad < maxRad; curRad += radIncrement)
+            {
+                velocityRow.emplace_back(velocity,
+                                         velocity / curRad);
+            }
+        }
         row++;
     }
 }
@@ -65,6 +90,12 @@ geometry_msgs::Twist CDynamicWindow::AssessOccupancyGrid(occupancy_grid::Occupan
     {
         for (auto& dynWndPnt : velocityRow)
         {
+            //reject points with infeasible radial velocities
+            if (dynWndPnt.w < m_lowW || dynWndPnt.w > m_highW)
+            {
+                dynWndPnt.feasible = false;
+                continue;
+            }
             bool foundDanger = false;
             double distance = OccupancyUtils::CalcDistance(pGrid,
                                                            dynWndPnt.v,
@@ -150,7 +181,7 @@ geometry_msgs::Twist CDynamicWindow::AssessOccupancyGrid(occupancy_grid::Occupan
             //velocityScore
             double velocityScore = (dynWndPnt.v - m_lowV)/(m_highV - m_lowV);
 
-            score = 1.5*headingScore + 0.8*distanceScore + 0.3*velocityScore;
+            score = 1.7*headingScore + 0.8*distanceScore + 0.2*velocityScore;
             ROS_INFO("v=%f, w=%f :  dist=%f, dScore=%f, hScore=%f, vScore=%f, score=%f", dynWndPnt.v, dynWndPnt.w,
                         dynWndPnt.dist, distanceScore, headingScore, velocityScore, score);
             if (score > highestScore)

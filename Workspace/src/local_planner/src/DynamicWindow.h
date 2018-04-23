@@ -6,15 +6,15 @@
 
 typedef struct RobotParams
 {
-    float maxV;
-    float minV;
-    float maxW;
-    float maxLinAccel;
-    float maxLinDecel;
-    float maxAngAccel;
-    float robotWidth;
-    float robotLength;
-    float timestep;
+    double maxV;
+    double minV;
+    double maxW;
+    double maxLinAccel;
+    double maxLinDecel;
+    double maxAngAccel;
+    double robotWidth;
+    double robotLength;
+    double timestep;
 
 } RobotParams_t;
 
