@@ -7,7 +7,7 @@
 
 #include "occupancy_grid/OccupancyGrid.h"
 
-#define DISTANCE_MAX 20.0
+#define DISTANCE_INF 20.0
 
 namespace OccupancyUtils {
 

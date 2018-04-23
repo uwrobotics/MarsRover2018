@@ -11,7 +11,6 @@
 #include <tf2_ros/transform_listener.h>
 
 #include <robot_localization/navsat_conversions.h>
-//#include <move_base_msgs/MoveBaseAction.h>
 #include "std_msgs/String.h"
 #include <actionlib/client/simple_action_client.h>
 #include <cmath>
@@ -20,10 +19,10 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
-//#include <rover_autonomy/gps_coord.h>
 #include <std_msgs/Int32MultiArray.h>
 #include <visualization_msgs/Marker.h>
 
+//Distance to remember obstacles near the corner for
 #define IGNORE_DANGER_THRESHOLD 0.0 // 0.250
 
 CLocalPlanner::CLocalPlanner(ros::NodeHandle *pNh,
@@ -34,28 +33,28 @@ CLocalPlanner::CLocalPlanner(ros::NodeHandle *pNh,
       m_bGoalReceived(false), m_bVelocityReady(true), m_pVelPubThread(nullptr),
       m_distanceSinceLastRightDanger(1000), m_distanceSinceLastLeftDanger(1000),
       m_bGoalReached(false) {
+
+  //subscribe to the occupancy grid
   m_pOccupancySub = new ros::Subscriber(m_pNh->subscribe(
       "/OccupancyGrid", 1, &CLocalPlanner::OccupancyCallback, this));
-  // m_pVelSub = new ros::Subscriber(
-  //        m_pNh->subscribe("current_vel",1,&CLocalPlanner::CurVelCallback,
-  //        this));
-  // m_pCurGpsSub = new ros::Subscriber(
-  //        m_pNh->subscribe("cur_gps",1,&CLocalPlanner::CurGPSCallback, this));
+
+  //subscribe to the goal gps coord
   m_pGoalGpsSub = new ros::Subscriber(m_pNh->subscribe(
       "/local_plan/goal_gps", 1, &CLocalPlanner::GoalGPSCallback, this));
+  //subscribe to the current odometry
   m_pOdometrySub = new ros::Subscriber(m_pNh->subscribe(
       "/odometry/rover_gps_odom", 1, &CLocalPlanner::OdometryCallback, this));
 
+  // velocity publisher
   m_pVelPub =
       new ros::Publisher(m_pNh->advertise<geometry_msgs::Twist>("cmd_vel", 1));
 
+  //thread to continuously publish the desired velocity
   m_pVelPubThread = new std::thread(&CLocalPlanner::VelocityPublisher, this);
 }
 
-void CLocalPlanner::CurVelCallback(geometry_msgs::Twist::ConstPtr vel) {
-  m_curVel = *vel;
-}
-
+// Callback for when a new goal gps coord is received.
+// Convert it to utm (TODO) and store
 // void CLocalPlanner::GoalGPSCallback(sensor_msgs::NavSatFix::ConstPtr goal)
 void CLocalPlanner::GoalGPSCallback(geometry_msgs::Point::ConstPtr goal) {
   //    m_goalGPS = *goal;
@@ -75,10 +74,9 @@ void CLocalPlanner::GoalGPSCallback(geometry_msgs::Point::ConstPtr goal) {
   ROS_INFO("New goal: x=%f, y=%f", m_goalGpsUtmX, m_goalGpsUtmY);
 }
 
-void CLocalPlanner::CurGPSCallback(sensor_msgs::NavSatFix::ConstPtr gps) {
-  m_curGPS = *gps;
-}
-
+// Odometry callback
+// Convert the received location into UTM (TODO)
+// and update heading information
 void CLocalPlanner::OdometryCallback(nav_msgs::Odometry::ConstPtr odometry) {
 
   //    tf2_ros::Buffer tfBuffer;
@@ -103,7 +101,8 @@ void CLocalPlanner::OdometryCallback(nav_msgs::Odometry::ConstPtr odometry) {
 
   m_curVel = odometry->twist.twist;
 
-  double heading = 0; ////TODO
+  // get the heading
+  double heading = 0;
   tf::Quaternion q(
       odometry->pose.pose.orientation.x, odometry->pose.pose.orientation.y,
       odometry->pose.pose.orientation.z, odometry->pose.pose.orientation.w);
@@ -115,11 +114,15 @@ void CLocalPlanner::OdometryCallback(nav_msgs::Odometry::ConstPtr odometry) {
     heading += 2 * M_PI;
   }
 
+  // calculate the current relative orientation of the goal
   double globOrient =
       atan2(-(m_goalGpsUtmX - m_curGpsUtmX), m_goalGpsUtmY - m_curGpsUtmY);
   m_orientationToGoal = globOrient - heading;
 
+  // note that we have received odometry, which is necessary to start planning
   m_bOdomReceived = true;
+
+  //Debug statements
   static int count = 0;
   if (count == 0) {
     ROS_INFO("Current velocity: v=%f, w=%f", m_curVel.linear.x,
@@ -135,20 +138,21 @@ void CLocalPlanner::OdometryCallback(nav_msgs::Odometry::ConstPtr odometry) {
 
 /*
 ///Occupancy Callback:
-1) blur the occupancy grid if needed
-2) find slope if needed
-3) construct dynamic window based on cur vel
-4) assess distances
-5) compute scores
-6) select bests
-
+1) construct dynamic window based on cur vel
+2) assess distances
+3) compute scores
+4) select best
  */
 void CLocalPlanner::OccupancyCallback(
     occupancy_grid::OccupancyGrid::ConstPtr grid) {
+  //Make sure we have the information requiredd for planning
   if (!m_bOdomReceived || !m_bGoalReceived) {
     ROS_WARN("ignoring occupancy: not ready");
     return;
   }
+
+  //check if we've already reached the goal
+  //TODO: publish a message for the global planner
   if ((m_curGpsUtmY - m_goalGpsUtmY) * (m_curGpsUtmY - m_goalGpsUtmY) +
           (m_curGpsUtmX - m_goalGpsUtmX) * (m_curGpsUtmX - m_goalGpsUtmX) <
       1) {
@@ -157,15 +161,20 @@ void CLocalPlanner::OccupancyCallback(
     return;
   }
   ROS_INFO("Received an occupancy grid");
+
+  //Construct the dynamic window based on current velocity, and inform it if it needs
+  //to avoid an obstacle on one side
   CDynamicWindow dynamicWindow(
       m_curVel.linear.x, m_curVel.angular.z, m_robotParams,
       (m_distanceSinceLastLeftDanger < IGNORE_DANGER_THRESHOLD),
       (m_distanceSinceLastRightDanger < IGNORE_DANGER_THRESHOLD));
   ROS_INFO("Created dynamic window");
+
+  //Determine the best speed
   geometry_msgs::Twist chosenVel =
       dynamicWindow.AssessOccupancyGrid(grid, m_orientationToGoal);
 
-  // Check for any danger conditions
+  // Check for any danger conditions (obstacle near a from corner that may leave the cameras FOV
   double distSinceLastCheck = sqrt((m_curGpsUtmX - m_lastDwaCoordUtmX) *
                                        (m_curGpsUtmX - m_lastDwaCoordUtmX) +
                                    (m_curGpsUtmY - m_lastDwaCoordUtmY) *
@@ -187,14 +196,15 @@ void CLocalPlanner::OccupancyCallback(
   m_lastDwaCoordUtmX = m_curGpsUtmX;
   m_lastDwaCoordUtmY = m_curGpsUtmY;
 
+  //store the selected velocity so the publisher thread can publish it
   ROS_INFO("chose v=%f, w=%f", chosenVel.linear.x, chosenVel.angular.z);
-
   std::unique_lock<std::mutex> lock(m_velMutex);
   m_targetVel = chosenVel;
   m_bVelocityReady = true;
   lock.unlock();
 }
 
+//Velocity publisher thread: continually publish the desired velocity so the rover keeps moving
 void CLocalPlanner::VelocityPublisher() {
   ros::Rate rate(10);
   while (ros::ok()) {
@@ -204,6 +214,7 @@ void CLocalPlanner::VelocityPublisher() {
       if (!m_bGoalReached) {
         vel = m_targetVel;
       } else {
+        // if we've reached our goal, stop moving
         vel.linear.x = 0;
         vel.angular.z = 0;
       }

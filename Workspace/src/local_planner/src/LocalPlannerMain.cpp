@@ -7,9 +7,6 @@
 
 ros::Publisher velocityPub;
 
-void CurrentVelocityCallback(geometry_msgs::Twist::ConstPtr &currentVelocity) {}
-
-void OccupancyGridCallback(nav_msgs::OccupancyGrid::ConstPtr &occupancyGrid) {}
 
 int main(int argc, char **argv) {
   ros::init(argc, argv, "local_planner");

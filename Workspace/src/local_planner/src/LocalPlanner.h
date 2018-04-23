@@ -23,27 +23,21 @@ public:
 
 private:
   // Subscriber callbacks
-  void CurVelCallback(geometry_msgs::Twist::ConstPtr vel);
-  // void GoalGPSCallback(sensor_msgs::NavSatFix::ConstPtr goal);
   void GoalGPSCallback(geometry_msgs::Point::ConstPtr goal);
-  void CurGPSCallback(sensor_msgs::NavSatFix::ConstPtr gps);
   void OccupancyCallback(occupancy_grid::OccupancyGrid::ConstPtr grid);
   void OdometryCallback(nav_msgs::Odometry::ConstPtr odemetry);
+  //publisher thread
   void VelocityPublisher();
 
   // Ros handlers
   ros::NodeHandle *m_pNh;
-  ros::Subscriber *m_pVelSub;
   ros::Subscriber *m_pOccupancySub;
-  ros::Subscriber *m_pCurGpsSub;
   ros::Subscriber *m_pGoalGpsSub;
   ros::Subscriber *m_pOdometrySub;
   ros::Publisher *m_pVelPub;
 
   // status
   geometry_msgs::Twist m_curVel;
-  sensor_msgs::NavSatFix m_goalGPS;
-  sensor_msgs::NavSatFix m_curGPS;
   double m_curGpsUtmX;
   double m_curGpsUtmY;
   std::string m_curGpsUtmZone;

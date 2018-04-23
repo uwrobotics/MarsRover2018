@@ -30,11 +30,11 @@ float oGridDataAccessor(occupancy_grid::OccupancyGrid::ConstPtr &oGrid,
 
 void PointForCoord(occupancy_grid::OccupancyGrid::ConstPtr &pGrid, double y,
                    double x, int &zOut, int &xOut) {
-  float coordZ = (y) / pGrid->header.gridResolution;
-  float coordX =
+  double coordZ = (y) / pGrid->header.gridResolution;
+  double coordX =
       (x) / pGrid->header.gridResolution + (pGrid->dataDimension[1].size / 2.0);
-  zOut = (int)(coordZ + 0.5);
-  xOut = (int)(coordX + 0.5);
+  zOut = (int)std::round(coordZ);
+  xOut = (int)std::round(coordX);
 }
 
 void odbg(double x, double y, int xi, int yi,
@@ -120,7 +120,7 @@ double CalcDistance(occupancy_grid::OccupancyGrid::ConstPtr &pGrid, float v,
     //             }
     //             else
     //             {
-    //                 retDist = DISTANCE_MAX;
+    //                 retDist = DISTANCE_INF;
     //             }
 
     double theta = w * timestep;
@@ -162,7 +162,7 @@ double CalcDistance(occupancy_grid::OccupancyGrid::ConstPtr &pGrid, float v,
           (yIndexRightCorn >= (int)pGrid->dataDimension[0].size) ||
           (yIndexLeftCorn >= (int)pGrid->dataDimension[0].size)) {
         done = true;
-        retDist = DISTANCE_MAX;
+        retDist = DISTANCE_INF;
         // ROS_INFO("%d,%d,%d",yIndexCenter,yIndexRightCorn,yIndexLeftCorn);
       } else if ((xIndexLeftCorn < 0) || xIndexRightCorn < 0 ||
                  (xIndexRightCorn > (int)pGrid->dataDimension[1].size) ||
@@ -219,7 +219,7 @@ double CalcDistance(occupancy_grid::OccupancyGrid::ConstPtr &pGrid, float v,
     //
     while (continueChecking) {
       if (yIndex >= pGrid->dataDimension[0].size) {
-        retDist = DISTANCE_MAX; // -velocity(1) * timestep;
+        retDist = DISTANCE_INF; // -velocity(1) * timestep;
         continueChecking = false;
         //        end
         //                end
@@ -304,7 +304,7 @@ centerXIndex);
                       (leftYIndex >= (int)pGrid->dataDimension[0].size))
       {
           done = true;
-          retDist = DISTANCE_MAX;
+          retDist = DISTANCE_INF;
 //ROS_INFO("%d,%d,%d",centerYIndex,rightYIndex,leftYIndex);
       }
       else if ((leftXIndex < 0) ||
@@ -347,7 +347,7 @@ HEIGHT_THRESH))
         done = true;
       } else if (leftResult == BEYOND_GRID || rightResult == BEYOND_GRID ||
                  centerResult == BEYOND_GRID) {
-        retDist = DISTANCE_MAX;
+        retDist = DISTANCE_INF;
         done = true;
       } else if (leftResult == NOT_TRAVERSABLE ||
                  rightResult == NOT_TRAVERSABLE ||

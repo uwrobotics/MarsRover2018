@@ -45,7 +45,6 @@ private:
     bool feasible;
   };
 
-  double CalcDistance(float v, float w);
 
   // The dynamic window grid
   typedef std::vector<DynamicWindowPoint> VelocityRow;
@@ -71,8 +70,8 @@ private:
   // Keeping track
   double m_maxDist;
 
-  // Take note of any obstacles on the sides that may leave the camera cone on
-  // the next
+  // Take note of any obstacles on the sides that may leave the camera FOV on
+  // the next iteration
   bool m_bFoundDangerOnRight;
   bool m_bFoundDangerOnLeft;
 };
