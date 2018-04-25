@@ -35,6 +35,6 @@
       local-name: Workspace/src/dependencies/geometry
       version: indigo-devel
 - git:
-      uri: https://github.com/ros-drivers/rosserial
-      local-name: Workspace/src/dependencies/rosserial
-      version: jade-devel
+      uri: https://github.com/wjwwood/serial
+      local-name: Workspace/src/dependencies/serial
+      version: master
