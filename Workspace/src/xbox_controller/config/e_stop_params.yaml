@@ -1,0 +1,8 @@
+sub_topic: "/autonomy_joy"
+pub_topic: "/emergency_cmd_vel"
+
+
+queue_size: 1
+rate: 10
+emergency_button_set: [0,0,0,0,0,0,0,0,0,0,0,0]
+reset_button_set: [0,0,0,0,0,0,0,0,0,0,0,0]
