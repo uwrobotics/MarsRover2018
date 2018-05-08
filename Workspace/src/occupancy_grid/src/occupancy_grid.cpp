@@ -31,10 +31,11 @@ typedef struct {
     float zMax;
     float xMax;
     float yOffset;
+    std::vector<float>rgb_lower_lim;
+    std::vector<float>rgb_upper_lim;
     float resolution;
     int rate;
     int queue_size;
-
     float mappingScalar;
     float mappingNormalizer;
 } gridParams;
@@ -76,6 +77,8 @@ public:
         ROS_ASSERT(ros::param::get("zMax", m_gridParams.zMax));
         ROS_ASSERT(ros::param::get("xMax", m_gridParams.xMax));
         ROS_ASSERT(ros::param::get("yOffset", m_gridParams.yOffset));
+	ROS_ASSERT(ros::param::get("rgb_lower_lim", m_gridParams.rgb_lower_lim));
+	ROS_ASSERT(ros::param::get("rgb_upper_lim", m_gridParams.rgb_upper_lim));
         ROS_ASSERT(ros::param::get("resolution", m_gridParams.resolution));
         ROS_ASSERT(ros::param::get("rate", m_gridParams.rate));
         ROS_ASSERT(ros::param::get("queue_size", m_gridParams.queue_size));
@@ -203,20 +206,24 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
     sensor_msgs::PointCloud2ConstIterator<float> iterX(input, "x");
     sensor_msgs::PointCloud2ConstIterator<float> iterY(input, "y");
     sensor_msgs::PointCloud2ConstIterator<float> iterZ(input, "z");
+    sensor_msgs::PointCloud2ConstIterator<uint8_t> iterRGB(input, "rgb");
 
     ROS_INFO_STREAM_COND(m_log, std::endl << "New Frame Detected" << std::endl);
     ROS_DEBUG_STREAM_COND(m_log, std::endl << "Input Data & Conversion" << std::endl);
 
-    for (; iterZ != iterZ.end(); ++iterX, ++iterY, ++iterZ) {
+    for (; iterZ != iterZ.end(); ++iterX, ++iterY, ++iterZ, ++iterRGB) {
         float height = (-1 * (*iterY) + m_gridParams.yOffset);
+	uint8_t r = (*iterRGB)[0], g = (*iterRGB)[1], b = (*iterRGB)[2];
         int convZ = (*iterZ) / m_gridParams.resolution;
         int convX = 1 * (*iterX) / m_gridParams.resolution + (m_gridXSize / 2.0);
 
         /* ROS_DEBUG_STREAM_COND(m_log, std::fixed << std::setprecision(3) << "Z: " << *iterZ << "\tX: " << *iterX << "\tY: "
                                          << *iterY << "\tconvZ: " << convZ << "\tconvX: " << convX << "\tHeight: "
-                                         << height << std::endl);
-*/
-        if (convZ < m_gridZSize && convX < m_gridXSize && convZ >= 0 && convX >= 0) {      //invalid bounds error check
+                                         << height << std::endl);*/
+
+	//invalid bounds error check, and remove points too black or two white since their depth is not accurate
+        if (convZ < m_gridZSize && convX < m_gridXSize && convZ >= 0 && convX >= 0 && r > m_gridParams.rgb_lower_lim[0] && g > m_gridParams.rgb_lower_lim[1] && b > m_gridParams.rgb_lower_lim[2]
+	     && r < m_gridParams.rgb_upper_lim[0] && g < m_gridParams.rgb_upper_lim[1] && b < m_gridParams.rgb_upper_lim[2]) {     
             oGridPoints[convZ * m_gridXSize + convX].reserve(1500);
             oGridPoints[convZ * m_gridXSize + convX].emplace_back(height);
         } else {
