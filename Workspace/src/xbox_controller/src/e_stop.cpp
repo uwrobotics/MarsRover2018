@@ -1,4 +1,5 @@
 #include "ros/ros.h"
+#include "ros/console.h"
 #include "sensor_msgs/Joy.h"
 #include "geometry_msgs/Twist.h"
 #include <vector>
@@ -28,7 +29,7 @@ public:
 
 
 		m_sub = m_n.subscribe (sub_topic, queue_size, &EmergencyStop::joy_callback, this);
-		m_n.advertise<geometry_msgs::Twist>(pub_topic, queue_size);
+		m_pub = m_n.advertise<geometry_msgs::Twist>(pub_topic, queue_size);
 		
 		
  		emergency_mode = false;
@@ -56,7 +57,6 @@ private:
 
 
 void EmergencyStop::joy_callback (const sensor_msgs::Joy::ConstPtr &joy){
-
 	bool matched = true;
 	if (!emergency_mode){
 		for (int i = 0; i < joy->buttons.size(); i++){
@@ -65,8 +65,8 @@ void EmergencyStop::joy_callback (const sensor_msgs::Joy::ConstPtr &joy){
 		}
 	}
 	
-	if (matched){
-		m_pub.publish(zero_vel_msg);	
+	if (!emergency_mode && matched){
+		m_pub.publish(zero_vel_msg);
 		emergency_mode = true;
 	}
 	
@@ -77,7 +77,7 @@ void EmergencyStop::joy_callback (const sensor_msgs::Joy::ConstPtr &joy){
 		}
 	}
 	
-	if (matched)
+	if (emergency_mode && matched)
 		emergency_mode = false;
 }
 
@@ -100,10 +100,10 @@ int main(int argc, char *argv[]) {
 
   ros::Rate rate(e_stop.get_rate());
 
-  while(ros::ok()) {
-      e_stop.keep_publishing();
-      ros::spinOnce();
-      ros::Rate(rate).sleep();
+  while (ros::ok()){
+     e_stop.keep_publishing();
+     ros::spinOnce();
+     ros::Rate(rate).sleep();
   }
 }
 
