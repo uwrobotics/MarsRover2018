@@ -28,26 +28,50 @@
 CLocalPlanner::CLocalPlanner(ros::NodeHandle *pNh,
                              const RobotParams_t &robotParams)
     : m_pNh(pNh), m_pOccupancySub(nullptr), m_pGoalGpsSub(nullptr),
-      m_pCurGpsSub(nullptr), m_pVelSub(nullptr), m_pVelPub(nullptr),
+      /*m_pCurGpsSub(nullptr), m_pVelSub(nullptr),*/ m_pVelPub(nullptr),
       m_robotParams(robotParams), m_bOdomReceived(false),
       m_bGoalReceived(false), m_bVelocityReady(true), m_pVelPubThread(nullptr),
       m_distanceSinceLastRightDanger(1000), m_distanceSinceLastLeftDanger(1000),
       m_bGoalReached(false) {
 
   //subscribe to the occupancy grid
+  std::string occupancy_topic = "/OccupancyGrid";
+  ros::param::get("/local_planner/occupancy_topic", occupancy_topic);
   m_pOccupancySub = new ros::Subscriber(m_pNh->subscribe(
-      "/OccupancyGrid", 1, &CLocalPlanner::OccupancyCallback, this));
+      occupancy_topic, 1, &CLocalPlanner::OccupancyCallback, this));
 
   //subscribe to the goal gps coord
+  std::string goal_gps_topic = "/local_planner/goal_gps";
+  ros::param::get("/local_planner/goal_gps_topic", goal_gps_topic);
   m_pGoalGpsSub = new ros::Subscriber(m_pNh->subscribe(
-      "/local_plan/goal_gps", 1, &CLocalPlanner::GoalGPSCallback, this));
+      goal_gps_topic, 1, &CLocalPlanner::GoalGPSCallback, this));
+
   //subscribe to the current odometry
+  std::string odometry_topic = "/odometry/rover_gps_odom";
+  ros::param::get("/local_planner/odometry_topic", odometry_topic);
   m_pOdometrySub = new ros::Subscriber(m_pNh->subscribe(
-      "/odometry/rover_gps_odom", 1, &CLocalPlanner::OdometryCallback, this));
+      odometry_topic, 1, &CLocalPlanner::OdometryCallback, this));
 
   // velocity publisher
+  std::string velocity_topic = "/local_planner_cmd_vel";
+  ros::param::get("/local_planner/velocity_out_topic", velocity_topic);
   m_pVelPub =
-      new ros::Publisher(m_pNh->advertise<geometry_msgs::Twist>("cmd_vel", 1));
+      new ros::Publisher(m_pNh->advertise<geometry_msgs::Twist>(velocity_topic, 1));
+
+  // velocity publisher
+  std::string status_topic = "/local_planner/status";
+  ros::param::get("/local_planner/status_topic", status_topic);
+  m_pStatusPub =
+      new ros::Publisher(m_pNh->advertise<local_planner::LocalPlannerStatus>(status_topic, 1));
+
+
+  // goal distance thresholds
+  m_goalReachedDistThresh = 1.0;
+  m_goalSearchDistThresh = 10.0;
+  ros::param::get("/local_planner/goal_reached_distance", m_goalReachedDistThresh);
+  ros::param::get("/local_planner/goal_in_ranage_distance", m_goalSearchDistThresh);
+
+
 
   //thread to continuously publish the desired velocity
   m_pVelPubThread = new std::thread(&CLocalPlanner::VelocityPublisher, this);
@@ -79,25 +103,25 @@ void CLocalPlanner::GoalGPSCallback(geometry_msgs::Point::ConstPtr goal) {
 // and update heading information
 void CLocalPlanner::OdometryCallback(nav_msgs::Odometry::ConstPtr odometry) {
 
-  //    tf2_ros::Buffer tfBuffer;
-  //    tf2_ros::TransformListener tfListener(tfBuffer);
-  //    geometry_msgs::TransformStamped roverLocToUTM;
-  //    try{
-  //        roverLocToUTM = tfBuffer.lookupTransform("utm",
-  //        /*odometry->child_frame_id*/odometry->header.frame_id, ros::Time(0),
-  //        ros::Duration(2));
-  //    }
-  //    catch (tf2::TransformException& ex ){
-  //        ROS_ERROR("%s",ex.what());
-  //    }
+      tf2_ros::Buffer tfBuffer;
+      tf2_ros::TransformListener tfListener(tfBuffer);
+      geometry_msgs::TransformStamped roverLocToUTM;
+      try{
+          roverLocToUTM = tfBuffer.lookupTransform("utm",
+          /*odometry->child_frame_id*/odometry->header.frame_id, ros::Time(0),
+          ros::Duration(2));
+      }
+      catch (tf2::TransformException& ex ){
+          ROS_ERROR("%s",ex.what());
+      }
 
-  // ROS_INFO("Generated transform from base_link to utm");
-  //    m_curGpsUtmX = roverLocToUTM.transform.translation.x;
-  //    m_curGpsUtmY = roverLocToUTM.transform.translation.y;
+   ROS_INFO("Generated transform from base_link to utm");
+      m_curGpsUtmX = roverLocToUTM.transform.translation.x;
+      m_curGpsUtmY = roverLocToUTM.transform.translation.y;
 
   // FOR SAR ONLY: use position on map, figure out utm later
-  m_curGpsUtmX = odometry->pose.pose.position.x;
-  m_curGpsUtmY = odometry->pose.pose.position.y;
+  //m_curGpsUtmX = odometry->pose.pose.position.x;
+  //m_curGpsUtmY = odometry->pose.pose.position.y;
 
   m_curVel = odometry->twist.twist;
 
@@ -153,13 +177,20 @@ void CLocalPlanner::OccupancyCallback(
 
   //check if we've already reached the goal
   //TODO: publish a message for the global planner
-  if ((m_curGpsUtmY - m_goalGpsUtmY) * (m_curGpsUtmY - m_goalGpsUtmY) +
-          (m_curGpsUtmX - m_goalGpsUtmX) * (m_curGpsUtmX - m_goalGpsUtmX) <
-      1) {
+  std::unique_lock<std::mutex> lock(m_velMutex);
+  m_distToGoal = (m_curGpsUtmY - m_goalGpsUtmY) * (m_curGpsUtmY - m_goalGpsUtmY) +
+                      (m_curGpsUtmX - m_goalGpsUtmX) * (m_curGpsUtmX - m_goalGpsUtmX);
+  if (m_distToGoal < m_goalSearchDistThresh * m_goalSearchDistThresh)
+  {
+    m_bGoalInRange = true;
+  }
+  if (m_distToGoal < m_goalReachedDistThresh*m_goalReachedDistThresh) {
     m_bGoalReached = true;
     ROS_INFO("Goal reached\n");
+    lock.unlock();
     return;
   }
+  lock.unlock();
   ROS_INFO("Received an occupancy grid");
 
   //Construct the dynamic window based on current velocity, and inform it if it needs
@@ -198,7 +229,7 @@ void CLocalPlanner::OccupancyCallback(
 
   //store the selected velocity so the publisher thread can publish it
   ROS_INFO("chose v=%f, w=%f", chosenVel.linear.x, chosenVel.angular.z);
-  std::unique_lock<std::mutex> lock(m_velMutex);
+  lock.lock();
   m_targetVel = chosenVel;
   m_bVelocityReady = true;
   lock.unlock();
@@ -208,21 +239,37 @@ void CLocalPlanner::OccupancyCallback(
 void CLocalPlanner::VelocityPublisher() {
   ros::Rate rate(10);
   while (ros::ok()) {
+    local_planner::LocalPlannerStatus statusMsg;
+
     std::unique_lock<std::mutex> lock(m_velMutex);
+
+    bool bGoalReached = m_bGoalReached;
+    bool bGoalInRange = m_bGoalInRange;
+
+    statusMsg.distanceToGoal = m_distToGoal;
+
     if (m_bVelocityReady) {
-      geometry_msgs::Twist vel;
-      if (!m_bGoalReached) {
+      geometry_msgs::Twist vel = m_targetVel;
+      lock.unlock();
+
+      if (!bGoalReached) {
         vel = m_targetVel;
       } else {
         // if we've reached our goal, stop moving
+        vel = geometry_msgs::Twist(); //zero it
         vel.linear.x = 0;
         vel.angular.z = 0;
       }
-      lock.unlock();
+
       m_pVelPub->publish(vel);
     } else {
       lock.unlock();
     }
+
+    statusMsg.goalReached = bGoalReached;
+    statusMsg.goalInRange = bGoalInRange;
+
+    m_pStatusPub->publish(statusMsg);
     rate.sleep();
   }
 }

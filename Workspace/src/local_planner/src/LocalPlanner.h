@@ -11,6 +11,7 @@
 #include <nav_msgs/Odometry.h>
 #include <ros/ros.h>
 #include <sensor_msgs/NavSatFix.h>
+#include "local_planner/LocalPlannerStatus.h"
 
 #include <geometry_msgs/Point.h>
 #include <mutex>
@@ -35,6 +36,7 @@ private:
   ros::Subscriber *m_pGoalGpsSub;
   ros::Subscriber *m_pOdometrySub;
   ros::Publisher *m_pVelPub;
+  ros::Publisher *m_pStatusPub;
 
   // status
   geometry_msgs::Twist m_curVel;
@@ -51,6 +53,8 @@ private:
   bool m_bOdomReceived;
   bool m_bGoalReceived;
   bool m_bGoalReached;
+  bool m_bGoalInRange;
+  double m_distToGoal;
 
   // velocity publishing
   std::mutex m_velMutex;
@@ -63,6 +67,10 @@ private:
   double m_distanceSinceLastLeftDanger;
   double m_lastDwaCoordUtmX;
   double m_lastDwaCoordUtmY;
+
+  // distance from goal thresholds
+  double m_goalReachedDistThresh;
+  double m_goalSearchDistThresh;
 };
 
 #endif // PROJECT_LOCALPLANNER_H

@@ -15,6 +15,10 @@ typedef struct RobotParams {
   double robotLength;
   double timestep;
 
+  double headingWeight;
+  double distanceWeight;
+  double velocityWeight;
+
 } RobotParams_t;
 
 // This class implements the logic for a single cycle's

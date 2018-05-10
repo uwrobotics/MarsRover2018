@@ -23,6 +23,9 @@ int main(int argc, char **argv) {
   roverParams.robotLength = 1.5;
   roverParams.robotWidth = 0.5;
   roverParams.timestep = 0.5;
+  roverParams.headingWeight = 1.7;
+  roverParams.distanceWeight = 0.7;
+  roverParams.velocityWeight = 0.2;
 
   ros::param::get("/roverParams_maxAngAccel", roverParams.maxAngAccel);
   ros::param::get("/roverParams_maxLinAccel", roverParams.maxLinAccel);
@@ -33,6 +36,9 @@ int main(int argc, char **argv) {
   ros::param::get("/roverParams_robotLength", roverParams.robotLength);
   ros::param::get("/roverParams_robotWidth", roverParams.robotWidth);
   ros::param::get("/roverParams_timestep", roverParams.timestep);
+  ros::param::get("/local_planner/dwa/heading_weight", roverParams.headingWeight);
+  ros::param::get("/local_planner/dwa/distance_weight", roverParams.distanceWeight);
+  ros::param::get("/local_planner/dwa/velocity_weight", roverParams.velocityWeight);
 
   CLocalPlanner localPlanner(&nh, roverParams);
   ROS_INFO("local planner setup complete");

@@ -86,6 +86,8 @@ geometry_msgs::Twist CDynamicWindow::AssessOccupancyGrid(
     occupancy_grid::OccupancyGrid::ConstPtr &pGrid, double orientationToGoal) {
 
   m_pOccupancyGrid = pGrid;
+  OccupancyUtils OccupancyGridCalculator(pGrid, m_robotParams.robotLength,
+                                         m_robotParams.robotWidth, m_timestep);
   // first loop through:
   // calculate distances and reject unacceptable trajectories
   for (auto &velocityRow : m_dynamicWindowGrid) {
@@ -97,9 +99,8 @@ geometry_msgs::Twist CDynamicWindow::AssessOccupancyGrid(
       }
       bool foundDanger = false;
       //Find the distanace to collision
-      double distance = OccupancyUtils::CalcDistance(
-          pGrid, dynWndPnt.v, dynWndPnt.w, m_robotParams.robotLength,
-          m_robotParams.robotWidth, m_timestep, foundDanger);
+      double distance = OccupancyGridCalculator.CalcDistance(
+          dynWndPnt.v, dynWndPnt.w, foundDanger);
       if (/*m_curV*m_curV*/ std::max(m_curV * m_curV,
                                      dynWndPnt.v * dynWndPnt.v) >=
           2 * distance * m_robotParams.maxLinDecel) {
@@ -172,7 +173,9 @@ geometry_msgs::Twist CDynamicWindow::AssessOccupancyGrid(
       double velocityScore = (dynWndPnt.v - m_lowV) / (m_highV - m_lowV);
 
       // compute the total weighted score, and keep track of the best trajectory
-      score = 1.7 * headingScore + 0.8 * distanceScore + 0.2 * velocityScore;
+      score =  m_robotParams.headingWeight * headingScore +
+               m_robotParams.distanceWeight * distanceScore +
+               m_robotParams.velocityWeight * velocityScore;
       ROS_INFO(
           "v=%f, w=%f :  dist=%f, dScore=%f, hScore=%f, vScore=%f, score=%f",
           dynWndPnt.v, dynWndPnt.w, dynWndPnt.dist, distanceScore, headingScore,
