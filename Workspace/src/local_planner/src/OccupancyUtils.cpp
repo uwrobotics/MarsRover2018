@@ -10,40 +10,35 @@
 #define DANGER_ZONE_X_DIST 1.25 // times robotWidth
 #define DANGER_ZONE_Y_DIST 0.40 // meters
 
-
-
 template <typename T> int sgn(T val) { return (T(0) < val) - (val < T(0)); }
 
-OccupancyUtils::OccupancyUtils(occupancy_grid::OccupancyGrid::ConstPtr &pGrid, float robotLength, float robotWidth,
+OccupancyUtils::OccupancyUtils(occupancy_grid::OccupancyGrid::ConstPtr &pGrid,
+                               float robotLength, float robotWidth,
                                float timestep)
-    : m_pGrid(pGrid),
-      m_robotLength(robotLength),
-      m_robotWidth(robotWidth),
-      m_timestep(timestep)
-{
+    : m_pGrid(pGrid), m_robotLength(robotLength), m_robotWidth(robotWidth),
+      m_timestep(timestep) {
   m_maxW = 1.0;
   ros::param::get("/roverParams_maxW", m_maxW);
 }
 
-
-
 // accessor for Occupancy Grid Message
-float OccupancyUtils::GridDataAccessor(unsigned int i, unsigned int j, unsigned int k) {
+float OccupancyUtils::GridDataAccessor(unsigned int i, unsigned int j,
+                                       unsigned int k) {
   return m_pGrid->data[i * m_pGrid->dataDimension[0].stride +
-                     j * m_pGrid->dataDimension[1].stride +
-                     k * m_pGrid->dataDimension[2].stride];
+                       j * m_pGrid->dataDimension[1].stride +
+                       k * m_pGrid->dataDimension[2].stride];
 }
 
 void OccupancyUtils::PointForCoord(double y, double x, int &zOut, int &xOut) {
   double coordZ = (y) / m_pGrid->header.gridResolution;
-  double coordX =
-      (x) / m_pGrid->header.gridResolution + (m_pGrid->dataDimension[1].size / 2.0);
+  double coordX = (x) / m_pGrid->header.gridResolution +
+                  (m_pGrid->dataDimension[1].size / 2.0);
   zOut = (int)std::round(coordZ);
   xOut = (int)std::round(coordX);
 }
 
 static void odbg(double x, double y, int xi, int yi,
-          occupancy_grid::OccupancyGrid::ConstPtr &grid) {
+                 occupancy_grid::OccupancyGrid::ConstPtr &grid) {
   // ROS_INFO("checking (%f,%f) --> (%d,%d) --
   // height=%f",x,y,xi,yi,GridDataAccessor(grid,yi,xi,1));
 }
@@ -69,8 +64,8 @@ OccupancyUtils::IsPointTraversable(double x, double y) {
   }
 }
 
-double OccupancyUtils::CalcDistance(float v, float w,bool &foundDanger) {
-   ROS_INFO("v=%f,w=%f",v,w);
+double OccupancyUtils::CalcDistance(float v, float w, bool &foundDanger) {
+  ROS_INFO("v=%f,w=%f", v, w);
   //        double radius = ((double) v) / w;
   double retDist = 0;
   double safetyBubble = 0.2 + 0.2 * v;
@@ -80,13 +75,13 @@ double OccupancyUtils::CalcDistance(float v, float w,bool &foundDanger) {
   // not moving
   if (std::round(v * 1000) == 0) {
 
-    double theta = M_PI/2 * w/m_maxW;//w * m_timestep * 2;
+    double theta = M_PI / 2 * w / m_maxW; // w * m_timestep * 2;
     double cosTheta = cos(theta);
     double sinTheta = sin(theta);
     double dist = 0;
     bool done = false;
     double centreX = 0;
-    double centreY = - m_robotLength / 2;
+    double centreY = -m_robotLength / 2;
     while (!done) {
       dist += m_pGrid->header.gridResolution / 2.0;
 
@@ -101,34 +96,31 @@ double OccupancyUtils::CalcDistance(float v, float w,bool &foundDanger) {
       double frontLeftY = centreY + (dist + m_robotLength / 2) * cosTheta -
                           bufferFromCenter * sinTheta;
 
-
-
-      eTraversableResult centerTraversability = IsPointTraversable(frontCenterX, frontCenterY);
-      eTraversableResult rightTraversability = IsPointTraversable(frontRightX, frontRightY);
-      eTraversableResult leftTraversability = IsPointTraversable(frontLeftX, frontLeftY);
-      //ROS_INFO("left: (%f,%f), result=%d",frontLeftX, frontLeftY, leftTraversability);
-      //ROS_INFO("center: (%f,%f), result=%d",frontCenterX, frontCenterY, centerTraversability);
-      ROS_INFO("right: (%f,%f), result=%d",frontRightX, frontRightY, rightTraversability);
+      eTraversableResult centerTraversability =
+          IsPointTraversable(frontCenterX, frontCenterY);
+      eTraversableResult rightTraversability =
+          IsPointTraversable(frontRightX, frontRightY);
+      eTraversableResult leftTraversability =
+          IsPointTraversable(frontLeftX, frontLeftY);
+      // ROS_INFO("left: (%f,%f), result=%d",frontLeftX, frontLeftY,
+      // leftTraversability);
+      // ROS_INFO("center: (%f,%f), result=%d",frontCenterX, frontCenterY,
+      // centerTraversability);
+      ROS_INFO("right: (%f,%f), result=%d", frontRightX, frontRightY,
+               rightTraversability);
 
       if ((centerTraversability == BEYOND_GRID) ||
           (leftTraversability == BEYOND_GRID) ||
-          (rightTraversability == BEYOND_GRID))
-      {
+          (rightTraversability == BEYOND_GRID)) {
         done = true;
         retDist = DISTANCE_INF;
-      }
-      else if ((centerTraversability != TRAVERSABLE && frontCenterY > 0) ||
-          (rightTraversability != TRAVERSABLE && frontRightY > 0) ||
-          (leftTraversability != TRAVERSABLE && frontLeftY > 0))
-      {
+      } else if ((centerTraversability != TRAVERSABLE && frontCenterY > 0) ||
+                 (rightTraversability != TRAVERSABLE && frontRightY > 0) ||
+                 (leftTraversability != TRAVERSABLE && frontLeftY > 0)) {
         done = true;
         retDist = dist;
+      } else {
       }
-      else
-      {
-
-      }
-
     }
 
   }
@@ -140,28 +132,22 @@ double OccupancyUtils::CalcDistance(float v, float w,bool &foundDanger) {
 
     bool continueChecking = true;
 
-
     while (continueChecking) {
       eTraversableResult leftTraversability = IsPointTraversable(xLeft, y);
       eTraversableResult centerTraversability = IsPointTraversable(xCenter, y);
       eTraversableResult rightTraversability = IsPointTraversable(xRight, y);
 
-      if (centerTraversability == BEYOND_GRID)
-      {
+      if (centerTraversability == BEYOND_GRID) {
         continueChecking = false;
         retDist = DISTANCE_INF;
-      }
-      else if ((centerTraversability != TRAVERSABLE) ||
-          (rightTraversability != TRAVERSABLE) ||
-          (leftTraversability != TRAVERSABLE))
-      {
+      } else if ((centerTraversability != TRAVERSABLE) ||
+                 (rightTraversability != TRAVERSABLE) ||
+                 (leftTraversability != TRAVERSABLE)) {
         continueChecking = false;
         retDist = y - m_timestep * v;
-      } else{
+      } else {
         y += m_pGrid->header.gridResolution;
       }
-
-
     }
   } else {
     double radius = v / w;
@@ -173,8 +159,8 @@ double OccupancyUtils::CalcDistance(float v, float w,bool &foundDanger) {
     //
     bool done = false;
     //
-    double centreX = - radius;
-    double centreY = - m_robotLength / 2;
+    double centreX = -radius;
+    double centreY = -m_robotLength / 2;
     double theta = 0; // asin(robotLength/2/(radius - bufferFromCenter));//0;//
                       // + robotLength/2/radius;//Start checking from the front
                       // of the robot
@@ -190,15 +176,14 @@ double OccupancyUtils::CalcDistance(float v, float w,bool &foundDanger) {
       double frontCenterY =
           centreY + radius * sinTheta + m_robotLength / 2 * cosTheta;
       double frontRightX = centreX + (radius + bufferFromCenter) * cosTheta -
-          m_robotLength / 2 * sinTheta;
+                           m_robotLength / 2 * sinTheta;
       double frontRightY = centreY + (radius + bufferFromCenter) * sinTheta +
-          m_robotLength / 2 * cosTheta;
+                           m_robotLength / 2 * cosTheta;
       double frontLeftX = centreX + (radius - bufferFromCenter) * cosTheta -
-          m_robotLength / 2 * sinTheta;
+                          m_robotLength / 2 * sinTheta;
       double frontLeftY = centreY + (radius - bufferFromCenter) * sinTheta +
                           m_robotLength / 2 * cosTheta;
       distTravelled += ds;
-
 
       eTraversableResult leftResult =
           IsPointTraversable(frontLeftX, frontLeftY);
@@ -254,5 +239,3 @@ double OccupancyUtils::CalcDistance(float v, float w,bool &foundDanger) {
   // ROS_INFO("Traveled %f",retDist);
   return retDist;
 }
-
-

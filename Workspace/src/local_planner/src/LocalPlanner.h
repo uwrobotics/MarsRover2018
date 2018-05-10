@@ -6,12 +6,12 @@
 #define PROJECT_LOCALPLANNER_H
 
 #include "DynamicWindow.h"
+#include "local_planner/LocalPlannerStatus.h"
 #include "occupancy_grid/OccupancyGrid.h"
 #include <geometry_msgs/Twist.h>
 #include <nav_msgs/Odometry.h>
 #include <ros/ros.h>
 #include <sensor_msgs/NavSatFix.h>
-#include "local_planner/LocalPlannerStatus.h"
 
 #include <geometry_msgs/Point.h>
 #include <mutex>
@@ -27,7 +27,7 @@ private:
   void GoalGPSCallback(geometry_msgs::Point::ConstPtr goal);
   void OccupancyCallback(occupancy_grid::OccupancyGrid::ConstPtr grid);
   void OdometryCallback(nav_msgs::Odometry::ConstPtr odemetry);
-  //publisher thread
+  // publisher thread
   void VelocityPublisher();
 
   // Ros handlers

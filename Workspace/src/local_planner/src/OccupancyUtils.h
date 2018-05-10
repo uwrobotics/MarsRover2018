@@ -11,8 +11,8 @@
 
 class OccupancyUtils {
 public:
-  OccupancyUtils(occupancy_grid::OccupancyGrid::ConstPtr& pGrid, float robotLength, float robotWidth,
-                 float timestep);
+  OccupancyUtils(occupancy_grid::OccupancyGrid::ConstPtr &pGrid,
+                 float robotLength, float robotWidth, float timestep);
   double CalcDistance(float v, float w, bool &foundDanger);
 
 private:
@@ -27,12 +27,9 @@ private:
   eTraversableResult IsPointTraversable(double y, double x);
   float GridDataAccessor(unsigned int i, unsigned int j, unsigned int k);
 
-
   occupancy_grid::OccupancyGrid::ConstPtr m_pGrid;
   double m_robotWidth, m_robotLength;
   double m_timestep;
   double m_maxW;
-
-
 };
 #endif // PROJECT_OCCUPANCYUTILS_H

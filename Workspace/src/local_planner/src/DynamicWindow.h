@@ -49,7 +49,6 @@ private:
     bool feasible;
   };
 
-
   // The dynamic window grid
   typedef std::vector<DynamicWindowPoint> VelocityRow;
   std::vector<VelocityRow> m_dynamicWindowGrid;

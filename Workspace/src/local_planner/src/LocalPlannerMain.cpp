@@ -7,7 +7,6 @@
 
 ros::Publisher velocityPub;
 
-
 int main(int argc, char **argv) {
   ros::init(argc, argv, "local_planner");
   ros::NodeHandle nh;
@@ -36,9 +35,12 @@ int main(int argc, char **argv) {
   ros::param::get("/roverParams_robotLength", roverParams.robotLength);
   ros::param::get("/roverParams_robotWidth", roverParams.robotWidth);
   ros::param::get("/roverParams_timestep", roverParams.timestep);
-  ros::param::get("/local_planner/dwa/heading_weight", roverParams.headingWeight);
-  ros::param::get("/local_planner/dwa/distance_weight", roverParams.distanceWeight);
-  ros::param::get("/local_planner/dwa/velocity_weight", roverParams.velocityWeight);
+  ros::param::get("/local_planner/dwa/heading_weight",
+                  roverParams.headingWeight);
+  ros::param::get("/local_planner/dwa/distance_weight",
+                  roverParams.distanceWeight);
+  ros::param::get("/local_planner/dwa/velocity_weight",
+                  roverParams.velocityWeight);
 
   CLocalPlanner localPlanner(&nh, roverParams);
   ROS_INFO("local planner setup complete");
