@@ -9,10 +9,12 @@
 	
 	</node>
 	
-	<!-- implement this if you want to test on a turtle bot simulutation, drive 
-	will publish to this node and it can move using the controller -->
+	<!-- 
+	implement this if you want to test on a turtle bot simulutation, change the publishing destination in drive_lis_pub
+	to the turtlesim node, drive will publish to this node and it can move using the controller
 
 	<node pkg="turtlesim" name="sim" type="turtlesim_node"/>
+	-->
 </launch>
 
 <!-- use this as the value for the controller parameter if the id isn't working, 
