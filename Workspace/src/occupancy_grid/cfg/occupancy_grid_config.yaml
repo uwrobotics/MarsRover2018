@@ -1,11 +1,11 @@
 zMax: 1
 xMax: 5
 yOffset : 0.10
-rgb_lower_lim: [40,40,40]
-rgb_upper_lim: [220,220,220]
+rgb_lower_lim: [200,200,200]
+rgb_upper_lim: [200,200,200]
 resolution: 0.02
 Scalar: 1.0
-Normalizer: 2.5
+Normalizer: 1.0
 rate: 30
 queue_size: 1
 
