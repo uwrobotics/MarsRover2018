@@ -19,18 +19,18 @@ Matrix::Matrix()
         row = 0; //Number of rows
         col = 0; //Number of cols
     }
-    
+
     //constructor
 Matrix::Matrix(const int n_row, const int n_col)
     {
         //mat is the actual array of matrix
         mat = NULL;
-        
+
         if (n_row > 0 && n_col > 0)
         {
             this->row = n_row;
             this->col = n_col;
-            
+
             mat = new float* [row]; //creating 1D array with the number of rows
             for (int i = 0; i < row; i++)
             {
@@ -48,7 +48,7 @@ Matrix::Matrix(const int n_row, const int n_col)
         else
             cout<<"Cannot have negative index numbers!" << endl;
     }
-    
+
     //This destructor was giving some trouble. Commented out for now
     //    ~Matrix()
     //    {
@@ -60,7 +60,7 @@ Matrix::Matrix(const int n_row, const int n_col)
     //        delete mat;
     //        mat = NULL;
     //    }
-    
+
     //Operator and Arithematic Methods
     //Operator Methods
 
@@ -79,13 +79,13 @@ float& Matrix::operator()(const int i, const int j)
             return mat[0][0];
         }
     }
-    
-    
+
+
 bool Matrix::operator==(const Matrix & right){
         if (this->row == right.row && this->col == right.col){
             for (int i = 0; i<row; i++)
             {
-                for (int j = 0; j-col; j++)
+                for (int j = 0; j<col; j++)
                 {
                     if(this->mat[i][j] != right.mat[i][j])
                         return false;
@@ -94,10 +94,10 @@ bool Matrix::operator==(const Matrix & right){
         }
         else
             return false;
-        
+
         return true;
     }
-    
+
     //Matrix Assignment
 Matrix& Matrix::operator= (const Matrix& right)
     {
@@ -107,7 +107,7 @@ Matrix& Matrix::operator= (const Matrix& right)
         for (int i = 0; i < right.row; i++)
         {
             mat[i] = new float[right.col];
-            
+
             // copy the values from the matrix a
             for (int j = 0;  j< right.col; j++)
             {
@@ -116,8 +116,8 @@ Matrix& Matrix::operator= (const Matrix& right)
         }
         return *this;
     }
-    
-    
+
+
     //Matrix Addition Left(current) + Right(another matrix)
     // [Left]+[Right] = [Result]
 Matrix Matrix::operator+(const Matrix& right)const {
@@ -126,7 +126,7 @@ Matrix Matrix::operator+(const Matrix& right)const {
             Matrix Result(this->row,this->col);
             for (int i = 0; i<row; i++)
             {
-                for (int j = 0; j-col; j++)
+                for (int j = 0; j<col; j++)
                 {
                     Result.mat[i][j] = this->mat[i][j] + right.mat[i][j];
                 }
@@ -137,8 +137,8 @@ Matrix Matrix::operator+(const Matrix& right)const {
         cout<<"Cannot add since the dimensions dont match up!"<<endl;
         return Matrix();
     }
-    
-    
+
+
     // subtraction of Matrix with Matrix
 Matrix Matrix::operator- (const Matrix& right){
         // checking if dimensions match
@@ -157,14 +157,14 @@ Matrix Matrix::operator- (const Matrix& right){
         cout<<"Cannot add since the dimensions dont match up!"<<endl;
         return Matrix();
     }
-    
+
     // operator multiplication
 Matrix Matrix::operator* (const Matrix& right){
         //checking inner dimensions
         if (this->col == right.row)
         {
             Matrix Result= Matrix(this->row, right.col);
-            
+
             for (int i = 0; i < this->row; i++)
             {
                 for (int colResult = 0; colResult < right.col; colResult++)
@@ -179,13 +179,13 @@ Matrix Matrix::operator* (const Matrix& right){
         }
         else
             cout<<"the innner dimensions do not match up!"<<endl;
-        
+
         // Returned empty matrix because xCode was being anal Not sure if we can get away with not returning something if error happens
         return Matrix();
     }
-    
-    
-    
+
+
+
 void Matrix::rowSwap(int row1, int row2)
     {
         if(row1 > (this->row-1) || row2 > (this->row-1)){
@@ -197,7 +197,7 @@ void Matrix::rowSwap(int row1, int row2)
         mat[row1] = mat[row2];
         mat[row2] = tmp;
     }
-    
+
     //Arithmetic Methods
 void Matrix::gElim()
     {
@@ -230,11 +230,11 @@ void Matrix::gElim()
     }
 
 //Matrix Matrix::Minor(int i, int j){
-//    
+//
 //}
 //
 //float Matrix::Det(){
-//    
+//
 //}
 
 Matrix Matrix::Inv(){
@@ -260,7 +260,7 @@ Matrix Matrix::Inv(){
                 prevLeadingCo = currentLeadingCo;
             }
         }
-        
+
         //Making it into Upper Triangular
         for(int k = (i+1); k<Original.row; k++)
         {
@@ -274,7 +274,7 @@ Matrix Matrix::Inv(){
         //uncomment for debugging
         //Result.print();
     }
-    
+
     for(i = Original.row-1; i>=0; i--)
     {
         for(int k = (i-1); k>=0; k--)
@@ -300,7 +300,20 @@ Matrix Matrix::Inv(){
     //Original.print();
     return Result;
 }
-    
+
+Matrix Matrix::Transpose(){
+  Matrix Result = Matrix(this->col, this->row);
+  for (int i = 0; i<this->row; i++)
+  {
+      for (int j = 0; j<this->col; j++)
+      {
+          Result.mat[j][i] = this->mat[i][j]
+      }
+  }
+  return Result;
+}
+
+
 Matrix Matrix::solve(Matrix & b){
         Matrix Solution = Matrix(this->row, 1);
         Matrix AugMatrix;
@@ -312,7 +325,7 @@ Matrix Matrix::solve(Matrix & b){
         int mat_col = AugMatrix.col-1;
         int i = 0;
         float solved = 0;
-        
+
         //Back Substitution
         Solution(mat_row, 0) = AugMatrix.mat[mat_row][mat_col]/AugMatrix.mat[mat_row][mat_col-1];
         for(i = mat_row-1; i>=0; i--)
@@ -326,7 +339,7 @@ Matrix Matrix::solve(Matrix & b){
         }
         return Solution;
     }
-    
+
 Matrix Matrix::augMatrix(const Matrix & right)
     {
         if(this->row != right.row)
@@ -337,7 +350,7 @@ Matrix Matrix::augMatrix(const Matrix & right)
         //New Dimension
         int newCol = this->col + right.col;
         Matrix Result = Matrix(this->row, newCol);
-        
+
         for (int i=0; i<this->row; i++)
         {
             for(int j=0; j<this->col; j++)
@@ -351,11 +364,11 @@ Matrix Matrix::augMatrix(const Matrix & right)
         }
         return Result;
     }
-    
+
 void Matrix::fillMatrix(int rows, int cols, float values[])
     {
         //Checking for size is  done as a safety factor in case people input the wrong dimension.
-        
+
         if (this->row != rows || this->col != cols){
             cout<<"The current dimension and input dimension does not match! Please check again"<<endl;
             return;
@@ -372,7 +385,7 @@ void Matrix::fillMatrix(int rows, int cols, float values[])
             col_index++;
         }
     }
-    
+
     //Elementwise constant value addition. Addes the constant given to all the values in the matrix
     //Use negative value if you want to subtract
 Matrix& Matrix::addConst(const float value)
@@ -386,7 +399,7 @@ Matrix& Matrix::addConst(const float value)
         }
         return *this;
     }
-    
+
     // multiply a double value (elements wise)
     //For division just enter 1/value as parameter
 Matrix& Matrix::multConst(const float value){
@@ -399,21 +412,21 @@ Matrix& Matrix::multConst(const float value){
         }
         return *this;
     }
-    
-    
+
+
     //Accessor Methods
     // returns the number of rows
 int Matrix::rows() const
     {
         return row;
     }
-    
+
     // returns the number of columns
 int Matrix::cols() const
     {
         return col;
     }
-    
+
 void Matrix::print() const
     {
         cout<<"[";
@@ -426,12 +439,12 @@ void Matrix::print() const
         }
         cout<<"]"<<endl;
     }
-    
+
 
 //EYEdentitiy matrix similar to matlab
 Matrix eye(const int dim){
     Matrix Result = Matrix(dim,dim);
-    
+
     for (int i = 0; i<dim; i++)
     {
         Result(i,i) = 1;
@@ -443,7 +456,7 @@ Matrix eye(const int dim){
 Matrix ones(const int n_row, const int n_col)
 {
     Matrix Result = Matrix(n_row, n_col);
-    
+
     for (int i = 0; i <= n_row; i++)
     {
         for (int j = 0; j <= n_col; j++)
@@ -454,3 +467,10 @@ Matrix ones(const int n_row, const int n_col)
     return Result;
 }
 
+int length(Matrix mat)
+{
+  if (mat.rows() > mat.cols())
+    return mat.rows();
+  else
+    return mat.cols();
+}
