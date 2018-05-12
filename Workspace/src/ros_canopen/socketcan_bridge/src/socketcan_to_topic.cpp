@@ -205,14 +205,14 @@ namespace socketcan_bridge
                      message_type == "armJointEncoder4" ||
                      message_type == "armJointEncoder5")
             {
-                // will always be uint32_t
-                if (msg.dlc != 4)
+                // will always be uint16_t
+                if (msg.dlc != 2)
                 {
                     ROS_WARN("Incorrect data length for arm encoder message");
                     return;
                 }
                 uint16_t encoder_value;
-                encoder_value = msg.data[3] << 24 | msg.data[2] << 16 | msg.data[1] << 8 | msg.data[0];
+                encoder_value = msg.data[1] << 8 | msg.data[0];
                 encoder_mutex_.lock();
                 encoder_msg_.data[msg.id % 300] = encoder_value; // all encoder message IDs are in the 300 range
                 encoder_mutex_.unlock();
