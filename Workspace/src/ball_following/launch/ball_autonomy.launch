@@ -1,0 +1,7 @@
+<launch>
+    <include file="$(find ball_tracker)/launch/ball_tracker.launch"/>
+
+    <rosparam file="$(find ball_tracker)/config/ball_following.yaml"/>
+
+
+</launch>
