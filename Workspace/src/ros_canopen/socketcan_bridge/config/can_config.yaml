@@ -16,4 +16,5 @@
                          "304": "armJointEncoder5",
                          "305": "endEffectorEncoder"}
 /output_topics:         ["/absoluteEncoders",
+                         "/relativeEncoders",
                          "/limitSwitches"]
