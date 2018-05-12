@@ -26,7 +26,6 @@
  */
 
 #include <socketcan_bridge/socketcan_to_topic.h>
-#include <socketcan_bridge/sensor_data.h>
 #include <socketcan_interface/string.h>
 #include <can_msgs/Frame.h>
 #include <std_msgs/MultiArrayDimension.h>
