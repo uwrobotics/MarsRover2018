@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # USAGE
 # File name: ball-tracking
 # DATE: Feb 19, 2018
@@ -20,13 +21,13 @@ import cv2
 
 # Output
 OUTPUT_Collection = namedtuple("OUTPUT",
-                               "OnScreenX \
-                                OnScreenY \
-                                OnScreenRad \
-                                ScreenW \
-                                ScreenH \
-                                isDetected \
-                                isStableIn20Cycles")
+                               ["OnScreenX",
+                                "OnScreenY",
+                                "OnScreenRad",
+                                "ScreenW",
+                                "ScreenH",
+                                "isDetected",
+                                "isStableIn20Cycles"])
 data_out = OUTPUT_Collection(-1, -1, -1.0, -1, -1, False, False)  # default
 # USER Define
 DebugOnScreenMode = True
@@ -44,7 +45,7 @@ TOL_RadiusDiff_BtwnFrames = 100
 pts = deque(maxlen=pts_size)
 # ----------CODE----------
 # grab the reference to the webcam
-camera = cv2.VideoCapture(1)
+camera = cv2.VideoCapture(0)
 # camera setting, require adjustments
 camera.set(cv2.CAP_PROP_APERTURE, 1)
 camera.set(cv2.CAP_PROP_AUTOFOCUS, 0)

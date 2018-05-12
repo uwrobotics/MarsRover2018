@@ -1,15 +1,11 @@
 #!/usr/bin/env python
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    __  ___                   ____
-   /  |/  /___ ___________   / __ \____ _   _____  _____
-  / /|_/ / __ `/ ___/ ___/  / /_/ / __ \ | / / _ \/ ___/
- / /  / / /_/ / /  (__  )  / _, _/ /_/ / |/ /  __/ /
-/_/  /_/\__,_/_/  /____/  /_/ |_|\____./|___/\___/_/
+UWRT Mars Rover Ball Tracker
 
 Copyright 2018, UW Robotics Team
 
 @file     BallTracker.py
-@author:  Archie Lee
+@author:  Jack Xu, Archie Lee
 
 '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
@@ -29,10 +25,10 @@ from ball_tracker.msg import BallDetection
 
 # OpenCV
 import cv2
+import numpy as np
 
 # Other Python packages
 from collections import deque
-from collections import namedtuple
 
 
 class BallTracker:
@@ -45,7 +41,9 @@ class BallTracker:
         self.kernel_dim = rospy.get_param('kernel_dim', 10)  # in pixels
         self.colour_upper = \
             rospy.get_param('colour_upper', [60, 255, 255])  # HSV
+        self.colour_upper = np.asarray(self.colour_upper)
         self.colour_lower = rospy.get_param('colour_lower', [25, 0, 0])  # HSV
+        self.colour_lower = np.asarray(self.colour_lower)
         self.mask_iterations = rospy.get_param('mask_iterations', 2)
         self.max_radius = rospy.get_param('max_radius', 150)  # in pixels
         self.min_radius = rospy.get_param('min_radius', 10)  # in pixels
@@ -63,9 +61,11 @@ class BallTracker:
         self.camera_sub = rospy.Subscriber(self.image_topic,
                                            Image,
                                            self.imageCallback)
+        rospy.loginfo("BallTracker: Subscribed to %s", self.image_topic)
         self.detection_pub = rospy.Publisher('ball_detection',
                                              BallDetection,
                                              queue_size=1)
+        rospy.loginfo("BallTracker: Publishing to ball_detection")
 
     def imageCallback(self, image):
         try:
@@ -76,7 +76,9 @@ class BallTracker:
             rospy.logerr(e)
 
         contours = self.processImage(cv_image)
-        detection_msg = self.findDetections(contours)
+        detection_msg = self.findDetections(contours,
+                                            image.width,
+                                            image.height)
         self.detection_pub.publish(detection_msg)
 
     def processImage(self, cv_image):
@@ -104,7 +106,7 @@ class BallTracker:
                                     cv2.CHAIN_APPROX_SIMPLE)[-2]
         return contours
 
-    def findDetections(self, contours):
+    def findDetections(self, contours, im_width, im_height):
         isDetected = False
         detection = None
         if contours and len(contours) > 0:
@@ -160,17 +162,18 @@ class BallTracker:
         if isDetected:
             # track detection stability
             isStable = (len(self.prev_detections) >= self.stability_threshold)
-            output.x = detection[0][0]
-            output.y = detection[0][1]
-            output.rad = detection[1]
+            # normalize output between 0 and 1.0
+            output.x = detection[0][0] / float(im_width)
+            output.y = detection[0][1] / float(im_height)
+            output.radius = detection[1]
             output.isDetected = True
             output.isStable = isStable
         else:
-            output.x = -1
-            output.y = -1
-            output.rad = -1.0
+            output.x = -1.0
+            output.y = -1.0
+            output.radius = -1.0
             output.isDetected = False
-            output.isStable = isStable
+            output.isStable = False
 
         return output
 
