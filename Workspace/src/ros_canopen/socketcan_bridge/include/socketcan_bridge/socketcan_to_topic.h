@@ -29,12 +29,15 @@
 #define SOCKETCAN_BRIDGE_SOCKETCAN_TO_TOPIC_H
 
 #include <socketcan_interface/socketcan.h>
-#include <socketcan_bridge/sensor_data.h>
 #include <can_msgs/Frame.h>
 #include <ros/ros.h>
-#include <can_node_ids/can_rx_id.h>
+#include <memory>
 #include <vector>
+#include <map>
 #include <string>
+#include <mutex>
+#include <std_msgs/UInt16MultiArray.h>
+#include <std_msgs/UInt32.h>
 
 namespace socketcan_bridge
 {
@@ -47,11 +50,11 @@ namespace socketcan_bridge
             void cleanup();
 
         private:
-            SensorData sensorData_;
+            // SensorData sensorData_;
             ros::NodeHandle nh_;
             boost::shared_ptr<can::DriverInterface> driver_;
-            std::vector<ros::Publisher*> topics_;
-            std::vector<std::string> topic_names_;
+            std::map<std::string, std::unique_ptr<ros::Publisher>> topics_;
+            std::map<std::string, std::string> message_ids_;
 
             can::CommInterface::FrameListener::Ptr frame_listener_;
             can::StateInterface::StateListener::Ptr state_listener_;
@@ -60,8 +63,11 @@ namespace socketcan_bridge
             void frameToMessage(const can::Frame& f, can_msgs::Frame& m);
             void frameCallback(const can::Frame& f);
             void stateCallback(const can::State& s);
-            uint32_t readData(uint8_t message[], uint8_t dlc);
-            bool publishTopic(std::vector<std::string>& topic_list);
+            bool publishTopics(std::map<std::string, std::unique_ptr<ros::Publisher>>& topic_list);
+
+            std::mutex encoder_mutex_;
+            std_msgs::UInt16MultiArray encoder_msg_; //TODO: move to sensor_data later
+            std_msgs::UInt32 limit_switch_msg_; //TODO: move to sensor_data later
     };
 };  // namespace socketcan_bridge
 

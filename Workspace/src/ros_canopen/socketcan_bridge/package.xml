@@ -16,7 +16,6 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <depend>can_msgs</depend>
-  <depend>science_msgs</depend>
   <depend>roscpp</depend>
   <depend>socketcan_interface</depend>
 
