@@ -25,27 +25,27 @@ class Auger:
 	def callback_switches(self,switches):
 
 		if (switches.data)&0x1==1: #check to see if the upper switch is being pressed
-			upper_switch=1
+			self.upper_switch=1
 
 		else:
-			upper_switch=0
+			self.upper_switch=0
 
 
 		if (switches.data>>1)&0x1==1: #check to see if the lower switch is being pressed
-			lower_switch=1
+			self.lower_switch=1
 
 		else:
-			lower_switch=0
+			self.lower_switch=0
 		
 	def callback_xbox(self,joy):
 
-		if upper_switch==1: 		#upper limit switch pressed
+		if self.upper_switch==1: 		#upper limit switch pressed
 			if joy.axes[1]<=0: 		#allowing you to move down, but not up
 				self.speed_dir=joy.axes[1]
 			else:
 				self.speed_dir=0 #if still trying to move up do nothing 
 		
-		elif lower_switch==1: 		#lower limit switch pressed
+		elif self.lower_switch==1: 		#lower limit switch pressed
 			if joy.axes[1]>=0:		#allowing you to move up, but not down
 				self.speed_dir=joy.axes[1]
 			else:
