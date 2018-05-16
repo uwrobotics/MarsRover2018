@@ -70,7 +70,7 @@ class Auger:
 		frame.is_extended = False
 		frame.is_error = False
 		frame.dlc = 8
-		data = bytearray(struct.pack('i', self.speed_dir))
+		data = bytearray(struct.pack('f', self.speed_dir))
 		frame.data = str(data)
 		return frame
 
