@@ -9,12 +9,11 @@
 # Topics
 # in ROS, dictionaries must have string keys
 /incoming_ids:          {"200": "limitSwitches",
-                         "300": "armJointEncoder1",
-                         "301": "armJointEncoder2",
-                         "302": "armJointEncoder3",
-                         "303": "armJointEncoder4",
-                         "304": "armJointEncoder5",
+                         "300": "turntableEncoder",
+                         "301": "shoulderEncoder",
+                         "302": "elbowEncoder",
+                         "303": "wristPitchEncoder",
+                         "304": "wristRollEncoder",
                          "305": "endEffectorEncoder"}
-/output_topics:         ["/absoluteEncoders",
-                         "/relativeEncoders",
+/output_topics:         ["/encoders",
                          "/limitSwitches"]
