@@ -36,7 +36,7 @@
 #include <map>
 #include <string>
 #include <mutex>
-#include <std_msgs/UInt16MultiArray.h>
+#include <std_msgs/UInt32MultiArray.h>
 #include <std_msgs/UInt32.h>
 
 namespace socketcan_bridge
@@ -66,7 +66,7 @@ namespace socketcan_bridge
             bool publishTopics(std::map<std::string, std::unique_ptr<ros::Publisher>>& topic_list);
 
             std::mutex encoder_mutex_;
-            std_msgs::UInt16MultiArray encoder_msg_; //TODO: move to sensor_data later
+            std_msgs::UInt32MultiArray encoder_msg_; //TODO: move to sensor_data later
             std_msgs::UInt32 limit_switch_msg_; //TODO: move to sensor_data later
     };
 };  // namespace socketcan_bridge

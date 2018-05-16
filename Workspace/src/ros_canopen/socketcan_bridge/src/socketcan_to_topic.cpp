@@ -29,7 +29,7 @@
 #include <socketcan_interface/string.h>
 #include <can_msgs/Frame.h>
 #include <std_msgs/MultiArrayDimension.h>
-#include <std_msgs/UInt16MultiArray.h>
+#include <std_msgs/UInt32MultiArray.h>
 #include <std_msgs/UInt32.h>
 #include <linux/can.h>
 
@@ -101,15 +101,15 @@ namespace socketcan_bridge
             std::string topic_name = topic_pair.first;
 
             // Change publisher type based on topic
-            if (topic_name == "/absoluteEncoders")
+            if (topic_name == "/encoders")
             {
                 topic_pair.second.reset();
                 topic_pair.second = std::unique_ptr<ros::Publisher>(new ros::Publisher);
-                *topic_pair.second = nh_.advertise<std_msgs::UInt16MultiArray>(topic_name, 10);
+                *topic_pair.second = nh_.advertise<std_msgs::UInt32MultiArray>(topic_name, 10);
                 encoder_msg_.layout.dim.push_back(std_msgs::MultiArrayDimension());
-                encoder_msg_.layout.dim[0].size = 5;
+                encoder_msg_.layout.dim[0].size = 6;
                 encoder_msg_.layout.dim[0].stride = 1;
-                encoder_msg_.layout.dim[0].label = "absoluteEncoders";
+                encoder_msg_.layout.dim[0].label = "encoders";
                 encoder_msg_.data.resize(5);
             }
             else if (topic_name == "/limitSwitches")
@@ -198,30 +198,31 @@ namespace socketcan_bridge
                     topics_["/limitSwitches"]->publish(limit_switch_msg_);
                 }
             }
-            else if (message_type == "armJointEncoder1" ||
-                     message_type == "armJointEncoder2" ||
-                     message_type == "armJointEncoder3" ||
-                     message_type == "armJointEncoder4" ||
-                     message_type == "armJointEncoder5")
+            else if (message_type == "turntableEncoder" ||
+                     message_type == "shoulderEncoder" ||
+                     message_type == "elbowEncoder" ||
+                     message_type == "wristPitchEncoder" ||
+                     message_type == "wristRollEncoder" ||
+                     message_type == "endEffectorEncoder")
             {
-                // will always be uint16_t
-                if (msg.dlc != 2)
+                // will always be uint32_t
+                if (msg.dlc != 4)
                 {
-                    ROS_WARN("Incorrect data length for arm encoder message");
+                    ROS_WARN("Incorrect data length for absolute encoder message");
                     return;
                 }
-                uint16_t encoder_value;
-                encoder_value = msg.data[1] << 8 | msg.data[0];
-                encoder_mutex_.lock();
-                encoder_msg_.data[msg.id % 300] = encoder_value; // all encoder message IDs are in the 300 range
-                encoder_mutex_.unlock();
-                if (topics_["/absoluteEncoders"])
+                uint32_t encoder_value;
+                encoder_value = (msg.data[3] << 24) | (msg.data[2] << 16) | (msg.data[1] << 8) | msg.data[0];
+                if ((msg.id % 300) < encoder_msg_.layout.dim[0].size)
                 {
-                    topics_["/absoluteEncoders"]->publish(encoder_msg_);
+                    encoder_mutex_.lock();
+                    encoder_msg_.data[msg.id % 300] = encoder_value; // all encoder message IDs are in the 300 range
+                    encoder_mutex_.unlock();
                 }
-            }
-            else if (message_type == "endEffectorEncoder")
-            {
+                if (topics_["/encoders"])
+                {
+                    topics_["/encoders"]->publish(encoder_msg_);
+                }
             }
             else
             {
