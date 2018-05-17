@@ -13,8 +13,10 @@
 #define PING_CLIENT_WAIT_TIME 1*1000
 #define PING_SERVER_WAIT_TIME 2*1000
 
-#define GPS_SENSOR_TOPIC "/gps"
-#define GPS_TARGET_TOPIC "/gps_target"
+#define GPS_SENSOR_TOPIC "/gps/filtered"
+//TODO: We need to figure out how to manage what gps goal we want,
+//maybe in master control?
+#define GPS_TARGET_TOPIC "/local_planner/goal_gps"
 
 #endif
 
