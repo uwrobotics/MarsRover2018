@@ -150,6 +150,7 @@ double OccupancyUtils::CalcDistance(float v, float w, bool &foundDanger) {
       }
     }
   } else {
+    // moving along an arc
     double radius = v / w;
 
     // sample at regular intervals along the arc
@@ -161,10 +162,9 @@ double OccupancyUtils::CalcDistance(float v, float w, bool &foundDanger) {
     //
     double centreX = -radius;
     double centreY = -m_robotLength / 2;
-    double theta = 0; // asin(robotLength/2/(radius - bufferFromCenter));//0;//
-                      // + robotLength/2/radius;//Start checking from the front
-                      // of the robot
+    double theta = 0;
     // ROS_INFO("rad: %f, ds: %f, dtheta: %f",radius, ds,dTheta);
+
     while (!done) {
       theta = theta + dTheta;
       //
