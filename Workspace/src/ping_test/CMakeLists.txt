@@ -198,11 +198,11 @@ include_directories(
 # catkin_add_nosetests(test)
 
 
-add_executable(ping_test_client ping_client.cpp)
+add_executable(ping_test_client src/ping_client.cpp)
 target_link_libraries(ping_test_client ${catkin_LIBRARIES})
-add_executable(ping_test_server ping_server.cpp)
+add_executable(ping_test_server src/ping_server.cpp)
 target_link_libraries(ping_test_server ${catkin_LIBRARIES})
-add_executable(ping_GPS_tracker ping_GPS_tracker.cpp)
+add_executable(ping_GPS_tracker src/ping_GPS_tracker.cpp)
 target_link_libraries(ping_GPS_tracker ${catkin_LIBRARIES})
-add_executable(gps_tester gps_tester.cpp)
+add_executable(gps_tester src/gps_tester.cpp)
 target_link_libraries(gps_tester ${catkin_LIBRARIES})
