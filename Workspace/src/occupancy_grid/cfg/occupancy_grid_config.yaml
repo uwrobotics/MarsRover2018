@@ -1,9 +1,9 @@
 zMax: 1
 xMax: 5
-yOffset : 0.10
-rgb_lower_lim: [200,200,200]
-rgb_upper_lim: [200,200,200]
 resolution: 0.02
+yOffset : 0.495
+brightness_lower_lim: 40
+brightness_upper_lim: 200
 Scalar: 1.0
 Normalizer: 1.0
 rate: 30
