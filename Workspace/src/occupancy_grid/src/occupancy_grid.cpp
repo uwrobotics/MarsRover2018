@@ -213,7 +213,7 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 
     for (; iterZ != iterZ.end(); ++iterX, ++iterY, ++iterZ, ++iterRGB) {
         float height = (-1 * (*iterY) + m_gridParams.yOffset);
-	uint8_t r = (*iterRGB)[0], g = (*iterRGB)[1], b = (*iterRGB)[2];
+	uint8_t r = iterRGB[0], g = iterRGB[1], b = iterRGB[2];
         int convZ = (*iterZ) / m_gridParams.resolution;
         int convX = 1 * (*iterX) / m_gridParams.resolution + (m_gridXSize / 2.0);
 
