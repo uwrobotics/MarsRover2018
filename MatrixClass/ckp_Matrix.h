@@ -6,8 +6,8 @@
 //  Copyright © 2018 Chad Paik. All rights reserved.
 //
 
-#ifndef ckp_Matrix_hpp
-#define ckp_Matrix_hpp
+#ifndef ckp_Matrix_h
+#define ckp_Matrix_h
 
 #include <stdio.h>
 

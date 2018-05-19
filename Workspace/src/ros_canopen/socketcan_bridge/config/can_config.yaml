@@ -1,0 +1,10 @@
+######################
+##    CAN Config    ##
+######################
+
+# Interface
+/receiver_interface:     "can0"
+/transmitter_interface:  "can0"
+
+# Topics
+/receiver_list:          ["/gps_data", "/imu_data", "/bms_status", "/arm_control"]

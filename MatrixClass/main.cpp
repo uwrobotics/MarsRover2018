@@ -8,7 +8,7 @@
 
 #include <iostream>
 #include <stdlib.h>
-#include "ckp_Matrix.hpp"
+#include "ckp_Matrix.h"
 using namespace std;
 
 

@@ -36,7 +36,7 @@ void limitSwitchCallback(const std_msgs::UInt32MultiArray::ConstPtr& array)
 
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "armtest_node"); //init the node
+	ros::init(argc, argv, "armtest"); //init the node
 
 	ros::NodeHandle n;
 	encoderSub = n.subscribe("encoders", 1, encoderCallback); 

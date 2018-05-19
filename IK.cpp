@@ -1,4 +1,4 @@
-#include "ckp_Matrix.hpp"
+#include "ckp_Matrix.h"
 #include <cmath>
 
 
@@ -38,7 +38,7 @@ Matrix link_solve(Matrix q, Matrix a, Matrix r, Matrix d)
         A = A*rotation;
         for (int j = 0; j<XYZ.cols(); j++)
         {
-          XYZ(i+1,j) = A.Transpose()(3,j)
+          XYZ(i+1,j) = A.Transpose()(3,j);
         }
     }
     return XYZ;
