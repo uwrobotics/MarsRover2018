@@ -204,5 +204,8 @@ catkin_package()
 
 add_executable(state_select src/teleop_node.cpp)
 add_executable(joy_to_twist src/drive_lis_sub.cpp)
+add_executable(emergency_stop src/e_stop.cpp)
 target_link_libraries(state_select ${catkin_LIBRARIES})
 target_link_libraries(joy_to_twist ${catkin_LIBRARIES})
+target_link_libraries(emergency_stop ${catkin_LIBRARIES})
+
