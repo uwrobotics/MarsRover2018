@@ -3,8 +3,6 @@
 #include <vector>
 #include <limits.h>
 #include <can_msgs/Frame.h>
-#include <science_msgs/Sci_Container.h>
-#include <science_msgs/Sensor.h>
 
 namespace socketcan_bridge // TODO Use this class for sending limit switch data
 {

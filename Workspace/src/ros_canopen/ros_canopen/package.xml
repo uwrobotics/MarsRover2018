@@ -16,7 +16,6 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <exec_depend>can_msgs</exec_depend>
-  <exec_depend>science_msgs</exec_depend>
   <exec_depend>canopen_402</exec_depend>
   <exec_depend>canopen_chain_node</exec_depend>
   <exec_depend>canopen_master</exec_depend>
