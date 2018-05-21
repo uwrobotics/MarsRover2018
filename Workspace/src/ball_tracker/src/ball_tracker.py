@@ -61,11 +61,11 @@ class BallTracker:
         self.camera_sub = rospy.Subscriber(self.image_topic,
                                            Image,
                                            self.imageCallback)
-        rospy.loginfo("BallTracker: Subscribed to %s", self.image_topic)
-        self.detection_pub = rospy.Publisher('ball_detection',
+        rospy.loginfo("BallTracker: Subscribed to /%s", self.image_topic)
+        self.detection_pub = rospy.Publisher('ball_tracker/detection',
                                              BallDetection,
                                              queue_size=1)
-        rospy.loginfo("BallTracker: Publishing to ball_detection")
+        rospy.loginfo("BallTracker: Publishing to /ball_tracker/detection")
 
     def imageCallback(self, image):
         try:
