@@ -7,21 +7,46 @@
 
 #include "autonomy_master.h"
 #include <ros/ros.h>
-#include <thread>
+#include <sensor_msgs/NavSatFix.h>
+#include "local_planner/LocalPlannerStatus.h"
+
 
 class CAutonomyMasterLogic {
 public:
   CAutonomyMasterLogic(ros::NodeHandle& nh);
-  ~CAutonomyMasterLogic();
+  //~CAutonomyMasterLogic();
   void Start();
 
 
 private:
-  void MainLogicThread();
+  void UpdateState();
+  void StateTransition(eAutonomyState newState);
+  void RunState();
+
+  /// Subscriber Callbacks ///
+  void GoalGpsCallback(sensor_msgs::NavSatFixConstPtr pGoalGps);
+  void BacktrackGpsCallback(sensor_msgs::NavSatFixConstPtr pBacktrackGps);
+  void LocalPlannerStatusCallback(local_planner::LocalPlannerStatusConstPtr pLocalPlannerStatus);
+
+  eAutonomyState m_state;
+
+  /// Subscribers ///
+  ros::Subscriber* m_pGoalGpsSub;
+  ros::Subscriber* m_pBacktrackGpsSub;
+  ros::Subscriber* m_pLocalPlanStatusSub;
+
+  /// Publishers ///
+  ros::Publisher* m_pTargetGpsPub;
+  //TODO: tennisball interface
+
+  /// Received messages ///
+  sensor_msgs::NavSatFixConstPtr m_pGoalGps;
+  sensor_msgs::NavSatFixConstPtr m_pBacktrackGps;
+  local_planner::LocalPlannerStatusConstPtr m_pLocalPlannerStatus;
+  //TODO: tennis ball interface
 
 
 
-  std::thread m_logicThread;
 };
 
 
