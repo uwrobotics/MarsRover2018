@@ -1,13 +1,16 @@
-zMax: 1
-xMax: 5
+zMax: 1.75
+xMax: 3.5
 resolution: 0.02
-yOffset : 0.495
-brightness_lower_lim: 40
+yOffset : 0.05
+brightness_lower_lim: 50
 brightness_upper_lim: 200
-Scalar: 1.0
+num_points_thres_ratio: 1250
+expo_weighted_avg_var: 0.15
+avg_num: 5
+Scalar: 1.2
 Normalizer: 1.0
 rate: 30
-queue_size: 1
+queue_size: 5
 
 gaussian_blur_kernel: [
 0.0038, 0.0150, 0.0238, 0.0150, 0.0038,
