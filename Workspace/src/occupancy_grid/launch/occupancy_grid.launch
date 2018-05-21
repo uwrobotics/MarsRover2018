@@ -9,12 +9,12 @@
 	</node>
 
 	<node name="duo3d" pkg="duo3d_driver" type="duo3d_driver" output="screen">
-		<param name="frame_rate" value="15.0"/>
+		<param name="frame_rate" value="10.0"/>
 		<rosparam param="image_size">[320, 240]</rosparam>
 		<param name="dense3d_license" value="OVMZU-ZHFE2-9K41K-NQL44-WX3DV"/>
 		
-		<param name="gain" value="34"/>
-		<param name="exposure" value="45"/>
+		<param name="gain" value="0"/>
+		<param name="exposure" value="50"/>
 		<param name="auto_exposure" value="true"/>
 		<param name="vertical_flip" value="false"/>
 		<param name="horizontal_flip" value="false"/>
@@ -22,11 +22,11 @@
 		<param name="processing_mode" value="3"/>
 		<param name="image_scale" value="3"/>
 		<param name="pre_filter_cap" value="8"/>
-		<param name="num_disparities" value="4"/>
+		<param name="num_disparities" value="15"/>
 		<param name="sad_window_size" value="7"/>
-		<param name="uniqueness_ratio" value="11"/>
-		<param name="speckle_window_size" value="172"/>
-		<param name="speckle_range" value="29"/>
+		<param name="uniqueness_ratio" value="20"/>
+		<param name="speckle_window_size" value="179"/>
+		<param name="speckle_range" value="15"/>
     	</node>
 
 	<arg name="pi/2" value="1.5707963267948966" />
