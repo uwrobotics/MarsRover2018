@@ -3,5 +3,5 @@
 
     <rosparam file="$(find ball_tracker)/config/ball_following.yaml"/>
 
-
+    <node pkg="ball_following" type="ball_following.py" name="ball_following" ns="autonomy" respawn="true" output="screen"/>
 </launch>
