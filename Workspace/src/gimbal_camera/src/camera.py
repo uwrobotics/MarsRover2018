@@ -17,10 +17,9 @@ class GimbalController:
         self.tilt = 0
         self.ID = 600
 
-
     def callback(self, joy):
 
-	shift = rospy.get_param('move')
+        shift = rospy.get_param('move')
 
         if joy.axes[5] == 1:
             self.tilt += shift
