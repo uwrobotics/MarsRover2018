@@ -35,7 +35,7 @@ class GimbalController:
 
         self.tilt = min(max(self.tilt, -60), 60)
 
-        self.pan = min(max(self.pan, -180), 180)	 # do at very end
+        self.pan = min(max(self.pan, -180), 180)     # do at very end
 
         self.sendAngle()
 
@@ -57,7 +57,6 @@ class GimbalController:
     def sendAngle(self):
         canFrame = self.angleToFrame()
         self.pub_camera.publish(canFrame)
-
 
 if __name__ == '__main__':
     controller = GimbalController()
