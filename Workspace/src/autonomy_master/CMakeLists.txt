@@ -105,7 +105,7 @@ find_package(catkin REQUIRED
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES autonomy_master
-  CATKIN_DEPENDS roscpp std_msgs local_planner
+  CATKIN_DEPENDS roscpp std_msgs local_planner ball_tracker
 #  DEPENDS system_lib
 )
 
@@ -133,7 +133,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
- add_executable(${PROJECT_NAME}_node src/autonomy_master_node.cpp src/autonomy_master_logic.cpp)
+ add_executable(${PROJECT_NAME}_node src/autonomy_master_node.cpp src/autonomy_master_logic.cpp src/autonomy_twist_mux.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
