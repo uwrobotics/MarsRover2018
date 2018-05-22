@@ -39,9 +39,9 @@ class GimbalController:
 
         self.sendAngle()
 
-
 # Convert angles to CAN frame msg type
     def angleToFrame(self):
+
         frame = Frame()
         frame.id = self.ID
         frame.is_rtr = False
@@ -58,6 +58,8 @@ class GimbalController:
         canFrame = self.angleToFrame()
         self.pub_camera.publish(canFrame)
 
+
 if __name__ == '__main__':
+
     controller = GimbalController()
     rospy.spin()
