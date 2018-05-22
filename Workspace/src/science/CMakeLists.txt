@@ -8,6 +8,7 @@ project(science)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  can_msgs
   roscpp
   rospy
   sensor_msgs
@@ -71,7 +72,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   sensor_msgs#   std_msgs
+#   can_msgs#   sensor_msgs#   std_msgs
 # )
 
 ################################################
@@ -106,7 +107,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES science
-#  CATKIN_DEPENDS roscpp rospy sensor_msgs std_msgs
+#  CATKIN_DEPENDS can_msgs roscpp rospy sensor_msgs std_msgs
 #  DEPENDS system_lib
 )
 
