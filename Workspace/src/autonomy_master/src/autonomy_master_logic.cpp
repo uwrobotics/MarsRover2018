@@ -195,9 +195,9 @@ void CAutonomyMasterLogic::RunState() {
       if (m_pLocalPlannerStatus && m_pLocalPlannerStatus->goalInRange)
       {
         // start looking for the ball since we might pass it
-        std_msgs::Bool msg;
-        msg.data = true;
-        m_pBallFollowerPub->publish(msg);
+        ///std_msgs::Bool msg;
+        ///msg.data = true;
+        ///m_pBallFollowerPub->publish(msg);
       }
       break;
     case eAutonomyState::BACKTRACK:
@@ -216,9 +216,9 @@ void CAutonomyMasterLogic::RunState() {
 }
 
 
- /////////////////
-/// Main Loop ///
-////////////////
+  /////////////////
+ /// Main Loop ///
+/////////////////
 
 void CAutonomyMasterLogic::Start() {
   while (ros::ok()) {
