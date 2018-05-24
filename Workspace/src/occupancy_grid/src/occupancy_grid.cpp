@@ -213,7 +213,7 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
     ROS_INFO_STREAM_COND(m_log, std::endl << "New Frame Detected" << std::endl);
     ROS_DEBUG_STREAM_COND(m_log, std::endl << "Input Data & Conversion" << std::endl);
 
-    avg_counter ++;
+    //avg_counter ++;
 
     std::vector<std::vector<float>> oGridPoints;
     oGridPoints.resize(m_gridZSize * m_gridXSize, std::vector<float>());
@@ -246,7 +246,7 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 
     for (int z = 0; z < m_gridZSize; z++) {
         for (int x = 0; x < m_gridXSize; x++) {
-	    if (oGridPoints[z * m_gridXSize + x].size() >=0){// m_gridParams.num_points_thres_ratio * m_gridParams.resolution) {
+	    if (oGridPoints[z * m_gridXSize + x].size() > m_gridParams.num_points_thres_ratio * m_gridParams.resolution || oGridPoints[z * m_gridXSize + x].size() == 0) {
 		
             	std::sort(oGridPoints[z * m_gridXSize + x].begin(), oGridPoints[z * m_gridXSize + x].end(),
                       std::greater<float>());
@@ -257,7 +257,7 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 
             	float sum = 0;	
 		float size = oGridPoints[z * m_gridXSize + x].size();	
-		if (size== 0) size = 0.1;
+		if (size== 0) size = 10000;
         	//avg height
         	for (float a : oGridPoints[z * m_gridXSize + x]) {
             	sum += a;
@@ -459,14 +459,14 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
         }
         ROS_DEBUG_STREAM(debugString.str());
     }
-/*
-   if (avg_counter == m_gridParams.avg_num){
+
+   /*if (avg_counter == m_gridParams.avg_num){
    avg_counter = 0;
    output.data.resize(0, 0);
    output.data.resize(output.dataDimension[0].size * output.dataDimension[1].size * output.dataDimension[2].size, 0);
     
-  }
-*/
+  }*/
+
 }
 
 int main(int argc, char **argv) {
