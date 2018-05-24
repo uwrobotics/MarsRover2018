@@ -1,7 +1,14 @@
 # Panorama Code
 
+## Install
+With a ROS install opencv3 should already by bundled with `ros-kinetic-opencv3`. In case it is not run
+```
+sudo apt-get install python-opencv
+```
 ## Usage
-`python pano.py txtlists/<your_image_list.txt>`
+```
+python pano.py txtlists/<your_image_list.txt>
+```
 
 The txtlists is structured so that each image to combine is listed per line, from left-most image to right-most image
 
