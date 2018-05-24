@@ -10,6 +10,7 @@
 #include "occupancy_grid/OccupancyGrid.h"
 #include <geometry_msgs/Twist.h>
 #include <nav_msgs/Odometry.h>
+#include <std_msgs/Bool.h>
 #include <ros/ros.h>
 #include <sensor_msgs/NavSatFix.h>
 
@@ -27,6 +28,7 @@ private:
   void GoalGPSCallback(geometry_msgs::Point::ConstPtr goal);
   void OccupancyCallback(occupancy_grid::OccupancyGrid::ConstPtr grid);
   void OdometryCallback(nav_msgs::Odometry::ConstPtr odemetry);
+  void EnableCallback(std_msgs::BoolConstPtr pEnableMsg);
   // publisher thread
   void VelocityPublisher();
 
@@ -35,6 +37,7 @@ private:
   ros::Subscriber *m_pOccupancySub;
   ros::Subscriber *m_pGoalGpsSub;
   ros::Subscriber *m_pOdometrySub;
+  ros::Subscriber *m_pEnableSub;
   ros::Publisher *m_pVelPub;
   ros::Publisher *m_pStatusPub;
 
@@ -55,6 +58,7 @@ private:
   bool m_bGoalReached;
   bool m_bGoalInRange;
   double m_distToGoal;
+  bool m_bEnabled;
 
   // velocity publishing
   std::mutex m_velMutex;

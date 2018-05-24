@@ -12,6 +12,7 @@ local_planner/goal_gps_topic: /local_planner/goal_gps
 local_planner/odometry_topic: /odometry/rover_gps_odom
 local_planner/velocity_out_topic: /cmd_vel
 local_planner/status_topic: /local_planner/status
+local_planner/enable_topic: /local_planner/enable
 local_planner/goal_reached_distance: 2.0
 local_planner/goal_in_range_distance: 10.0
 
