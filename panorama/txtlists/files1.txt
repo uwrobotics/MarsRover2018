@@ -1,0 +1,5 @@
+test-images/S1.jpg
+test-images/S2.jpg
+test-images/S3.jpg
+test-images/S5.jpg
+test-images/S6.jpg
