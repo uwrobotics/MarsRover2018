@@ -32,7 +32,7 @@ CLocalPlanner::CLocalPlanner(ros::NodeHandle *pNh,
       m_robotParams(robotParams), m_bOdomReceived(false),
       m_bGoalReceived(false), m_bVelocityReady(true), m_pVelPubThread(nullptr),
       m_distanceSinceLastRightDanger(1000), m_distanceSinceLastLeftDanger(1000),
-      m_bGoalReached(false) {
+      m_bGoalReached(false), m_bEnabled(false) {
 
   // subscribe to the occupancy grid
   std::string occupancy_topic = "/OccupancyGrid";
@@ -51,6 +51,12 @@ CLocalPlanner::CLocalPlanner(ros::NodeHandle *pNh,
   ros::param::get("/local_planner/odometry_topic", odometry_topic);
   m_pOdometrySub = new ros::Subscriber(m_pNh->subscribe(
       odometry_topic, 1, &CLocalPlanner::OdometryCallback, this));
+
+  // subscribe to the enable message
+  std::string enable_topic = "/local_planner/enable";
+  ros::param::get("/local_planner/enable_topic", enable_topic);
+  m_pEnableSub = new ros::Subscriber(m_pNh->subscribe(
+      enable_topic, 1, &CLocalPlanner::EnableCallback, this));
 
   // velocity publisher
   std::string velocity_topic = "/local_planner_cmd_vel";
@@ -93,8 +99,24 @@ void CLocalPlanner::GoalGPSCallback(geometry_msgs::Point::ConstPtr goal) {
 
   m_bGoalReceived = true;
   m_bGoalReached = false;
+  m_bGoalInRange = false;
 
   ROS_INFO("New goal: x=%f, y=%f", m_goalGpsUtmX, m_goalGpsUtmY);
+}
+
+// Callback for when a new goal gps coord is received.
+// Convert it to utm (TODO) and store
+// void CLocalPlanner::GoalGPSCallback(sensor_msgs::NavSatFix::ConstPtr goal)
+void CLocalPlanner::EnableCallback(std_msgs::BoolConstPtr pEnableMsg){
+  m_bEnabled = pEnableMsg->data;
+  if (!m_bEnabled) {
+    std::unique_lock<std::mutex> lock(m_velMutex);
+    m_bVelocityReady = false;
+    m_bGoalReceived = false;
+    m_bGoalReached = false;
+    m_bGoalInRange = false;
+    lock.unlock();
+  }
 }
 
 // Odometry callback
@@ -169,7 +191,7 @@ void CLocalPlanner::OdometryCallback(nav_msgs::Odometry::ConstPtr odometry) {
 void CLocalPlanner::OccupancyCallback(
     occupancy_grid::OccupancyGrid::ConstPtr grid) {
   // Make sure we have the information requiredd for planning
-  if (!m_bOdomReceived || !m_bGoalReceived) {
+  if (!m_bEnabled || !m_bOdomReceived || !m_bGoalReceived) {
     ROS_WARN("ignoring occupancy: not ready");
     return;
   }
