@@ -14,27 +14,27 @@ CAutonomyTwistMux::CAutonomyTwistMux(ros::NodeHandle &nh)
   /// Create Subscribers ///
   // EStop Subscriber
   std::string strEStopTopic = "/estop/cmd_vel";
-  ros::param::get("/AutonomyParams/estop_topic", strEStopTopic);
+  ros::param::get("/autonomy/twist_mux/estop_vel_topic", strEStopTopic);
   m_pEStopSub = new ros::Subscriber(nh.subscribe(strEStopTopic, 1, &CAutonomyTwistMux::EStopCallback, this));
 
   // LocalPlanner Subscriber
   std::string strLocalPlannerTopic = "/local_planner/cmd_vel";
-  ros::param::get("/AutonomyParams/local_plan_vel_topic", strLocalPlannerTopic);
+  ros::param::get("/autonomy/twist_mux/local_planner_vel_topic", strLocalPlannerTopic);
   m_pLocalPlannerSub = new ros::Subscriber(nh.subscribe(strLocalPlannerTopic, 1, &CAutonomyTwistMux::LocalPlannerCallback, this));
 
   // Unstuck Subscriber
   std::string strUnstuckTopic = "/unstuck/cmd_vel";
-  ros::param::get("/AutonomyParams/unstuck_topic", strUnstuckTopic);
+  ros::param::get("/autonomy/twist_mux/unstuck_vel_topic", strUnstuckTopic);
   m_pUnstuckSub = new ros::Subscriber(nh.subscribe(strUnstuckTopic, 1, &CAutonomyTwistMux::UnstuckCallback, this));
 
   // Spiral Subscriber
   std::string strSpiralTopic = "/spiral/cmd_vel";
-  ros::param::get("/AutonomyParams/spiral_topic", strSpiralTopic);
+  ros::param::get("/autonomy/twist_mux/spiral_vel_topic", strSpiralTopic);
   m_pSpiralSub = new ros::Subscriber(nh.subscribe(strSpiralTopic, 1, &CAutonomyTwistMux::SpiralCallback, this));
 
   // BallFollower Subscriber
-  std::string strBallFollowerTopic = "/ball_follower/cmd_vel";
-  ros::param::get("/AutonomyParams/ball_follow_topic", strBallFollowerTopic);
+  std::string strBallFollowerTopic = "/ball_following/cmd_vel";
+  ros::param::get("/autonomy/twist_mux/ball_follow_vel_topic", strBallFollowerTopic);
   m_pBallFolowSub = new ros::Subscriber(nh.subscribe(strBallFollowerTopic, 1, &CAutonomyTwistMux::BallFollowCallback, this));
 
 

@@ -19,49 +19,49 @@ CAutonomyMasterLogic::CAutonomyMasterLogic(ros::NodeHandle &nh)
 {
   /// Create Subscribers ///
   // Goal Subscriber
-  std::string strGoalGpsTopic = "/Autonomy/goal_gps";
-  ros::param::get("/AutonomyParams/goalGpsTopic", strGoalGpsTopic);
+  std::string strGoalGpsTopic = "/autonomy/goal_gps";
+  ros::param::get("/autonomy/goal_gps_topic", strGoalGpsTopic);
   m_pGoalGpsSub = new ros::Subscriber(nh.subscribe(strGoalGpsTopic, 1, &CAutonomyMasterLogic::GoalGpsCallback, this));
 
   // Backtrack Subscriber
-  std::string strBacktrackGpsTopic = "/autonomy/backtrack_gps";
-  ros::param::get("/AutonomyParams/backtrackGpsTopic", strBacktrackGpsTopic);
+  std::string strBacktrackGpsTopic = "/backtrack_ping/backtrack_gps";
+  ros::param::get("/autonomy/backtrack_gps_topic", strBacktrackGpsTopic);
   m_pBacktrackGpsSub = new ros::Subscriber(nh.subscribe(strBacktrackGpsTopic, 1, &CAutonomyMasterLogic::BacktrackGpsCallback, this));
 
   // Local Planner Status Subscriber
   std::string strLocalPlannerStatusTopic = "/local_planner/status";
-  ros::param::get("/local_planner/status_topic", strLocalPlannerStatusTopic);
+  ros::param::get("/autonomy/local_plan_status_topic", strLocalPlannerStatusTopic);
   m_pLocalPlanStatusSub = new ros::Subscriber(nh.subscribe(strLocalPlannerStatusTopic, 1, &CAutonomyMasterLogic::LocalPlannerStatusCallback, this));
 
   // Ball Detection Subscriber
-  std::string strBallDetectionTopic = "/Autonomy/ball_tracker/ball_detection";
-  ros::param::get("/autonomy/detection_topic", strBallDetectionTopic);
+  std::string strBallDetectionTopic = "/ball_tracker/detection";
+  ros::param::get("/autonomy/ball_detection_topic", strBallDetectionTopic);
   m_pBallDetectionSub = new ros::Subscriber(nh.subscribe(strBallDetectionTopic, 1, &CAutonomyMasterLogic::BallDetectionCallback, this));
 
   // Ball follower Arrived Subscriber
-  std::string strBallFollowerArrivedTopic = "/Autonomy/ball_follower/ball_reached";
-  ros::param::get("/autonomy/follower_arrived_topic", strBallFollowerArrivedTopic);
+  std::string strBallFollowerArrivedTopic = "/ball_following/arrival";
+  ros::param::get("/autonomy/ball_follower_arrived_topic", strBallFollowerArrivedTopic);
   m_pBallFollowerArrivedSub = new ros::Subscriber(nh.subscribe(strBallFollowerArrivedTopic, 1, &CAutonomyMasterLogic::BallFollowerArrivedCallback, this));
 
   // Ball follower Lost Subscriber
-  std::string strBallFollowerLostTopic = "/Autonomy/ball_follower/ball_lost";
-  ros::param::get("/autonomy/follower_lost_topic", strBallFollowerLostTopic);
+  std::string strBallFollowerLostTopic = "/ball_tracker/lost_ball";
+  ros::param::get("/autonomy/ball_tracker_lost_topic", strBallFollowerLostTopic);
   m_pBallFollowerLostSub = new ros::Subscriber(nh.subscribe(strBallFollowerLostTopic, 1, &CAutonomyMasterLogic::BallFollowerLostCallback, this));
 
   /// Create Publishers ///
   // Local Planner target Publisher
   std::string strLocalPlannerTargetTopic = "/local_planner/goal_gps";
-  ros::param::get("/local_planner/goal_gps_topic", strLocalPlannerTargetTopic);
+  ros::param::get("/autonomy/target_gps_topic", strLocalPlannerTargetTopic);
   m_pTargetGpsPub = new ros::Publisher(nh.advertise<sensor_msgs::NavSatFix>(strLocalPlannerTargetTopic, 1));
 
   // LocalPlanner Enable Publisher
   std::string strLocalPlannerEnableTopic = "/local_planner/enable";
-  ros::param::get("/local_planner/enable_topic", strLocalPlannerEnableTopic);
+  ros::param::get("/autonomy/local_planner_enable_topic", strLocalPlannerEnableTopic);
   m_pLocalPlannerEnablePub = new ros::Publisher(nh.advertise<std_msgs::Bool>(strLocalPlannerEnableTopic, 1));
 
   // Spiral Enable Publisher
-  std::string strSpiralEnableTopic = "/autonomy/spiral_enable";
-  ros::param::get("/spiral/enable_topic", strSpiralEnableTopic);
+  std::string strSpiralEnableTopic = "/spiral/enable";
+  ros::param::get("/autonomy/spiral_enable_topic", strSpiralEnableTopic);
   m_pSpiralEnablePub = new ros::Publisher(nh.advertise<std_msgs::Bool>(strSpiralEnableTopic, 1));
 
   // BallTracker Enable Publisher

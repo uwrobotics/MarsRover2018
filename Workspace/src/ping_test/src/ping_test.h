@@ -16,6 +16,6 @@
 #define GPS_SENSOR_TOPIC "/gps/filtered"
 // TODO: We need to figure out how to manage what gps goal we want,
 // maybe in master control?
-#define GPS_TARGET_TOPIC "/local_planner/goal_gps"
+#define GPS_TARGET_TOPIC "/backtrack_ping/backtrack_gps"
 
 #endif
