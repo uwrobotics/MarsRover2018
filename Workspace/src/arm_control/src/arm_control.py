@@ -13,7 +13,7 @@ class ArmController:
         self._node = rospy.init_node('arm_control', anonymous=True)
         self._joySub = rospy.Subscriber(sub_topic, Joy, self.joyCallback)
         self._canPub = rospy.Publisher(pub_topic, Frame, queue_size=20)
-        self._id = 400 # initial CAN id
+        self._id = 420 # initial CAN id
         self._pwm = 0
         self._pressed = False
 
@@ -21,8 +21,8 @@ class ArmController:
     def joyCallback(self, joy):
         if(joy.buttons[0] == 1 and not self._pressed):
             self._id += 1
-            if(self._id > 404):
-                self._id = 400
+            if(self._id > 422):
+                self._id = 420
             self._pressed = True
         if(not joy.buttons[0]):
             self._pressed = False
