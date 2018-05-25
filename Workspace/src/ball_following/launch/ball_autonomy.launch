@@ -1,7 +1,10 @@
 <launch>
     <include file="$(find ball_tracker)/launch/ball_tracker.launch"/>
+    <rosparam file="$(find ball_following)/config/ball_following.yaml"/>
+    <node pkg="ball_following" type="ball_following_node.py" name="ball_following" respawn="true" output="screen"/>
 
-    <rosparam file="$(find ball_tracker)/config/ball_following.yaml"/>
-
-    <node pkg="ball_following" type="ball_following.py" name="ball_following" ns="autonomy" respawn="true" output="screen"/>
+    <node pkg="usb_cam" type="usb_cam_node" name="usb_cam_node" respawn="true" output="screen">
+        <param name="video_device" value="/dev/video0"/>
+        <param name="pixel_format" value="yuyv"/>
+    </node>
 </launch>

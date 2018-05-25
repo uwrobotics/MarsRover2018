@@ -22,6 +22,7 @@ import rospy
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
 from ball_tracker.msg import BallDetection
+from std_msgs.msg import Bool
 
 # OpenCV
 import cv2
@@ -50,9 +51,14 @@ class BallTracker:
         self.max_distance = rospy.get_param('max_distance', 10000)  # Euclidean
         self.max_radius_diff = \
             rospy.get_param('max_radius_diff', 10)  # in pixels
-        self.stability_threshold = rospy.get_param('stability_threshold', 20)
+        self.stability_threshold = rospy.get_param('stability_threshold', 10)
         self.detection_buffer_size = \
             rospy.get_param('detection_buffer_size', 32)
+
+        self.enable = False
+
+        self.last_output = BallDetection(-1.0, -1.0, -1.0, False, False)
+        self.lost_detection = False
 
         # Deque to track detection history
         self.prev_detections = deque(maxlen=self.detection_buffer_size)
@@ -62,12 +68,28 @@ class BallTracker:
                                            Image,
                                            self.imageCallback)
         rospy.loginfo("BallTracker: Subscribed to /%s", self.image_topic)
+        self.enable_sub = rospy.Subscriber('ball_tracker/enable',
+                                           Bool,
+                                           self.enableCallback)
+        rospy.loginfo("BallTracker: Subscribed to /ball_tracker/enable")
         self.detection_pub = rospy.Publisher('ball_tracker/detection',
                                              BallDetection,
                                              queue_size=1)
         rospy.loginfo("BallTracker: Publishing to /ball_tracker/detection")
+        self.lost_detection_pub = rospy.Publisher('ball_tracker/lost_ball',
+                                                  Bool,
+                                                  queue_size=1)
+        rospy.loginfo("BallTracker: Publishing to /ball_tracker/lost_ball")
+
+    def reset(self):
+        self.prev_detections.clear()
+        self.lost_detection = False
+        self.last_output = BallDetection(-1.0, -1.0, -1.0, False, False)
 
     def imageCallback(self, image):
+        if not self.enable:
+            return
+
         try:
             cv_image = \
                 self.bridge.imgmsg_to_cv2(image,
@@ -80,6 +102,12 @@ class BallTracker:
                                             image.width,
                                             image.height)
         self.detection_pub.publish(detection_msg)
+
+        lost_detection_msg = Bool(data=self.lost_detection)
+        self.lost_detection_pub.publish(lost_detection_msg)
+
+    def enableCallback(self, enable):
+        self.enable = enable.data
 
     def processImage(self, cv_image):
         # convert image to HSV colourspace
@@ -144,9 +172,16 @@ class BallTracker:
                                     #         the cropped region
                                     isDetected = True
                                     detection = (center, radius)
+
+                                    # Make sure we don't just keep appending
+                                    if (len(self.prev_detections) + 1 ==
+                                            self.stability_threshold * 2):
+                                        self.prev_detections.pop()
+
                                     self.prev_detections.appendleft(
                                         prev_detection)
-                                    self.prev_detections.appendleft(detection)
+                                    self.prev_detections.appendleft(
+                                        detection)
 
                         else:
                             isDetected = True
@@ -168,12 +203,21 @@ class BallTracker:
             output.radius = detection[1]
             output.isDetected = True
             output.isStable = isStable
+            self.lost_detection = False
+            self.last_output = output
         else:
             output.x = -1.0
             output.y = -1.0
             output.radius = -1.0
             output.isDetected = False
             output.isStable = False
+            self.lost_detection = False
+
+            # if previous detection was stable, trigger lost detection flag
+            if self.last_output.isStable:
+                self.lost_detection = True
+
+            self.last_output = output
 
         return output
 
