@@ -1,5 +1,5 @@
 sub_topic: "/autonomy_joy"
-pub_topic: "/emergency_cmd_vel"
+pub_topic: "/estop/cmd_vel"
 
 
 queue_size: 1
