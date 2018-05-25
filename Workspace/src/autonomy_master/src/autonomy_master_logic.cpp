@@ -12,7 +12,10 @@ CAutonomyMasterLogic::CAutonomyMasterLogic(ros::NodeHandle &nh)
  : m_state(eAutonomyState::IDLE),
    m_pGoalGps(nullptr),
    m_pBacktrackGps(nullptr),
-   m_pLocalPlannerStatus(nullptr)
+   m_pLocalPlannerStatus(nullptr),
+   m_bBallReached(false),
+   m_bBallDetected(false),
+   m_bBallLost(false)
 {
   /// Create Subscribers ///
   // Goal Subscriber
@@ -35,10 +38,15 @@ CAutonomyMasterLogic::CAutonomyMasterLogic(ros::NodeHandle &nh)
   ros::param::get("/autonomy/detection_topic", strBallDetectionTopic);
   m_pBallDetectionSub = new ros::Subscriber(nh.subscribe(strBallDetectionTopic, 1, &CAutonomyMasterLogic::BallDetectionCallback, this));
 
-  // Ball follower Subscriber
-  std::string strBallFollowerTopic = "/Autonomy/ball_follower/ball_reached";
-  ros::param::get("/autonomy/follower_topic", strBallFollowerTopic);
-  m_pBallFollowerSub = new ros::Subscriber(nh.subscribe(strBallFollowerTopic, 1, &CAutonomyMasterLogic::BallFollowerCallback, this));
+  // Ball follower Arrived Subscriber
+  std::string strBallFollowerArrivedTopic = "/Autonomy/ball_follower/ball_reached";
+  ros::param::get("/autonomy/follower_arrived_topic", strBallFollowerArrivedTopic);
+  m_pBallFollowerArrivedSub = new ros::Subscriber(nh.subscribe(strBallFollowerArrivedTopic, 1, &CAutonomyMasterLogic::BallFollowerArrivedCallback, this));
+
+  // Ball follower Lost Subscriber
+  std::string strBallFollowerLostTopic = "/Autonomy/ball_follower/ball_lost";
+  ros::param::get("/autonomy/follower_lost_topic", strBallFollowerLostTopic);
+  m_pBallFollowerLostSub = new ros::Subscriber(nh.subscribe(strBallFollowerLostTopic, 1, &CAutonomyMasterLogic::BallFollowerLostCallback, this));
 
   /// Create Publishers ///
   // Local Planner target Publisher
@@ -46,14 +54,23 @@ CAutonomyMasterLogic::CAutonomyMasterLogic(ros::NodeHandle &nh)
   ros::param::get("/local_planner/goal_gps_topic", strLocalPlannerTargetTopic);
   m_pTargetGpsPub = new ros::Publisher(nh.advertise<sensor_msgs::NavSatFix>(strLocalPlannerTargetTopic, 1));
 
-  // BallFollower Enable Publisher
-  std::string strBallFollowerEnableTopic = "/ball_follower/enable";
-  ros::param::get("/autonomy/ball_follower_enable_topic", strBallFollowerEnableTopic);
-  m_pBallFollowerPub = new ros::Publisher(nh.advertise<std_msgs::Bool>(strBallFollowerEnableTopic, 1));
+  // LocalPlanner Enable Publisher
+  std::string strLocalPlannerEnableTopic = "/local_planner/enable";
+  ros::param::get("/local_planner/enable_topic", strLocalPlannerEnableTopic);
+  m_pLocalPlannerEnablePub = new ros::Publisher(nh.advertise<std_msgs::Bool>(strLocalPlannerEnableTopic, 1));
+
+  // Spiral Enable Publisher
+  std::string strSpiralEnableTopic = "/autonomy/spiral_enable";
+  ros::param::get("/spiral/enable_topic", strSpiralEnableTopic);
+  m_pSpiralEnablePub = new ros::Publisher(nh.advertise<std_msgs::Bool>(strSpiralEnableTopic, 1));
+
+  // BallTracker Enable Publisher
+  std::string strBallTrackerEnableTopic = "/ball_tracker/enable";
+  ros::param::get("/autonomy/ball_tracker_enable_topic", strBallTrackerEnableTopic);
+  m_pBallTrackerPub = new ros::Publisher(nh.advertise<std_msgs::Bool>(strBallTrackerEnableTopic, 1));
 
 
 
-  //TODO: tie in twist mux
   m_pTwistMux = new CAutonomyTwistMux(nh);
 
 
@@ -84,15 +101,18 @@ void CAutonomyMasterLogic::LocalPlannerStatusCallback(local_planner::LocalPlanne
 }
 
 void CAutonomyMasterLogic::BallDetectionCallback(ball_tracker::BallDetectionConstPtr pBallDetection) {
-  m_bBallDetected=  (pBallDetection->isDetected && pBallDetection->isStable);
+  m_bBallDetected =  (pBallDetection->isDetected && pBallDetection->isStable);
 }
 
-void CAutonomyMasterLogic::BallFollowerCallback(std_msgs::BoolConstPtr pMsg) {
-  m_bBallDetected = pMsg->data;
+void CAutonomyMasterLogic::BallFollowerArrivedCallback(std_msgs::EmptyConstPtr pMsg){
+  m_bBallReached = true;
 }
 
+void CAutonomyMasterLogic::BallFollowerLostCallback(std_msgs::EmptyConstPtr pMsg) {
+  m_bBallLost = true;
+}
 
-  //////////////
+  ///////////////
  /// Helpers ///
 ///////////////
 
@@ -129,6 +149,8 @@ void CAutonomyMasterLogic::UpdateState() {
       //TODO: if tennisballReached-->idle
       if (m_bBallReached) {
         StateTransition(eAutonomyState::IDLE);
+      } else if (m_bBallLost) {
+        StateTransition(eAutonomyState::TENNISBALL_SEARCH);
       }
       break;
     case eAutonomyState::IDLE:
@@ -150,23 +172,51 @@ void CAutonomyMasterLogic::StateTransition(eAutonomyState newState) {
       if (m_pGoalGps)
       {
         m_pTargetGpsPub->publish(m_pGoalGps);
+        std_msgs::Bool enable;
+        enable.data=true;
+        m_pLocalPlannerEnablePub->publish(enable);
       }
       break;
     case eAutonomyState::BACKTRACK:
       if (m_pBacktrackGps)
       {
         m_pTargetGpsPub->publish(m_pBacktrackGps);
+        std_msgs::Bool enable;
+        enable.data=true;
+        m_pLocalPlannerEnablePub->publish(enable);
       }
       break;
     case eAutonomyState::TENNISBALL_SEARCH:
       //TODO: start process, need spiral search interface
+      {
+        m_bBallDetected = false;
+        m_bBallLost = false;
+        m_bBallReached = false;
+
+        std_msgs::Bool enable;
+        enable.data=false;
+        m_pSpiralEnablePub->publish(enable);
+        m_pBallTrackerPub->publish(enable);
+
+        std_msgs::Bool disable;
+        disable.data=false;
+        m_pLocalPlannerEnablePub->publish(disable);
+      }
       break;
     case eAutonomyState::TENNISBALL_FOLLOW:
       //TODO: not sure if this is the right spot
       {
-        std_msgs::Bool msg;
-        msg.data = true;
-        m_pBallFollowerPub->publish(msg);
+        m_bBallLost = false;
+        m_bBallReached = false;
+
+        std_msgs::Bool enable;
+        enable.data = true;
+        m_pBallTrackerPub->publish(enable);
+
+        std_msgs::Bool disable;
+        disable.data=false;
+        m_pLocalPlannerEnablePub->publish(disable);
+        m_pSpiralEnablePub->publish(disable);
       }
       break;
     case eAutonomyState::IDLE: {
@@ -174,10 +224,14 @@ void CAutonomyMasterLogic::StateTransition(eAutonomyState newState) {
       m_pBacktrackGps = nullptr;
       m_pLocalPlannerStatus = nullptr;
       m_bBallDetected = false;
+      m_bBallReached = false;
+      m_bBallLost = false;
       //TODO: endProcess
-      std_msgs::Bool msg;
-      msg.data = false;
-      m_pBallFollowerPub->publish(msg);
+      std_msgs::Bool disable;
+      disable.data = false;
+      m_pBallTrackerPub->publish(disable);
+      m_pLocalPlannerEnablePub->publish(disable);
+      m_pSpiralEnablePub->publish(disable);
     }
       break;
     default:
@@ -195,9 +249,9 @@ void CAutonomyMasterLogic::RunState() {
       if (m_pLocalPlannerStatus && m_pLocalPlannerStatus->goalInRange)
       {
         // start looking for the ball since we might pass it
-        ///std_msgs::Bool msg;
-        ///msg.data = true;
-        ///m_pBallFollowerPub->publish(msg);
+        std_msgs::Bool msg;
+        msg.data = true;
+        m_pBallTrackerPub->publish(msg);
       }
       break;
     case eAutonomyState::BACKTRACK:
