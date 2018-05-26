@@ -1,0 +1,4 @@
+<launch>
+<node pkg="antenna" type="antenna" name="rover_tracker_node"/>
+<node pkg="antenna" type="rpi_control.py" name="rpi_control_node"/>
+</launch>
