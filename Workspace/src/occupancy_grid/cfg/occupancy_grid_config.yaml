@@ -6,7 +6,7 @@ brightness_lower_lim: 50
 brightness_upper_lim: 200
 num_points_thres_ratio: 2750
 expo_weighted_avg_var: 0.1
-avg_num: 3
+median_filter_size: 5
 Scalar: 1.2
 Normalizer: 1.0
 rate: 30
