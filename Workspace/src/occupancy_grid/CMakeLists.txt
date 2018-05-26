@@ -133,6 +133,7 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(occupancy_grid src/occupancy_grid.cpp)
+add_executable(occupancy_grid_no_median_filter src/occupancy_grid_no_median_filter.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -149,7 +150,12 @@ target_link_libraries(occupancy_grid
   ${catkin_LIBRARIES}
 )
 
+target_link_libraries(occupancy_grid_no_median_filter
+  ${catkin_LIBRARIES}
+)
+
 add_dependencies(occupancy_grid occupancy_grid_generate_messages_cpp)
+add_dependencies(occupancy_grid_no_median_filter occupancy_grid_generate_messages_cpp)
 
 #############
 ## Install ##
