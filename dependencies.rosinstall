@@ -38,3 +38,7 @@
       uri: https://github.com/wjwwood/serial
       local-name: Workspace/src/dependencies/serial
       version: master
+- git:
+      uri: https://github.com/ros-perception/vision_opencv
+      local-name: Workspace/src/dependencies/vision_opencv
+      version: kinetic

@@ -1,0 +1,11 @@
+image_topic: "usb_cam_node/image_raw"
+kernel_dim: 10 # in pixels
+colour_upper: [60, 255, 255] # HSV, from 0 to 255
+colour_lower: [25, 0, 0] # HSV, from 0 to 255
+mask_iterations: 2
+max_radius: 150 # in pixels
+min_radius: 10 # in pixels
+max_distance: 10000 # Euclidean
+max_radius_diff: 10 # in pixels
+stability_threshold: 5
+detection_buffer_size: 32
