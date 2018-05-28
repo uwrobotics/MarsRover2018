@@ -15,7 +15,7 @@ class GimbalController:
                                           queue_size=20)
         self.pan = 0
         self.tilt = 0
-        self.ID = 600
+        self.ID = 510
 
     def callback(self, joy):
 
