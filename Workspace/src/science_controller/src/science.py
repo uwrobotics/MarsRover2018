@@ -81,7 +81,7 @@ Author: Zameer Bharwani
                 self.temp_sensor -= shifter
 
             elif joy.buttons[7] == 1:  # RT button to move up
-            	self.temp_sensor = 0  # do not move
+				self.temp_sensor = 0  # do not move
 
         else:
             if joy.buttons[5] == 1:
