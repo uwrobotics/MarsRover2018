@@ -169,6 +169,7 @@ void CAutonomyMasterLogic::StateTransition(eAutonomyState newState) {
   switch (newState)
   {
     case eAutonomyState::LOCALPLAN:
+      ROS_INFO("Entering state: Local Planner");
       if (m_pGoalGps)
       {
         m_pTargetGpsPub->publish(m_pGoalGps);
@@ -178,6 +179,7 @@ void CAutonomyMasterLogic::StateTransition(eAutonomyState newState) {
       }
       break;
     case eAutonomyState::BACKTRACK:
+      ROS_INFO("Entering state: Backtrack");
       if (m_pBacktrackGps)
       {
         m_pTargetGpsPub->publish(m_pBacktrackGps);
@@ -187,6 +189,7 @@ void CAutonomyMasterLogic::StateTransition(eAutonomyState newState) {
       }
       break;
     case eAutonomyState::TENNISBALL_SEARCH:
+      ROS_INFO("Entering state: Ball Search");
       //TODO: start process, need spiral search interface
       {
         m_bBallDetected = false;
@@ -204,6 +207,7 @@ void CAutonomyMasterLogic::StateTransition(eAutonomyState newState) {
       }
       break;
     case eAutonomyState::TENNISBALL_FOLLOW:
+      ROS_INFO("Entering state: Ball Follow");
       //TODO: not sure if this is the right spot
       {
         m_bBallLost = false;
@@ -220,6 +224,7 @@ void CAutonomyMasterLogic::StateTransition(eAutonomyState newState) {
       }
       break;
     case eAutonomyState::IDLE: {
+      ROS_INFO("Entering state: Idle");
       m_pGoalGps = nullptr;
       m_pBacktrackGps = nullptr;
       m_pLocalPlannerStatus = nullptr;

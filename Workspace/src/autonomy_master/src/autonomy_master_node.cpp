@@ -10,10 +10,10 @@
 int main(int argc, char **argv) {
   ros::init(argc, argv, "autonomy_master");
   ros::NodeHandle nh;
-  ROS_INFO("local planner");
+  ROS_INFO("autonomy master logic");
 
   CAutonomyMasterLogic masterLogic(nh);
-  ROS_INFO("local planner setup complete");
+  ROS_INFO("autonomy master logic setup complete");
 
   masterLogic.Start();
 

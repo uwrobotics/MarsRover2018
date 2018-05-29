@@ -133,7 +133,8 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
- add_executable(${PROJECT_NAME}_node src/autonomy_master_node.cpp src/autonomy_master_logic.cpp src/autonomy_twist_mux.cpp)
+add_executable(${PROJECT_NAME}_node src/autonomy_master_node.cpp src/autonomy_master_logic.cpp src/autonomy_twist_mux.cpp)
+add_executable(autonomy_input_node src/autonomy_goal_input.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -150,6 +151,9 @@ target_link_libraries(${PROJECT_NAME}_node
   ${catkin_LIBRARIES}
 )
 
+target_link_libraries(autonomy_input_node
+  ${catkin_LIBRARIES}
+)
 #############
 ## Install ##
 #############
