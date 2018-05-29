@@ -1,0 +1,21 @@
+<launch>
+    <!-- Setup Requirements -->
+    <include file="$(find autonomy_master)/launch/localization.launch" />
+
+
+    <!-- Subcomponents -->
+    <include file="$(find occupancy_grid)/launch/occupancy_grid.launch" />
+    <include file="$(find local_planner)/launch/local_planner_stand_alone.launch" />
+    <include file="$(find spiral)/launch/spiral.launch" />
+    <!-- ball tracking -->
+    <!-- ball folowing -->
+    <include file="$(find ball_following)/launch/ball_autonomy.launch"/>
+
+
+    <arg name="autonomyConfig" default="$(find autonomy_master)/cfg/autonomy_topic_cfg.yaml"/>
+    <rosparam command="load" file="$(arg autonomyConfig)"/>
+
+    <node pkg="autonomy_master" type="autonomy_master_node" name="autonomy_master_node">
+    </node>
+
+</launch>

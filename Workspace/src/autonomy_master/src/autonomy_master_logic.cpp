@@ -87,6 +87,7 @@ void CAutonomyMasterLogic::GoalGpsCallback(sensor_msgs::NavSatFixConstPtr pGoalG
   if (m_state == eAutonomyState::LOCALPLAN) {
     m_pTargetGpsPub->publish(m_pGoalGps);
   }
+  ROS_INFO("received goal");
 }
 
 void CAutonomyMasterLogic::BacktrackGpsCallback(sensor_msgs::NavSatFixConstPtr pBacktrackGps) {
@@ -197,7 +198,7 @@ void CAutonomyMasterLogic::StateTransition(eAutonomyState newState) {
         m_bBallReached = false;
 
         std_msgs::Bool enable;
-        enable.data=false;
+        enable.data=true;
         m_pSpiralEnablePub->publish(enable);
         m_pBallTrackerPub->publish(enable);
 
@@ -280,12 +281,14 @@ void CAutonomyMasterLogic::RunState() {
 /////////////////
 
 void CAutonomyMasterLogic::Start() {
+  ros::Rate looprate(10);
   while (ros::ok()) {
     ros::spinOnce();
     UpdateState();
     RunState();
     //twistmux
     m_pTwistMux->Arbitrate(m_state);
+    looprate.sleep();
   }
 
 }
