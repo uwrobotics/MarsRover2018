@@ -58,28 +58,38 @@ private:
 
 
 void EmergencyStop::joy_callback (const sensor_msgs::Joy::ConstPtr &joy){
+  //ROS_WARN("received a joy");
 	bool matched = true;
 	if (!emergency_mode){
 		for (int i = 0; i < joy->buttons.size(); i++){
-			if (joy->buttons[i] != emergency_button_set[i])
+			if (joy->buttons[i] != emergency_button_set[i]) {
 				matched = false;
+				//ROS_WARN("not matched");
+			}
 		}
 	}
 	
 	if (!emergency_mode && matched){
-		m_pub.publish(zero_vel_msg);
+		//m_pub.publish(zero_vel_msg);
 		emergency_mode = true;
+		ROS_WARN("emergency mode enabled");
 	}
 	
 	if (emergency_mode){
+    matched = true;
 		for (int i = 0; i < joy->buttons.size(); i++){
-			if (joy->buttons[i] != reset_button_set[i])
+			if (joy->buttons[i] != reset_button_set[i]) {
 				matched = false;
+				//ROS_WARN("reset not matched");
+			}
+		}
+    if (emergency_mode && matched) {
+			emergency_mode = false;
+			ROS_WARN("emergency stop disabled");
 		}
 	}
 	
-	if (emergency_mode && matched)
-		emergency_mode = false;
+
 
 	//forward emergency control to teleoptwist
 	if (emergency_mode)
@@ -100,9 +110,8 @@ int EmergencyStop::get_rate () const{
 
 
 int main(int argc, char *argv[]) {
-
   ros::init(argc, argv, "e_stop");
- 
+ ROS_WARN("estop started");
   EmergencyStop e_stop;
 
   ros::Rate rate(e_stop.get_rate());
