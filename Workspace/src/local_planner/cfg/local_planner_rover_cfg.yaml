@@ -4,8 +4,8 @@ roverParams_maxLinDecel: 1.4
 roverParams_maxV: 1.0
 roverParams_minV: 0.0
 roverParams_maxW: 1.0
-roverParams_robotLength: 0.75
-roverParams_robotWidth: 0.57
+roverParams_robotLength: 1.07
+roverParams_robotWidth: 1.03
 roverParams_timestep: 0.5
 local_planner/occupancy_topic: /OccupancyGrid
 local_planner/goal_gps_topic: /local_planner/goal_gps
