@@ -29,8 +29,9 @@ public:
 
 
 		m_sub = m_n.subscribe (sub_topic, queue_size, &EmergencyStop::joy_callback, this);
-		m_pub = m_n.advertise<geometry_msgs::Twist>(pub_topic, queue_size);
-		
+		//m_pub = m_n.advertise<geometry_msgs::Twist>(pub_topic, queue_size);
+		m_pub = m_n.advertise<sensor_msgs::Joy>(pub_topic, queue_size);
+
 		
  		emergency_mode = false;
 		zero_vel_msg.linear.x = 0;
@@ -79,6 +80,12 @@ void EmergencyStop::joy_callback (const sensor_msgs::Joy::ConstPtr &joy){
 	
 	if (emergency_mode && matched)
 		emergency_mode = false;
+
+	//forward emergency control to teleoptwist
+	if (emergency_mode)
+	{
+		m_pub.publish(joy);
+	}
 }
 
 
@@ -101,7 +108,7 @@ int main(int argc, char *argv[]) {
   ros::Rate rate(e_stop.get_rate());
 
   while (ros::ok()){
-     e_stop.keep_publishing();
+     //e_stop.keep_publishing();
      ros::spinOnce();
      ros::Rate(rate).sleep();
   }

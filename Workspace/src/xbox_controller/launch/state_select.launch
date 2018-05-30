@@ -1,13 +1,25 @@
 <launch>
-	<arg name="EStopConfig" default="$(find xbox_controller)/config/e_stop_params.yaml"/>
-	<rosparam command="load" file="$(arg EStopConfig)"/>
+	<!-- arg name="EStopConfig" default="$(find xbox_controller)/config/e_stop_params.yaml"/>
+	<rosparam command="load" file="$(arg EStopConfig)"/-->
 
 	<node name="state_select" pkg="xbox_controller" type="state_select"></node>
 	
 	<node name="joy_to_twist" pkg="xbox_controller" type="joy_to_twist"></node>
 	
-	<node name="emergency_stop" pkg="xbox_controller" type="emergency_stop" output="screen"></node>
-	
+	<!--node name="emergency_stop" pkg="xbox_controller" type="emergency_stop" output="screen"></node-->
+
+
+
+
+
+
+	<!--node name="joy_to_twist" pkg="xbox_controller" type="joy_to_twist">
+		<remap from="drive_joy" to="/estop/joy"/>
+		<remap from="/cmd_vel" to="/estop/cmd_vel"/>
+
+	</node-->
+
+
 	<node name="joy_launcher" pkg="joy" type="joy_node">
 		<param name="dev" type="string" value="/dev/input/js2" />
 	</node>
