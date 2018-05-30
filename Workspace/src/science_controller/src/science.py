@@ -121,8 +121,8 @@ Author: Zameer Bharwani
         if joy.buttons[2] == 1 or joy.buttons[3] == 1:
             self.send_info_sensor_select()
 
-        if joy.buttons[4] == 1 or joy.buttons[5] == 1:
-            self.send_info_temp_sensor()
+        # if joy.buttons[4] == 1 or joy.buttons[5] == 1:
+    	self.send_info_temp_sensor()
 
     def send_info_flap(self):
 
