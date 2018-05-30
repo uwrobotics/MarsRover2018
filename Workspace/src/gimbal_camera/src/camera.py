@@ -21,16 +21,16 @@ class GimbalController:
 
         shift = rospy.get_param('move')
 
-        if joy.axes[5] == 1:
+        if joy.axes[7] == 1:
             self.tilt += shift
 
-        elif joy.axes[5] == -1:
+        elif joy.axes[7] == -1:
             self.tilt -= shift
 
-        elif joy.axes[4] == -1:
+        elif joy.axes[6] == -1:
             self.pan += shift
 
-        elif joy.axes[4] == 1:
+        elif joy.axes[6] == 1:
             self.pan -= shift
 
         self.tilt = min(max(self.tilt, -60), 60)
