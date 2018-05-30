@@ -16,7 +16,7 @@
     <arg name="EStopConfig" default="$(find xbox_controller)/config/e_stop_params.yaml"/>
     <rosparam command="load" file="$(arg EStopConfig)"/>
     <node name="emergency_stop" pkg="xbox_controller" type="emergency_stop" output="screen"></node>
-    <node name="joy_to_twist" pkg="xbox_controller" type="joy_to_twist">
+    <node name="estop_joy_to_twist" pkg="xbox_controller" type="joy_to_twist">
         <remap from="drive_joy" to="/estop/joy"/>
         <remap from="/cmd_vel" to="/estop/cmd_vel"/>
 
