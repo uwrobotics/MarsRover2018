@@ -185,42 +185,45 @@ public:
     */
 
     medium_filter_counter = 0;
-    occupancy_grid::OccupancyGrid temp;
-    temp.header.cameraZMax = m_gridParams.zMax;
-    temp.header.cameraXMax = m_gridParams.xMax;
-    temp.header.gridResolution = m_gridParams.resolution;
-    temp.header.gridCameraZ = m_gridCameraZ;
-    temp.header.gridCameraX = m_gridCameraX;
-    temp.header.cameraYOffset = m_gridParams.yOffset;
+    //occupancy_grid::OccupancyGrid temp;
+    m_outputGrid.header.cameraZMax = m_gridParams.zMax;
+    m_outputGrid.header.cameraXMax = m_gridParams.xMax;
+    m_outputGrid.header.gridResolution = m_gridParams.resolution;
+    m_outputGrid.header.gridCameraZ = m_gridCameraZ;
+    m_outputGrid.header.gridCameraX = m_gridCameraX;
+    m_outputGrid.header.cameraYOffset = m_gridParams.yOffset;
 
-    temp.dataDimension.emplace_back(
+    m_outputGrid.dataDimension.emplace_back(
         std::move(occupancy_grid::GridDataDimension()));
-    temp.dataDimension.emplace_back(
+    m_outputGrid.dataDimension.emplace_back(
         std::move(occupancy_grid::GridDataDimension()));
-    temp.dataDimension.emplace_back(
+    m_outputGrid.dataDimension.emplace_back(
         std::move(occupancy_grid::GridDataDimension()));
 
-    temp.dataDimension[0].label = "Z(Forward)";
-    temp.dataDimension[1].label = "X(Left)";
-    temp.dataDimension[2].label = "Points Detected // Avg. Height // Gaussian "
+    m_outputGrid.dataDimension[0].label = "Z(Forward)";
+    m_outputGrid.dataDimension[1].label = "X(Left)";
+    m_outputGrid.dataDimension[2].label = "Points Detected // Avg. Height // Gaussian "
                                   "Blur // Gaussian Blur * Slope";
     //"Points Detected // Avg. Height // Max Height // Min Height // Gaussian
     //Blur // Gaussian Blur * Slope // Gaussian Blur * Slope (Normalized)";
 
-    temp.dataDimension[0].size = m_gridZSize;
-    temp.dataDimension[1].size = m_gridXSize;
-    temp.dataDimension[2].size = 4; // 7;
+    m_outputGrid.dataDimension[0].size = m_gridZSize;
+    m_outputGrid.dataDimension[1].size = m_gridXSize;
+    m_outputGrid.dataDimension[2].size = 4; // 7;
 
-    temp.dataDimension[0].stride =
-        temp.dataDimension[1].size * temp.dataDimension[2].size;
-    temp.dataDimension[1].stride = temp.dataDimension[2].size;
-    temp.dataDimension[2].stride = 1;
+    m_outputGrid.dataDimension[0].stride =
+        m_outputGrid.dataDimension[1].size * m_outputGrid.dataDimension[2].size;
+    m_outputGrid.dataDimension[1].stride = m_outputGrid.dataDimension[2].size;
+    m_outputGrid.dataDimension[2].stride = 1;
 
-    temp.data.resize(temp.dataDimension[0].size * temp.dataDimension[1].size *
-                         temp.dataDimension[2].size,
+    m_outputGrid.data.resize(m_outputGrid.dataDimension[0].size * m_outputGrid.dataDimension[1].size *
+                         m_outputGrid.dataDimension[2].size,
                      0);
 
-    output.resize(m_gridParams.median_filter_size + 1, temp);
+    //output.resize(m_gridParams.median_filter_size + 1, temp);
+
+
+    m_pMedianResult = PopulateNewGrid();
   }
 
   void callback(const sensor_msgs::PointCloud2 input);
@@ -228,6 +231,7 @@ public:
   gridParams getGridParams() const { return m_gridParams; }
 
 private:
+  std::shared_ptr<occupancy_grid::OccupancyGrid> PopulateNewGrid();
   ros::NodeHandle m_n;
   ros::Subscriber m_sub;
   ros::Publisher m_pub;
@@ -251,66 +255,82 @@ private:
   int medium_filter_counter;
   // last grid (output[5]) is the actual one to be published, the other ones are
   // for median filter
-  std::vector<occupancy_grid::OccupancyGrid> output;
+  //std::vector<occupancy_grid::OccupancyGrid> output;
+  std::shared_ptr<occupancy_grid::OccupancyGrid> m_pMedianResult;
+  occupancy_grid::OccupancyGrid m_outputGrid;
+
+
+
+  std::list<std::shared_ptr<occupancy_grid::OccupancyGrid>> m_medianList;
 };
 
+
+
+
+
+// function to populate new frame
+std::shared_ptr<occupancy_grid::OccupancyGrid> OccupancyGrid::PopulateNewGrid()
+{
+  std::shared_ptr<occupancy_grid::OccupancyGrid> pGrid = std::make_shared<occupancy_grid::OccupancyGrid>();
+  pGrid->header.cameraZMax = m_gridParams.zMax;
+  pGrid->header.cameraXMax = m_gridParams.xMax;
+  pGrid->header.gridResolution = m_gridParams.resolution;
+  pGrid->header.gridCameraZ = m_gridCameraZ;
+  pGrid->header.gridCameraX = m_gridCameraX;
+  pGrid->header.cameraYOffset = m_gridParams.yOffset;
+
+  pGrid->dataDimension.emplace_back(
+      std::move(occupancy_grid::GridDataDimension()));
+  pGrid->dataDimension.emplace_back(
+      std::move(occupancy_grid::GridDataDimension()));
+  pGrid->dataDimension.emplace_back(
+      std::move(occupancy_grid::GridDataDimension()));
+
+  pGrid->dataDimension[0].label = "Z(Forward)";
+  pGrid->dataDimension[1].label = "X(Left)";
+  pGrid->dataDimension[2].label = "Points Detected // Avg. Height // Gaussian "
+                                "Blur // Gaussian Blur * Slope";
+  //"Points Detected // Avg. Height // Max Height // Min Height // Gaussian
+  //Blur // Gaussian Blur * Slope // Gaussian Blur * Slope (Normalized)";
+
+  pGrid->dataDimension[0].size = m_gridZSize;
+  pGrid->dataDimension[1].size = m_gridXSize;
+  pGrid->dataDimension[2].size = 4; // 7;
+
+  pGrid->dataDimension[0].stride =
+      pGrid->dataDimension[1].size * pGrid->dataDimension[2].size;
+  pGrid->dataDimension[1].stride = pGrid->dataDimension[2].size;
+  pGrid->dataDimension[2].stride = 1;
+
+  pGrid->data.resize(pGrid->dataDimension[0].size * pGrid->dataDimension[1].size *
+                   pGrid->dataDimension[2].size,
+                   0);
+  return pGrid;
+}
+
+
+
+
+
+/*
+ * 1) populate new grid (only average, numpoints)
+ * 2) median last 5 for average, points
+ * 3) exp weight filter
+ * 4) gauss the results
+ *
+ *
+ *
+ */
 void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
 
   ROS_INFO_STREAM_COND(m_log, std::endl << "New Frame Detected" << std::endl);
   ROS_DEBUG_STREAM_COND(m_log, std::endl
                                    << "Input Data & Conversion" << std::endl);
 
-  medium_filter_counter++;
 
-  // the median filter
-  if (medium_filter_counter == m_gridParams.median_filter_size) {
-    medium_filter_counter = 0;
 
-    for (int z = 0; z < m_gridZSize; z++) {
-      for (int x = 0; x < m_gridXSize; x++) {
-        for (int channel = 0; channel < output[0].dataDimension[2].size;
-             channel++) {
-          float median_val = 0;
-          std::vector<float> median_val_array;
-          for (int i = 0; i < m_gridParams.median_filter_size; i++) {
-
-            median_val_array.push_back(
-                oGridDataAccessor(output[i], z, x, channel));
-
-            // find the median and populate the grid that will be published
-            if (i == m_gridParams.median_filter_size - 1) {
-              std::sort(median_val_array.begin(), median_val_array.end(),
-                        std::greater<float>());
-              median_val =
-                  median_val_array.at(m_gridParams.median_filter_size / 2 + 1);
-
-              oGridDataAccessor(output[m_gridParams.median_filter_size], z, x,
-                                channel) =
-                  (m_gridParams.expo_weighted_avg_var *
-                       oGridDataAccessor(
-                           output[m_gridParams.median_filter_size], z, x,
-                           channel) +
-                   median_val * (1 - m_gridParams.expo_weighted_avg_var));
-
-              // change to this if necessary, slight improvement
-              // oGridDataAccessor(output[m_gridParams.median_filter_size],z,x,channel)
-              // = median_val;
-            }
-          }
-        }
-      }
-    }
-
-    m_pub.publish(output[m_gridParams.median_filter_size]);
-
-    for (int i = 0; i < m_gridParams.median_filter_size; i++) {
-      output[i].data.resize(0, 0);
-      output[i].data.resize(output[i].dataDimension[0].size *
-                                output[i].dataDimension[1].size *
-                                output[i].dataDimension[2].size,
-                            0);
-    }
-  }
+  // 1) populate a new grid
+  std::shared_ptr<occupancy_grid::OccupancyGrid> pNewGrid = PopulateNewGrid();
 
   // get xyz and rgb data from the pointcloud message and store in a oGridPoints
   // array
@@ -348,20 +368,23 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
     }
   }
 
+
   // fill in the data to the output occupancy grid message with the oGridPoints
   // array, without weighted average
   for (int z = 0; z < m_gridZSize; z++) {
     for (int x = 0; x < m_gridXSize; x++) {
       if (oGridPoints[z * m_gridXSize + x].size() >
-              m_gridParams.num_points_thres_ratio * m_gridParams.resolution ||
+          m_gridParams.num_points_thres_ratio * m_gridParams.resolution ||
           oGridPoints[z * m_gridXSize + x].size() == 0) {
 
+        //TODO: is this still needed??
         std::sort(oGridPoints[z * m_gridXSize + x].begin(),
                   oGridPoints[z * m_gridXSize + x].end(),
                   std::greater<float>());
 
         // point count
-        oGridDataAccessor(output[medium_filter_counter], z, x, 0) =
+        //oGridDataAccessor(output[medium_filter_counter], z, x, 0) =
+        oGridDataAccessor(*pNewGrid, z, x, 0) =
             oGridPoints[z * m_gridXSize + x].size();
 
         // if no points detected, set number of points to high value to avoid
@@ -377,7 +400,8 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
           sum += a;
         }
 
-        oGridDataAccessor(output[medium_filter_counter], z, x, 1) = sum / size;
+        //oGridDataAccessor(output[medium_filter_counter], z, x, 1) = sum / size;
+        oGridDataAccessor(*pNewGrid, z, x, 1) = sum / size;
 
         /*
         //max height
@@ -408,6 +432,82 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
     }
   }
 
+
+
+
+  // 2) Add to the median queue and do the median filter
+
+  if (m_medianList.size() < m_gridParams.median_filter_size)
+  {
+    m_medianList.push_front(pNewGrid);
+    return;
+  }
+
+
+  m_medianList.pop_back();
+  m_medianList.push_front(pNewGrid);
+
+
+
+
+
+  //medium_filter_counter++;
+  // the median filter
+  if (m_medianList.size() == m_gridParams.median_filter_size) {
+    //medium_filter_counter = 0;
+
+    // do the median on the last 5 values
+    for (int z = 0; z < m_gridZSize; z++) {
+      for (int x = 0; x < m_gridXSize; x++) {
+        for (int channel = 0; channel < pNewGrid->dataDimension[2].size;
+             channel++) {
+          float median_val = 0;
+          std::vector<float> median_val_array;
+          median_val_array.reserve(m_medianList.size());
+          //for (int i = 0; i < m_gridParams.median_filter_size; i++) {
+          for (auto& grid : m_medianList) {
+            median_val_array.push_back(
+                oGridDataAccessor(*grid, z, x, channel));
+          }
+
+          // find the median and populate the grid that will be published
+          // if (i == m_gridParams.median_filter_size - 1) {
+          std::sort(median_val_array.begin(), median_val_array.end(),
+                    std::greater<float>());
+          median_val =
+              median_val_array.at(m_gridParams.median_filter_size / 2);// + 1);
+
+//          oGridDataAccessor(output[m_gridParams.median_filter_size], z, x,
+//                            channel) =
+//              (m_gridParams.expo_weighted_avg_var *
+//                   oGridDataAccessor(
+//                       output[m_gridParams.median_filter_size], z, x,
+//                       channel) +
+//               median_val * (1 - m_gridParams.expo_weighted_avg_var));
+
+          oGridDataAccessor(*m_pMedianResult, z, x,
+                            channel) =
+              (m_gridParams.expo_weighted_avg_var *
+               oGridDataAccessor(
+                   *m_pMedianResult, z, x,
+                   channel) +
+               median_val * (1 - m_gridParams.expo_weighted_avg_var));
+
+
+              // change to this if necessary, slight improvement
+              // oGridDataAccessor(output[m_gridParams.median_filter_size],z,x,channel)
+              // = median_val;
+           // }
+          //}
+        }
+      }
+    }
+
+  }
+
+
+
+  // 4) Blur the results
   for (int z = 0; z < m_gridZSize; z++) {
     for (int x = 0; x < m_gridXSize; x++) {
       int zExtended = 0;
@@ -430,15 +530,25 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
             xExtended = m_gridXSize - 1;
           }
 
-          weightedSum[0] += oGridDataAccessor(output[medium_filter_counter],
+          weightedSum[0] += oGridDataAccessor(*m_pMedianResult,
                                               zExtended, xExtended, 1) *
                             m_gaussian_blur_kernel[row][col];
-          weightedSum[1] += oGridDataAccessor(output[medium_filter_counter],
+          weightedSum[1] += oGridDataAccessor(*m_pMedianResult,
                                               zExtended, xExtended, 1) *
                             m_gaussian_hor_kernel[row][col];
-          weightedSum[2] += oGridDataAccessor(output[medium_filter_counter],
+          weightedSum[2] += oGridDataAccessor(*m_pMedianResult,
                                               zExtended, xExtended, 1) *
                             m_gaussian_ver_kernel[row][col];
+
+//          weightedSum[0] += oGridDataAccessor(output[medium_filter_counter],
+//                                              zExtended, xExtended, 1) *
+//                            m_gaussian_blur_kernel[row][col];
+//          weightedSum[1] += oGridDataAccessor(output[medium_filter_counter],
+//                                              zExtended, xExtended, 1) *
+//                            m_gaussian_hor_kernel[row][col];
+//          weightedSum[2] += oGridDataAccessor(output[medium_filter_counter],
+//                                              zExtended, xExtended, 1) *
+//                            m_gaussian_ver_kernel[row][col];
           /*
            weightedSum[3] +=
                    oGridDataAccessor(output, zExtended, xExtended, 1) *
@@ -454,11 +564,23 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
       }
       // ROS_ERROR_STREAM(weightedSum[0]<<std::endl);
       // gaussian blur
-      oGridDataAccessor(output[medium_filter_counter], z, x, 2) =
+//      oGridDataAccessor(output[medium_filter_counter], z, x, 2) =
+//          weightedSum[0];
+//      // slope + gaussian blur
+//      oGridDataAccessor(output[medium_filter_counter], z, x, 3) = sqrt(
+//          weightedSum[1] * weightedSum[1] + weightedSum[2] * weightedSum[2]);
+
+      // gaussian blur
+      oGridDataAccessor(m_outputGrid, z, x, 2) =
           weightedSum[0];
       // slope + gaussian blur
-      oGridDataAccessor(output[medium_filter_counter], z, x, 3) = sqrt(
+      oGridDataAccessor(m_outputGrid, z, x, 3) = sqrt(
           weightedSum[1] * weightedSum[1] + weightedSum[2] * weightedSum[2]);
+
+
+      //fill in other info
+      oGridDataAccessor(m_outputGrid, z, x, 0) = oGridDataAccessor(*m_pMedianResult, z,x, 0);
+      oGridDataAccessor(m_outputGrid, z, x, 1) = oGridDataAccessor(*m_pMedianResult, z,x, 1);
 
       // normalized slope + gaussian blur
       // oGridDataAccessor(output, z, x, 4) = sqrt(
@@ -467,12 +589,25 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
     }
   }
 
+
+  //m_pub.publish(output[m_gridParams.median_filter_size]);
+  m_pub.publish(m_outputGrid);
+
+//  for (int i = 0; i < m_gridParams.median_filter_size; i++) {
+//    output[i].data.resize(0, 0);
+//    output[i].data.resize(output[i].dataDimension[0].size *
+//                          output[i].dataDimension[1].size *
+//                          output[i].dataDimension[2].size,
+//                          0);
+//  }
+
   // m_pub.publish(output);
 
   // ouput to rviz to visualize, publishes 7 messages, each corresponds to one
   // element of the third dimension of the occupancy grid message(ie. point
   // count, avg, max, min heights)
-  for (int i = 0; i < output[0].dataDimension[2].size; i++) {
+//  for (int i = 0; i < output[0].dataDimension[2].size; i++) {
+  for (int i = 0; i < m_outputGrid.dataDimension[2].size; i++) {
     nav_msgs::OccupancyGrid gridcells;
     gridcells.header.frame_id = "/base_link";
     gridcells.header.stamp = ros::Time::now();
@@ -491,12 +626,15 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
     gridcells.info.origin.orientation.w = 1.0;
 
     gridcells.data.resize(m_gridXSize * m_gridZSize, 0.0);
+
+
     // map the occupancy grid values to standard 0-100 value for display
     for (int x = 0; x < m_gridXSize; x++) {
       for (int z = 0; z < m_gridZSize; z++) {
 
         float cost =
-            oGridDataAccessor(output[m_gridParams.median_filter_size], z, x, i);
+//            oGridDataAccessor(output[m_gridParams.median_filter_size], z, x, i);
+            oGridDataAccessor(m_outputGrid, z, x, i);
         // ROS_ERROR_STREAM ( "1normalizer: "<<
         // (float)m_gridParams.mappingNormalizer << " scalar:
         // "<<m_gridParams.mappingScalar << " mpas to:"<<
@@ -539,7 +677,8 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
       for (int x = 0; x < m_gridXSize; x++) {
         debugString << std::setw(8)
                     << (unsigned int)oGridDataAccessor(
-                           output[medium_filter_counter], z, x, 0);
+//                           output[medium_filter_counter], z, x, 0);
+                           m_outputGrid, z, x, 0);
       }
       debugString << std::endl;
     }
@@ -549,7 +688,8 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
     debugString << std::endl << "Average Height" << std::endl;
     for (int z = m_gridZSize - 1; z >= 0; z--) {
       for (int x = 0; x < m_gridXSize; x++) {
-        debugString << oGridDataAccessor(output[medium_filter_counter], z, x, 1)
+//        debugString << oGridDataAccessor(output[medium_filter_counter], z, x, 1)
+        debugString << oGridDataAccessor(m_outputGrid, z, x, 1)
                     << "\t";
       }
       debugString << std::endl;
@@ -583,7 +723,8 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
     debugString << std::endl << "Blurred Avg" << std::endl;
     for (int z = m_gridZSize - 1; z >= 0; z--) {
       for (int x = 0; x < m_gridXSize; x++) {
-        debugString << oGridDataAccessor(output[medium_filter_counter], z, x, 2)
+//        debugString << oGridDataAccessor(output[medium_filter_counter], z, x, 2)
+        debugString << oGridDataAccessor(m_outputGrid, z, x, 2)
                     << "\t";
       }
       debugString << std::endl;
@@ -594,7 +735,8 @@ void OccupancyGrid::callback(const sensor_msgs::PointCloud2 input) {
     debugString << std::endl << "Slopes" << std::endl;
     for (int z = m_gridZSize - 1; z >= 0; z--) {
       for (int x = 0; x < m_gridXSize; x++) {
-        debugString << oGridDataAccessor(output[medium_filter_counter], z, x, 3)
+//        debugString << oGridDataAccessor(output[medium_filter_counter], z, x, 3)
+        debugString << oGridDataAccessor(m_outputGrid, z, x, 3)
                     << "\t";
       }
       debugString << std::endl;
