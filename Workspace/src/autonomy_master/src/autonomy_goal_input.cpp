@@ -50,7 +50,14 @@ sensor_msgs::NavSatFix CalculateGoal(double bearing, double distance)
   return msg;
 }
 
-
+sensor_msgs::NavSatFix AbsoluteGoal(double lat, double lon)
+{
+  sensor_msgs::NavSatFix msg;
+  msg.latitude = lat;
+  msg.longitude = lon;
+  msg.header.stamp = ros::Time::now();
+  return msg;
+}
 
 
 
@@ -70,16 +77,32 @@ int main(int argc, char *argv[]) {
   while (ros::ok()) {
     ros::spinOnce();
 //    if (pCurGps) {
-      double dist;
-      double degrees;
 
-      std::cout << "enter distance: ";
-      std::cin >> dist;
+      std::string mode;
+      std::cout << "Lat/Lon(l) or Dist/Bearing(d): ";
+      std::cin >> mode;
+      if (mode == "d") {
+        double dist;
+        double degrees;
+        std::cout << "enter distance: ";
+        std::cin >> dist;
 
-      std::cout << "enter degrees: ";
-      std::cin >> degrees;
-      ros::spinOnce(); //update to latest current gps;
-      goalPub.publish(CalculateGoal(degrees, dist));
+        std::cout << "enter degrees: ";
+        std::cin >> degrees;
+        ros::spinOnce(); //update to latest current gps;
+        goalPub.publish(CalculateGoal(degrees, dist));
+      } else if (mode == "l")
+      {
+        double lat;
+        double lon;
+        std::cout << "enter latitude : ";
+        std::cin >> lat;
+
+        std::cout << "enter longitude: ";
+        std::cin >> lon;
+        ros::spinOnce(); //update to latest current gps;
+        goalPub.publish(AbsoluteGoal(lat, lon));
+      }
 
 
   //  }
