@@ -28,10 +28,10 @@ Author: Zameer Bharwani
         self.temperature_switch = 0
         self.speed_dir = 0
         self.speed_dir_spin = 0
-        self.position = 999
-        self.which_sensor = 999
+        self.position = 0
+        self.which_sensor = 0
         self.temp_sensor = 0
-        self.ID_limit = 420
+        self.ID_auger = 420
         self.ID_spin = 421
         self.ID_temp_sensor = 422
         self.ID_flap = 423
@@ -50,11 +50,18 @@ Author: Zameer Bharwani
 
     def callback_xbox(self, joy):
 
-        self.speed_dir_spin = joy.axes[4]
+        if joy.axes[4] < 0.1 and joy.axes[4] > -0.1:
+            # since controller doesn't go to 0, eliminate all values
+            # between -0.1 --> 0.1
+
+            self.speed_dir_spin = 0
+
+        else:
+            self.speed_dir_spin = joy.axes[4]
 
         if self.upper_switch == 1:  # upper limit switch pressed
 
-            if joy.axes[1] <= 0:  # allowing you to move down, but not up
+            if joy.axes[1] <= -0.1:  # allowing you to move down, but not up
                 self.speed_dir = joy.axes[1]
 
             else:
@@ -62,87 +69,85 @@ Author: Zameer Bharwani
 
         elif self.lower_switch == 1:  # lower limit switch pressed
 
-            if joy.axes[1] >= 0:  # allowing you to move up, but not down
+            if joy.axes[1] >= 0.1:  # allowing you to move up, but not down
                 self.speed_dir = joy.axes[1]
 
             else:
                 self.speed_dir = 0  # if still trying to move down do nothing
 
         else:
-            self.speed_dir = joy.axes[1]
+            if joy.axes[1] < 0.1 and joy.axes[1] > -0.1:
+                self.speed_dir = 0
+
+            else:
+                self.speed_dir = joy.axes[1]
             # if neither sensor is pressed,
             # movement in either direction is allowed
 
-        shifter = rospy.get_param('budge')  # motor increment value
-
         if self.temperature_switch == 1:
 
-            if joy.buttons[5] == 1:  # RB is pushed trying to go down
-                self.temp_sensor -= shifter
+            if joy.buttons[4] == 1:  # RB is pushed trying to go down
+                self.temp_sensor = -1
 
-            elif joy.buttons[7] == 1:  # RT button to move up
+            elif joy.buttons[5] == 1:  # LB button to move up
                 self.temp_sensor = 0  # do not move
 
         else:
+            if joy.buttons[4] == 1:
+                self.temp_sensor = -1
+
             if joy.buttons[5] == 1:
-                self.temp_sensor -= shifter
+                self.temp_sensor = 1
 
-            if joy.buttons[7] == 1:
-                self.temp_sensor += shifter
-
-        self.temp_sensor = min(max(self.temp_sensor, -1), 1)
-
-        if joy.buttons[2] == 1:  # A button
+        if joy.buttons[0] == 1:  # A button
             self.position = 1  # open
 
         elif joy.buttons[1] == 1:  # B button
             self.position = 0  # close
 
-        if joy.buttons[3] == 1:  # X Button
+        if joy.buttons[2] == 1:  # X Button
             self.which_sensor = 1  # EC sensor
 
-        elif joy.buttons[0] == 1:  # Y Button
+        elif joy.buttons[3] == 1:  # Y Button
             self.which_sensor = 0  # Temp+Humidity sensor
 
-        if joy.buttons[2] == 1 or joy.buttons[1] == 1:
-            self.send_info_1()
+        if joy.buttons[0] == 1 or joy.buttons[1] == 1:
+            self.send_info_flap()
 
-        if joy.axes[4] != 0:
-            self.send_info_2()
+        self.send_info_drill()
 
-        if joy.axes[1] != 0:
-            self.send_info_3()
+        self.send_info_auger()
 
-        if joy.buttons[3] == 1 or joy.buttons[0] == 1:
-            self.send_info_4()
+        if joy.buttons[2] == 1 or joy.buttons[3] == 1:
+            self.send_info_sensor_select()
 
-        if joy.buttons[7] == 1 or joy.buttons[5] == 1:
-            self.send_info_5()
+        if joy.buttons[4] == 1 or joy.buttons[5] == 1:
+            self.send_info_temp_sensor()
 
-    def send_info_1(self):
+    def send_info_flap(self):
 
-        canFrame = self.send_flap()
-        self.pub.publish(canFrame)
+        canFrame_flap = self.send_flap()
+        self.pub.publish(canFrame_flap)
 
-    def send_info_2(self):
+    def send_info_drill(self):
 
-        canFrame2 = self.send_spin()
-        self.pub.publish(canFrame2)
+        canFrame_spin = self.send_spin()
+        self.pub.publish(canFrame_spin)
 
-    def send_info_3(self):
+    def send_info_auger(self):
 
-        canFrame3 = self.send_limit()
-        self.pub.publish(canFrame3)
+        canFrame_auger = self.send_auger()
+        self.pub.publish(canFrame_auger)
 
-    def send_info_4(self):
+    def send_info_sensor_select(self):
 
-        canFrame4 = self.send_read_sensor()
-        self.pub.publish(canFrame4)
+        canFrame_sensor = self.send_read_sensor()
+        self.pub.publish(canFrame_sensor)
 
-    def send_info_5(self):
+    def send_info_temp_sensor(self):
 
-        canFrame5 = self.send_temp_sensor()
-        self.pub.publish(canFrame5)
+        canFrame_temp_sensor = self.send_temp_sensor()
+        self.pub.publish(canFrame_temp_sensor)
 
     def send_flap(self):
 
@@ -151,7 +156,7 @@ Author: Zameer Bharwani
         frame.is_rtr = False
         frame.is_extended = False
         frame.is_error = False
-        frame.dlc = 8
+        frame.dlc = 4
         data = bytearray(struct.pack('i', self.position))
         frame.data = str(data)
         return frame
@@ -163,19 +168,19 @@ Author: Zameer Bharwani
         frame.is_rtr = False
         frame.is_extended = False
         frame.is_error = False
-        frame.dlc = 8
+        frame.dlc = 4
         data = bytearray(struct.pack('f', self.speed_dir_spin))
         frame.data = str(data)
         return frame
 
-    def send_limit(self):
+    def send_auger(self):
 
         frame = Frame()
-        frame.id = self.ID_limit
+        frame.id = self.ID_auger
         frame.is_rtr = False
         frame.is_extended = False
         frame.is_error = False
-        frame.dlc = 8
+        frame.dlc = 4
         data = bytearray(struct.pack('f', self.speed_dir))
         frame.data = str(data)
         return frame
@@ -187,7 +192,7 @@ Author: Zameer Bharwani
         frame.is_rtr = False
         frame.is_extended = False
         frame.is_error = False
-        frame.dlc = 8
+        frame.dlc = 4
         data = bytearray(struct.pack('i', self.which_sensor))
         frame.data = str(data)
         return frame
@@ -199,8 +204,8 @@ Author: Zameer Bharwani
         frame.is_rtr = False
         frame.is_extended = False
         frame.is_error = False
-        frame.dlc = 8
-        data = bytearray(struct.pack('f', self.temp_sensor))
+        frame.dlc = 4
+        data = bytearray(struct.pack('i', self.temp_sensor))
         frame.data = str(data)
         return frame
 
