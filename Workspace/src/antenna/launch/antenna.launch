@@ -1,4 +1,7 @@
 <launch>
+<node ns="antenna" pkg="nmea_navsat_driver" type="nmea_serial_driver" name="nmea_serial_driver">
+	<param name="port" value="/dev/ttyUSB0" />
+</node>
 <node pkg="antenna" type="antenna" name="rover_tracker_node"/>
 <node pkg="antenna" type="rpi_control.py" name="rpi_control_node"/>
 </launch>

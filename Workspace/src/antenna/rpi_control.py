@@ -9,7 +9,7 @@ from std_msgs.msg import Int32
 from std_msgs.msg import Float32
 
 
-ser = serial.Serial("/dev/ttyAMA0")
+ser = serial.Serial("/dev/ttyACM0")
 MOTOR_DIRECTION = DigitalOutputDevice(21)
 MOTOR_SPEED = PWMOutputDevice(18)
 DATA_ENABLE = DigitalOutputDevice(17)
@@ -18,8 +18,12 @@ rover_angle = 0
 def read_serial():
     DATA_ENABLE.on()
     data = ser.readline()
-#    rospy.loginfo("serial data: %s", data)
-    data = float(data)/1024*360 # 10 bit analog signal
+    rospy.loginfo("serial data: %s", data)
+    try:
+        data = float(data)/1024*360 # 10 bit analog signal
+    except:
+        rospy.loginfo("cannot convert exception")
+        data = 0
     DATA_ENABLE.off()
     return data
 
@@ -40,7 +44,7 @@ if __name__ == '__main__':
         current_antenna_angle = read_serial()
         angle_difference = rover_angle - current_antenna_angle
 #        rospy.loginfo("angle difference: %f", angle_difference)
-        rospy.loginfo("rover_angle_in_computation: %f", rover_angle)
+        #rospy.loginfo("rover_angle_in_computation: %f", rover_angle)
         if (abs(angle_difference) > 1):
             speed = min(((abs(angle_difference)/360)*10), 0.8)
 #            rospy.loginfo("speed: %f", speed)
