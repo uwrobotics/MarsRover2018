@@ -21,7 +21,7 @@ class ArmController:
     def joyCallback(self, joy):
         if(joy.buttons[0] == 1 and not self._pressed):
             self._id += 1
-            if(self._id > 404):
+            if(self._id > 405):
                 self._id = 400
             self._pressed = True
         if(not joy.buttons[0]):
