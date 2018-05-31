@@ -3,8 +3,9 @@
 ######################
 
 # Interface
-/receiver_interface:    "vcan0"
-/transmitter_interface: "vcan0"
+
+/receiver_interface:    "can0"
+/transmitter_interface: "can0"
 
 # Topics
 # in ROS, dictionaries must have string keys

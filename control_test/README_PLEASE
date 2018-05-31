@@ -1,0 +1,63 @@
+IK_node.cpp Documentation 
+
+
+Controller Instruction:
+There are two modes: Turntable Control and Wrist Control
+These two modes are controlled by RB Button (The button above the Right Trigger). This was done since the trigger wasn't actually a button, but an axes data.
+ 
+Turntable Control Mode:
+-Moving the right joystick left/right will rotate the turntable 
+-The wrist with respect to the inertial frame's x axis stays constant (psi value). 
+
+Wrist Control Mode:
+-Moving the right joystick up/down will rotate the wrist pitch
+-The turntable will stay at constant angle 
+
+For both modes, the left joystick will control the wrist's (x,y) //or (r,h)
+-Moving joystick up/down controls the y position
+-Moving joystick left/right controls the x position
+
+
+
+
+Some Concerns:
+1. currentAngle function (the callback of encoderSub) is not implemented yet since I am not sure how to calibrate/use the encoder data. This needs to be done with angle boundary of 0 to 2pi
+
+2. It seems like the loop frequency/max velocity that we set (V_MAX = 0.05m/s, time_exe = 0.1s, n_discritization = 20) is too small that the angles dont update during the 20 cycles of discretization. 
+Using the original parameters, I only got same value for all 20 points per angles.
+
+Then, when I tried changing the parameters to 
+(V_MAX = 0.1m/s, time_exe = 0.1s, n_discritization = 20) 
+and 
+(V_MAX = 0.05m/s, time_exe = 0.1s, n_discritization = 10)
+I was able to get some changes along the discritized points on the angles. 
+So it may be worthwhile to test some parameters to find optimum parameters.
+
+3. I am not sure why this happens, but sometimes after IK_node is ran and controller input comes in, it quits the node with a very lengthy error. I have found myself being able to run it normally when I just tried clearing and running again.
+
+
+
+
+
+
+Testing:
+run joy_node 
+run IK_node 
+
+There are a lot of printf functions for testing. Most of them are in MainLoop() 
+
+First one is test_print_before(). This prints the values of position and angles before the loop(initial position)
+
+Second one happens after the loop, which is test_print_before(). This prints the same values as previous function except after the loop (final position).
+
+The last one is test_print_msg() which prints the actual message that will be published to "IK_topic" that the PID control will utilize. You will notice that each array starts with 0.000 and that is because my code updates the first array value in the encoderCallback function, but if the encoder is not connected it will never be updated.
+
+
+Finally, if you look at joyCallback(), there are multiple printf statements that prints the input velocity based on the controller input.
+
+I have uncommented all of them for now, but you should uncomment based on what you want to test specifically. 
+
+
+
+
+

@@ -33,10 +33,11 @@ include_directories(
 add_library(socketcan_to_topic
   src/socketcan_to_topic.cpp
 )
-# target_link_libraries(socketcan_to_topic
-#   sensor_data
-#   ${catkin_LIBRARIES}
-# )
+
+target_link_libraries(socketcan_to_topic
+  ${catkin_LIBRARIES}
+)
+
 add_dependencies(socketcan_to_topic
   ${catkin_EXPORTED_TARGETS}
 )

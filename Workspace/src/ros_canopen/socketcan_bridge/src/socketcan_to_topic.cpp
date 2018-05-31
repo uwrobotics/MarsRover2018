@@ -95,7 +95,6 @@ namespace socketcan_bridge
         {
             return false;
         }
-
         for (auto& topic_pair : topic_list)
         {
             std::string topic_name = topic_pair.first;
@@ -150,6 +149,7 @@ namespace socketcan_bridge
         {
             ROS_ERROR("Invalid frame from SocketCAN: id: %#04x, length: %d, is_extended: %d, is_error: %d, is_rtr: %d",
                       f.id, f.dlc, f.is_extended, f.is_error, f.is_rtr);
+
             return;
         }
         else
@@ -173,6 +173,7 @@ namespace socketcan_bridge
 
         can_msgs::Frame msg;
         // converts the can::Frame (socketcan.h) to can_msgs::Frame (ROS msg)
+
         this->frameToMessage(frame, msg);
 
         msg.header.frame_id = "";  // empty frame is the de-facto standard for no frame.
