@@ -38,3 +38,7 @@
       uri: https://github.com/wjwwood/serial
       local-name: Workspace/src/dependencies/serial
       version: master
+- git:
+      uri: https://github.com/ros-perception/perception_pcl
+      local-name: Workspace/src/dependencies/perception_pcl
+      version: kinetic-devel
