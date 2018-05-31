@@ -334,7 +334,7 @@ int main(int argc, char **argv) {
     ros::Publisher chatter_pub1 = n.advertise<std_msgs::Float32MultiArray>("model_topic", 30);
 
     ros::Subscriber sub0 = n.subscribe("/encoders", 1, encoderCallback);
-    ros::Subscriber sub2 = n.subscribe("/joy", 1, joystickCallback);
+    ros::Subscriber sub2 = n.subscribe("/arm_joy", 1, joystickCallback);
     ros::Subscriber sub3 = n.subscribe("model_output", 1, modelCallback);
 
     for (int i = 0; i < NUM_ARM_MOTORS; i++) {
