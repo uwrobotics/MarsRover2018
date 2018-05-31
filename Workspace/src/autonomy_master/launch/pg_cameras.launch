@@ -1,0 +1,20 @@
+<launch>
+    <!-- Determine this using rosrun pointgrey_camera_driver list_cameras.
+        If not specified, defaults to first camera found. -->
+
+    <group ns="cam0"> <!--Gimbal USB3 Chameleon-->
+        <node pkg="nodelet" type="nodelet" name="camera_nodelet_manager" args="manager" />
+
+        <node pkg="nodelet" type="nodelet" name="camera_nodelet"
+              args="load pointgrey_camera_driver/PointGreyCameraNodelet camera_nodelet_manager" >
+            <param name="frame_id" value="camera" />
+            <param name="serial" value="13051452" />
+        </node>
+
+        <node pkg="nodelet" type="nodelet" name="image_proc_debayer"
+              args="load image_proc/debayer camera_nodelet_manager">
+        </node>
+
+        <!-- <node name="dynamic_reconfigure_load" pkg="dynamic_reconfigure" type="dynparam" args="load camera_nodelet $(find rover_cameras)/cfg/cam0_chameleon_gimbal.yaml" /> -->
+    </group>
+</launch>

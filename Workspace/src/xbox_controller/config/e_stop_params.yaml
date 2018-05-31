@@ -1,0 +1,9 @@
+sub_topic: "/autonomy_joy"
+#pub_topic: "/estop/cmd_vel"
+pub_topic: "/estop/joy"
+
+
+queue_size: 1
+rate: 10
+emergency_button_set: [0,0,0,1,1,0,0,0,0,0,0]
+reset_button_set: [0,0,1,0,1,0,0,0,0,0,0]

@@ -1,0 +1,40 @@
+<launch>
+	<!-- arg name="EStopConfig" default="$(find xbox_controller)/config/e_stop_params.yaml"/>
+	<rosparam command="load" file="$(arg EStopConfig)"/-->
+
+	<node name="state_select" pkg="xbox_controller" type="state_select"></node>
+	
+	<node name="joy_to_twist" pkg="xbox_controller" type="joy_to_twist"></node>
+	
+	<!--node name="emergency_stop" pkg="xbox_controller" type="emergency_stop" output="screen"></node-->
+
+
+
+
+
+
+	<!--node name="joy_to_twist" pkg="xbox_controller" type="joy_to_twist">
+		<remap from="drive_joy" to="/estop/joy"/>
+		<remap from="/cmd_vel" to="/estop/cmd_vel"/>
+
+	</node-->
+
+
+	<node name="joy_launcher" pkg="joy" type="joy_node">
+		<param name="dev" type="string" value="/dev/input/js0" />
+	</node>
+	
+	<!-- 
+	implement this if you want to test on a turtle bot simulutation, change the publishing destination in drive_lis_pub
+	to the turtlesim node, drive will publish to this node and it can move using the controller
+
+	<node pkg="turtlesim" name="sim" type="turtlesim_node"/>
+	-->
+</launch>
+
+<!-- use this as the value for the controller parameter if the id isn't working, 
+may be js0 or js1 instead of js2, changes randomely:
+
+"_dev:=/dev/input/js2"
+-->
+

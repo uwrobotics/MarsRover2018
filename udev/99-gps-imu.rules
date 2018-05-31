@@ -1,0 +1,7 @@
+# IMU
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1b4f", ATTRS{idProduct}=="9d0f", SYMLINK+="imu", MODE:="0666"
+
+# GPS
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="067b", ATTRS{idProduct}=="2303", SYMLINK+="gps", MODE:="0666"
+
+
