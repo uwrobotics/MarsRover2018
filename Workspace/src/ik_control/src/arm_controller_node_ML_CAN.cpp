@@ -22,6 +22,7 @@
 
 const float DUTY_SAFETY_FACTOR = 0.5; //Safety factor to ensure microcontroller not outputting full duty cycle (set to 1.0 if not desired)
 const float JOYSTICK_DEADZONE = 0.12;
+const float PI = 3.14159;
 const int NUM_DATA = 6; //Number of pieces of data to send to the arduino
 const int NUM_ARM_MOTORS = 5; //Number of motors that matter for IK purposes
 const int CLAW_OPEN = 1.0; //Must either be 1 or -1, change so that pressing Right joystick, button 2 in claw mode OPENS the claw and button 3 CLOSES the claw
@@ -50,14 +51,15 @@ const int LOOP_PERIOD_MS = 10; //Maximum time for a control loop execution (that
 //Closed Loop Control Parameters
 uint jointData[NUM_ARM_MOTORS] = {0,0,0,0,0}; //Angles of the joints
 float jointDataFloat[NUM_ARM_MOTORS] = {0,0,0,0,0}; //Angles of the joints
-const float ABS_ENCODER_TO_RAD = 2*3.14159/4098; //Conversion constant to go between absolute encoder values and radians
-const float INC_ENCODER_TO_RAD = 2*3.14159/2048; //Conversion constant to go between incremental encoder values and radians (assume 2048 resolution)
-const float ENCODER_ZEROPOSITION[NUM_DATA] = {0,725,3550,0,940,0}; //The encoder value corresponding to its zero position
+const float ABS_ENCODER_TO_RAD = 2*PI/4098; //Conversion constant to go between absolute encoder values and radians
+const float INC_ENCODER_TO_RAD = 2*PI/2048; //Conversion constant to go between incremental encoder values and radians (assume 2048 resolution)
+const float ENCODER_TO_RAD[NUM_ARM_MOTORS] = {INC_ENCODER_TO_RAD,ABS_ENCODER_TO_RAD,ABS_ENCODER_TO_RAD,INC_ENCODER_TO_RAD,ABS_ENCODER_TO_RAD}; //Indicates the conversion factor for each motor and whether it is absolute or incremental
+const float ENCODER_ZEROPOSITION[NUM_ARM_MOTORS] = {0,725,3550,0,940}; //The encoder value corresponding to its zero position
+const int ENCODER_DIR[NUM_ARM_MOTORS] = {1,1,1,1,1}; //Determines if an increase in encoder values indicates an increase in assumed direction
 const bool isRegClsLp[NUM_DATA] = {true,true,true,true,false,false}; //Is the motor regularly controlled via closed loop
 
 //ML Control Parameters
 float MAX_ARM_SPEED = 0.12; //Measured in m/s, semi-arbitrarily selected maximum Cartesian speed
-const float PI = 3.14159;
 float LINK_LENGTH[4] = {0.3,0.3,0.43};
 const float BACK_EMF_CONSTANT[NUM_ARM_MOTORS] = {0.0163,0.0273,0.0485,0.0226,0.0354}; //rad/(sV), measured by giving motors 12V and timing how long it takes to make a certain angle
 float weightJoints[NUM_ARM_MOTORS] = {1,1,1,1,1}; //Weight factors for joint angle PWM outputs that should tend the output towards the correct values
@@ -140,8 +142,8 @@ void modelCallback(const std_msgs::Float32MultiArray& model_msg){
 
 void encoderConvert() {
     for (int i = 0; i < NUM_ARM_MOTORS; i++) {
-        //qCurr[i] = jointData[i];
-        qCurr[i] = jointDataFloat[i];
+        //qCurr[i] = jointDataFloat[i];
+        qCurr[i] = jointData[i]*ENCODER_TO_RAD[i] - ENCODER_ZEROPOSITION[i];
     }
 }
 
@@ -169,7 +171,7 @@ void populateInputCommands() {
 void frameFormerHelper() {
     for (int i = 0; i < NUM_DATA; i++) {
         populateFrame(&motorCANFrames[i], DUTY_SAFETY_FACTOR*outputPWM[i]);
-        motorCANFrames[i].id = CAN_MOTOR_ID[i]+i;
+        motorCANFrames[i].id = CAN_MOTOR_ID[i];
         motorCANFrames[i].dlc = 4;
         motorCANFrames[i].is_error = 0;
         motorCANFrames[i].is_rtr = 0;
@@ -406,14 +408,13 @@ int main(int argc, char **argv) {
         }
 
 
-        chatter_pub1.publish(modelOutputMsg);
+        //chatter_pub1.publish(modelOutputMsg);
         
-        /*
+
         frameFormerHelper();
         for (int i = 0; i < NUM_DATA; i++) {
             chatter_pub.publish(motorCANFrames[i]);
         }
-        */
 
         loop_rate.sleep();
         ++count;
