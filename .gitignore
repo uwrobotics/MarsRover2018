@@ -33,6 +33,10 @@ dependencies/
 # qcreator stuff
 CMakeLists.txt.user
 
+#clion stuff
+*/cmake-build-debug/
+*/.idea/
+
 srv/_*.py
 *.pcd
 *.pyc
@@ -53,5 +57,8 @@ CATKIN_IGNORE
 
 # Catkin tools
 .catkin_tools
+
+# Catkin WS
+.catkin_workspace
 
 ~.swp

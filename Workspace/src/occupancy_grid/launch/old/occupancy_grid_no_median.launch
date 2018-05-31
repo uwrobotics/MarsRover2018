@@ -1,0 +1,43 @@
+<launch>
+	<param name = "logging" value = "false" type = "bool" />
+	<param name = "PCL2TopicName" value = "/duo3d/point_cloud/image_raw" type = "str" />
+
+	<arg name="cameraConfig" default="$(find occupancy_grid)/cfg/occupancy_grid_config.yaml"/>
+	<rosparam command="load" file="$(arg cameraConfig)"/>
+
+	<node pkg="occupancy_grid" type="occupancy_grid_no_median_filter" name="occupancy_grid_no_median_filter">
+	</node>
+
+	<node name="duo3d" pkg="duo3d_driver" type="duo3d_driver" output="screen">
+		<param name="frame_rate" value="20.0"/>
+		<rosparam param="image_size">[320, 240]</rosparam>
+		<param name="dense3d_license" value="OVMZU-ZHFE2-9K41K-NQL44-WX3DV"/>
+		
+		<param name="gain" value="0"/>
+		<param name="exposure" value="0"/>
+		<param name="auto_exposure" value="false"/>
+		<param name="vertical_flip" value="false"/>
+		<param name="horizontal_flip" value="false"/>
+
+		<param name="processing_mode" value="3"/>
+		<param name="image_scale" value="3"/>
+		<param name="pre_filter_cap" value="8"/>
+		<param name="num_disparities" value="15"/>
+		<param name="sad_window_size" value="7"/>
+		<param name="uniqueness_ratio" value="20"/>
+		<param name="speckle_window_size" value="179"/>
+		<param name="speckle_range" value="15"/>
+    	</node>
+
+	<arg name="pi/2" value="1.5707963267948966" />
+	<node pkg="tf" type="static_transform_publisher" name="duo3d_base_link" args="0 0 0 0 0 $(arg pi/2) /duo3d/camera_frame duo3d_camera 100" />
+
+	<group ns="duo3d_camera">
+		<node pkg="rviz" type="rviz" name="rviz" args="-d $(find duo3d_driver)/launch/rviz/depth.rviz"/>
+	</group>
+
+	<group ns="visualization">
+		<node pkg="rviz" type="rviz" name="rviz" args="-d $(find occupancy_grid)/launch/OccupancyVisualization.rviz"/>
+	</group>
+
+</launch>
