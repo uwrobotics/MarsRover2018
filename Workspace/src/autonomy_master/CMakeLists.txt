@@ -11,6 +11,7 @@ find_package(catkin REQUIRED
   roscpp
   std_msgs
   local_planner
+  ball_tracker
 )
 
 ## System dependencies are found with CMake's conventions
@@ -135,6 +136,8 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME}_node src/autonomy_master_node.cpp src/autonomy_master_logic.cpp src/autonomy_twist_mux.cpp)
 add_executable(autonomy_input_node src/autonomy_goal_input.cpp)
+
+add_dependencies(${PROJECT_NAME}_node ${catkin_EXPORTED_TARGETS})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
