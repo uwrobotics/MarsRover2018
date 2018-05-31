@@ -4,6 +4,9 @@
 #include "ckp_Matrix.h"
 #include <cmath>
 const float pi = 3.1415926535897932;
+const float PI = 3.14159;
+const float LINK_LENGTH[3] = {0.3,0.3,0.3};
+const float BACK_EMF_CONSTANT[NUM_ARM_MOTORS] = {0.0163,0.0273,0.0485,0.0226,0.0354}; //rad/(sV), measured by giving motors 12V and timing how long it takes to make a certain angle
 
 
 //Solving for turntable
