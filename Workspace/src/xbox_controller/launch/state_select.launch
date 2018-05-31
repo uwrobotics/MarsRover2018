@@ -5,7 +5,7 @@
 	
 	<node name="joy_launcher" pkg="joy" type="joy_node">
 	
-	<param name="dev" type="string" value="/dev/input/by-id/usb-©Microsoft_Corporation_Controller_15D5CD4-joystick" />
+	<param name="dev" type="string" value="/dev/input/js0" />
 	
 	</node>
 	

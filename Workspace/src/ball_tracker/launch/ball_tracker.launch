@@ -1,0 +1,4 @@
+<launch>
+    <rosparam file="$(find ball_tracker)/config/tennis_ball_tracking.yaml"/>
+    <node pkg="ball_tracker" type="ball_tracker_node.py" name="ball_tracker" respawn="true" output="screen"/>
+</launch>

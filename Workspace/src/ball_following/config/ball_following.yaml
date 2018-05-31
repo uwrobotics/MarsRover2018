@@ -1,0 +1,5 @@
+radius_epsilon: 0.1  # units
+target_radius: 50.0  # units
+max_angular: 0.2  # rad/s
+max_linear: 0.4  # m/s
+arrival_threshold: 10

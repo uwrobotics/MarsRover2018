@@ -26,39 +26,19 @@
  */
 
 #include <socketcan_bridge/socketcan_to_topic.h>
-#include <socketcan_bridge/sensor_data.h>
 #include <socketcan_interface/string.h>
 #include <can_msgs/Frame.h>
-#include <science_msgs/Sci_Container.h>
-#include <science_msgs/Sensor.h>
-#include <std_msgs/Float32MultiArray.h>
-#include <std_msgs/UInt8.h>
-#include <limits.h>
+#include <std_msgs/MultiArrayDimension.h>
+#include <std_msgs/UInt32MultiArray.h>
+#include <std_msgs/UInt32.h>
 #include <linux/can.h>
-#include <vector>
 
-
-#define DEBUG   1
 
 namespace socketcan_bridge
 {
-
-    can_msgs::Frame msg;
-
     SocketCANToTopic::SocketCANToTopic(boost::shared_ptr<can::DriverInterface> driver)
     {
         driver_ = driver;
-        sensorData_ = SensorData(3, 20, 20); // In order: limit switch, current sensor, thermistor
-        ros::Publisher* pPub = new ros::Publisher;
-        if (!pPub)
-        {
-            ROS_ERROR("Could not allocate memory for publisher");
-            return;
-        }
-
-        *pPub = nh_.advertise<can_msgs::Frame>("CAN_receiver", 10);
-        topics_.push_back(pPub);
-        topic_names_.push_back("CAN_receiver");
     }
 
     SocketCANToTopic::~SocketCANToTopic()
@@ -71,14 +51,12 @@ namespace socketcan_bridge
         nh_.shutdown();
 
         // Deallocate memory for publisher pointers
-        for (int i = 0; i < topics_.size(); i++)
+        for (auto& topic_pair : topics_)
         {
-            delete topics_[i];
-            topics_[i] = NULL;
+            topic_pair.second.reset();
         }
 
         topics_.clear();
-        topic_names_.clear();
 
         ROS_INFO("CAN receiver publishers deallocated and vectors cleared");
     }
@@ -89,22 +67,10 @@ namespace socketcan_bridge
         frame_listener_ = driver_->createMsgListener(can::CommInterface::FrameDelegate(this, &SocketCANToTopic::frameCallback));
         state_listener_ = driver_->createStateListener(can::StateInterface::StateDelegate(this, &SocketCANToTopic::stateCallback));
 
-        cleanup();
-
-        if (topics_.size() > 0)
-        {
-            topics_.clear();
-        }
-
-        if (topic_names_.size() > 0)
-        {
-            topic_names_.clear();
-        }
-
         // Get parameters from .yaml file
-        getParams(nh_);
+        this->getParams(nh_);
 
-        if (!publishTopic(topic_names_))
+        if (!this->publishTopics(topics_))
         {
             ROS_WARN("Could not publish topics");
             return;
@@ -114,35 +80,50 @@ namespace socketcan_bridge
 
     void SocketCANToTopic::getParams(ros::NodeHandle& nh)
     {
-        nh.getParam("/receiver_list", topic_names_);
+        nh.getParam("/incoming_ids", message_ids_);
+        std::vector<std::string> names;
+        nh.getParam("/output_topics", names);
+        for (std::string name : names)
+        {
+            topics_.insert(std::pair<std::string, std::unique_ptr<ros::Publisher>>(name, std::unique_ptr<ros::Publisher>(nullptr)));
+        }
     }
 
-    bool SocketCANToTopic::publishTopic(std::vector<std::string>& topic_list)
+    bool SocketCANToTopic::publishTopics(std::map<std::string, std::unique_ptr<ros::Publisher>>& topic_list)
     {
         if (topic_list.size() == 0)
         {
             return false;
         }
 
-        for (int i = 0; i < topic_list.size(); i++)
+        for (auto& topic_pair : topic_list)
         {
-            ros::Publisher* pPub = new ros::Publisher;
+            std::string topic_name = topic_pair.first;
 
-            if (!pPub)
+            // Change publisher type based on topic
+            if (topic_name == "/encoders")
             {
-                ROS_ERROR("Could not allocate memory for publisher");
+                topic_pair.second.reset();
+                topic_pair.second = std::unique_ptr<ros::Publisher>(new ros::Publisher);
+                *topic_pair.second = nh_.advertise<std_msgs::UInt32MultiArray>(topic_name, 10);
+                encoder_msg_.layout.dim.push_back(std_msgs::MultiArrayDimension());
+                encoder_msg_.layout.dim[0].size = 6;
+                encoder_msg_.layout.dim[0].stride = 1;
+                encoder_msg_.layout.dim[0].label = "encoders";
+                encoder_msg_.data.resize(5);
+            }
+            else if (topic_name == "/limitSwitches")
+            {
+                topic_pair.second.reset();
+                topic_pair.second = std::unique_ptr<ros::Publisher>(new ros::Publisher);
+                *topic_pair.second = nh_.advertise<std_msgs::UInt32>(topic_name, 10);
+            }
+            else
+            {
+                topic_pair.second.reset();
+                ROS_WARN("Topic name \"%s\" is not registered in config file", topic_name.c_str());
                 return false;
             }
-
-            // Advertise topic and push into vector of pointers
-            // Change publisher type based on topic id
-            if (i==3)
-                *pPub = nh_.advertise<science_msgs::Sci_Container>(topic_list[i], 10);
-            else if (i>3)
-                *pPub = nh_.advertise<std_msgs::Float32MultiArray>(topic_list[i], 10);
-            else
-                *pPub = nh_.advertise<std_msgs::UInt8>(topic_list[i], 10);
-            topics_.push_back(pPub);
         }
 
         return true;
@@ -164,12 +145,11 @@ namespace socketcan_bridge
 
     void SocketCANToTopic::frameCallback(const can::Frame& f)
     {
-        // ROS_DEBUG("Message came in: %s", can::tostring(f, true).c_str());
         can::Frame frame = f;  // copy the frame first, cannot call isValid() on const.
         if (!frame.isValid())
         {
             ROS_ERROR("Invalid frame from SocketCAN: id: %#04x, length: %d, is_extended: %d, is_error: %d, is_rtr: %d",
-                f.id, f.dlc, f.is_extended, f.is_error, f.is_rtr);
+                      f.id, f.dlc, f.is_extended, f.is_error, f.is_rtr);
             return;
         }
         else
@@ -193,143 +173,62 @@ namespace socketcan_bridge
 
         can_msgs::Frame msg;
         // converts the can::Frame (socketcan.h) to can_msgs::Frame (ROS msg)
-        frameToMessage(frame, msg);
+        this->frameToMessage(frame, msg);
 
         msg.header.frame_id = "";  // empty frame is the de-facto standard for no frame.
         msg.header.stamp = ros::Time::now();
 
-        int topic_idx = INT_MAX;
-        bool valid_frame = true;
-
-#if DEBUG
-        ROS_INFO ("dlc: %x", msg.dlc);
-#endif
-
-        ros::NodeHandle handle;
-
-        ros::Publisher intPub;
-        ros::Publisher sciencePub;
-        ros::Publisher floatPub;
-
-        std_msgs::UInt8 switch_msg;
-        std_msgs::Float32MultiArray current_msg;
-        std_msgs::Float32MultiArray thermistor_msg;
-        science_msgs::Sci_Container science_msg;
-
-        switch((msg.id)/100){
-            case LIMIT_SWITCHES: // Bit vector corresponding to each pair of limit switches
-#if DEBUG
-                ROS_INFO("Evaluating arm limit switches");
-#endif
-                uint8_t intResult;
-                memcpy (&intResult, &msg.data, msg.dlc);
-#if DEBUG
-                ROS_INFO("limit switch: %x", intResult);
-#endif
-                switch_msg.data = intResult;
-                if (msg.id % LIMIT_SWITCHES == 0)
+        // check if message ID exists inside map
+        if (message_ids_.count(std::to_string(msg.id)))
+        {
+            std::string message_type = message_ids_[std::to_string(msg.id)];
+            if (message_type == "limitSwitches")
+            {
+                // will always be uint32_t
+                if (msg.dlc != 4)
                 {
-                    topic_idx = 0;
+                    ROS_WARN("Incorrect data length for limit switch message");
+                    return;
                 }
-                else if (msg.id % LIMIT_SWITCHES == 1)
+                uint32_t limit_switch = 0;
+                limit_switch = msg.data[3] << 24 | msg.data[2] << 16 | msg.data[1] << 8 | msg.data[0];
+                limit_switch_msg_.data = limit_switch;
+                if (topics_["/limitSwitches"])
                 {
-                    topic_idx = 1;
+                    topics_["/limitSwitches"]->publish(limit_switch_msg_);
                 }
-                else if (msg.id % LIMIT_SWITCHES == 2)
+            }
+            else if (message_type == "turntableEncoder" ||
+                     message_type == "shoulderEncoder" ||
+                     message_type == "elbowEncoder" ||
+                     message_type == "wristPitchEncoder" ||
+                     message_type == "wristRollEncoder" ||
+                     message_type == "endEffectorEncoder")
+            {
+                // will always be uint32_t
+                if (msg.dlc != 4)
                 {
-                    topic_idx = 2;
+                    ROS_WARN("Incorrect data length for absolute encoder message");
+                    return;
                 }
-                topics_[topic_idx]->publish(switch_msg);
-                break;
-
-            case SCIENCE: // Custom object containing limit switch and sensor information
-#if DEBUG
-                ROS_INFO ("Evaluating science");
-#endif
-                if (msg.id % SCIENCE == 2)
+                uint32_t encoder_value;
+                encoder_value = (msg.data[3] << 24) | (msg.data[2] << 16) | (msg.data[1] << 8) | msg.data[0];
+                if ((msg.id % 300) < encoder_msg_.layout.dim[0].size)
                 {
-#if DEBUG
-                    ROS_INFO ("Processing science limit switch data");
-#endif
-                    uint32_t scienceLimitSwitch;
-                    memcpy (&scienceLimitSwitch, &msg.data, msg.dlc);
-                    sensorData_.setScienceContainer(scienceLimitSwitch);
+                    encoder_mutex_.lock();
+                    encoder_msg_.data[msg.id % 300] = encoder_value; // all encoder message IDs are in the 300 range
+                    encoder_mutex_.unlock();
                 }
-                else // Sensor
+                if (topics_["/encoders"])
                 {
-#if DEBUG
-                    ROS_INFO ("Processing sensor data");
-#endif
-                    float sensorValue;
-                    uint32_t uvSensorValue;
-                    uint32_t timeStamp;
-#if DEBUG
-                    ROS_INFO ("Sensor value: %f", sensorValue);
-#endif
-                    memcpy (&timeStamp, &msg.data[4], 4);
-#if DEBUG
-                    ROS_INFO ("Sensor time stamp: %x", timeStamp);
-#endif
-                    if (msg.id%SCIENCE == 3 || msg.id%SCIENCE == 4)
-                    {
-                        memcpy (&uvSensorValue, &msg.data, 4);
-                        science_msgs::UVSensor sensor;
-                        sensor.data = sensorValue;
-                        sensor.stamp = timeStamp;
-                        sensorData_.setScienceContainer(sensor, msg.id%SCIENCE);
-                    }
-                    else
-                    {
-                        memcpy (&sensorValue, &msg.data, 4);
-                        science_msgs::Sensor sensor;
-                        sensor.data = sensorValue;
-                        sensor.stamp = timeStamp;
-                        sensorData_.setScienceContainer(sensor, msg.id%SCIENCE);
-                    }
+                    topics_["/encoders"]->publish(encoder_msg_);
                 }
-                science_msg = sensorData_.getScienceContainer();
-#if DEBUG
-                ROS_INFO ("Publishing science data");
-#endif
-                topics_[3]->publish(science_msg);
-                break;
-
-            case CURRENT_SENSORS: // float for current sensor readings
-#if DEBUG
-                ROS_INFO("Evaluating current sensors");
-#endif
-                float currentResult;
-                memcpy (&currentResult, &msg.data, msg.dlc);
-#if DEBUG
-                ROS_INFO("current data: %f", currentResult);
-#endif
-                sensorData_.setCurrentSensors(currentResult, msg.id % CURRENT_SENSORS);
-                current_msg.data = sensorData_.getCurrentSensors();
-                topics_[4]->publish(current_msg);
-                break;
-
-            case THERMISTORS: // float for thermistor readings
-#if DEBUG
-                ROS_INFO("Evaluating thermistors");
-#endif
-                float thermResult;
-                memcpy (&thermResult, &msg.data, msg.dlc);
-#if DEBUG
-                ROS_INFO("thermistor data: %f", thermResult);
-#endif
-                sensorData_.setThermistors(thermResult, msg.id % THERMISTORS);
-                thermistor_msg.data = sensorData_.getThermistors();
-                topics_[5]->publish(thermistor_msg);
-                break;
-
-            default:
-                ROS_WARN("Received frame has unregistered CAN ID %x", msg.id);
-                valid_frame = false;
-                break;
+            }
+            else
+            {
+                ROS_WARN("Message ID is not recognized");
+            }
         }
-#if DEBUG
-        ROS_INFO("Finished sending");
-#endif
     }
 
     void SocketCANToTopic::stateCallback(const can::State & s)
