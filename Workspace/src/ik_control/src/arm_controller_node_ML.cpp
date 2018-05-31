@@ -65,7 +65,7 @@ const float BACK_EMF_CONSTANT[NUM_ARM_MOTORS] = {0.0163,0.0273,0.0485,0.0226,0.0
 float outputPWM[NUM_DATA] = {0,0,0,0,0,0};
 float qCurr[NUM_ARM_MOTORS] = {}; //Current joint angles in radians
 const int VOLTAGE = 12;
-float armStateInertial[NUM_ARM_MOTORS] = {0,0,0,0,0}; //State of the arm in intertial frame (r/x, h/y, theta, phi, psi)
+float armStateInertial[NUM_ARM_MOTORS] = {0,0,0,0,0}; //State of the arm in intertial frame (theta, r/x, h/y, phi, psi)
 //bool isWristAdjustMode = false; //Flag for detecting when the control mode is set to wrist adjust (indicating right joystick used to adjust wrist pitch instead of turntable movement)
 float inputCommands[NUM_DATA] = {};
 
@@ -191,12 +191,12 @@ void getMessageButtonsData(const sensor_msgs::Joy& joy_msg, float arr[], int siz
 }
 
 void forwardKinematics() {
-    armStateInertial[0] = (LINK_LENGTH[0]*cos(qCurr[1]) + LINK_LENGTH[1]*cos(qCurr[1] + qCurr[2]));
-    armStateInertial[1] = (LINK_LENGTH[0]*sin(qCurr[1]) + LINK_LENGTH[1]*sin(qCurr[1] + qCurr[2]));
+    armStateInertial[1] = (LINK_LENGTH[0]*cos(qCurr[1]) + LINK_LENGTH[1]*cos(qCurr[1] + qCurr[2]));
+    armStateInertial[2] = (LINK_LENGTH[0]*sin(qCurr[1]) + LINK_LENGTH[1]*sin(qCurr[1] + qCurr[2]));
 
-    armStateInertial[2] = qCurr[0];
-    armStateInertial[3] = qCurr[3];
-    armStateInertial[4] = qCurr[4];
+    armStateInertial[0] = qCurr[0]; // Turntable
+    armStateInertial[3] = qCurr[3] + qCurr[1] + qCurr[2]; // Wrist pitch
+    armStateInertial[4] = qCurr[4]; // Wrist roll
 }
 
 void calculateNextPosition() {
@@ -235,15 +235,15 @@ void reverseModel() {
 //Solving for turntable
 //q is the previous state of joints, l is link lengths, p is current position (r,h,theta,phi,psi)
 float solve_for_q0(float q[], float l[], float p[]) {
-    return p[2];
+    return p[0];
 }
 
 //Solving for shoulder
 //q is the previous state of joints, l is link lengths, p is current position (r,h,theta,phi,psi)
 float solve_for_q1(float q[], float l[], float p[]) {
     //p is the position 
-    float x = p[0];
-    float y = p[1];
+    float x = p[1];
+    float y = p[2];
 
     float r = sqrt(x*x + y*y);
 
@@ -275,8 +275,8 @@ float solve_for_q1(float q[], float l[], float p[]) {
 //q is the previous state of joints, l is link lengths, p is current position (r,h,theta,phi,psi)
 float solve_for_q2(float q[], float l[], float p[]) {
     //p is the position 
-    float x = p[0];
-    float y = p[1];
+    float x = p[1];
+    float y = p[2];
 
     float r = sqrt(x*x + y*y);
     float eta = acos( ((l[0]*l[0]) + (l[1]*l[1]) -r*r)/(2*(l[0]*l[1])) ); //always gonna be between zero and pi

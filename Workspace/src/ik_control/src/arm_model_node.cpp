@@ -25,7 +25,7 @@ const float BACK_EMF_CONSTANT[NUM_MOTORS] = {0.0163,0.0273,0.0485,0.0226,0.0354}
 float inputPWM[NUM_MOTORS] = {0,0,0,0,0};
 float qCurr[NUM_MOTORS] = {0,PI/4.0,-PI/2.0,-PI/1.1,0}; //Current position in radians
 const int VOLTAGE = 12;
-float xe, ye, ze, xw, yw, zw = 0; // Position of the end effector (e) and wrist (w) in the inertial frame
+float xe, ye, ze, xw, yw, zw, phi = 0; // Position of the end effector (e) and wrist (w) in the inertial frame
 
 std_msgs::Float32MultiArray encoderMsg;
 
@@ -65,15 +65,14 @@ void positionUpdate() {
 
 
 void forwardKinematics() {
-	xe = cos(qCurr[0])*(LINK_LENGTH[0]*cos(qCurr[1]) + LINK_LENGTH[1]*cos(qCurr[1] + qCurr[2]) + LINK_LENGTH[2]*cos(qCurr[1] + qCurr[2] + qCurr[3]));
-	ze = sin(qCurr[0])*(LINK_LENGTH[0]*cos(qCurr[1]) + LINK_LENGTH[1]*cos(qCurr[1] + qCurr[2]) + LINK_LENGTH[2]*cos(qCurr[1] + qCurr[2] + qCurr[3]));
+	xe = (LINK_LENGTH[0]*cos(qCurr[1]) + LINK_LENGTH[1]*cos(qCurr[1] + qCurr[2]) + LINK_LENGTH[2]*cos(qCurr[1] + qCurr[2] + qCurr[3]));
 	ye = (LINK_LENGTH[0]*sin(qCurr[1]) + LINK_LENGTH[1]*sin(qCurr[1] + qCurr[2]) + LINK_LENGTH[2]*sin(qCurr[1] + qCurr[2] + qCurr[3]));
-	ROS_INFO("End-effector position is (xe: %f, ye: %f, ze %f) \n", xe, ye, ze);
+	ROS_INFO("End-effector position is (xe: %f, ye: %f) \n", xe, ye);
 
-	xw = cos(qCurr[0])*(LINK_LENGTH[0]*cos(qCurr[1]) + LINK_LENGTH[1]*cos(qCurr[1] + qCurr[2]));
-	zw = sin(qCurr[0])*(LINK_LENGTH[0]*cos(qCurr[1]) + LINK_LENGTH[1]*cos(qCurr[1] + qCurr[2]));
+	xw = (LINK_LENGTH[0]*cos(qCurr[1]) + LINK_LENGTH[1]*cos(qCurr[1] + qCurr[2]));
 	yw = (LINK_LENGTH[0]*sin(qCurr[1]) + LINK_LENGTH[1]*sin(qCurr[1] + qCurr[2]));
-	ROS_INFO("Wrist position is (xw: %f, yw: %f, zw %f) \n", xw, yw, zw);
+	phi = qCurr[1] + qCurr[2] + qCurr[3];
+	ROS_INFO("Wrist position is (xw: %f, yw: %f, phi %f) \n", xw, yw, phi);
 	
 }
 
