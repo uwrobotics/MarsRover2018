@@ -25,7 +25,7 @@ public:
 
 private:
   // Subscriber callbacks
-  void GoalGPSCallback(geometry_msgs::Point::ConstPtr goal);
+  void GoalGPSCallback(sensor_msgs::NavSatFixConstPtr goal);
   void OccupancyCallback(occupancy_grid::OccupancyGrid::ConstPtr grid);
   void OdometryCallback(nav_msgs::Odometry::ConstPtr odemetry);
   void EnableCallback(std_msgs::BoolConstPtr pEnableMsg);
