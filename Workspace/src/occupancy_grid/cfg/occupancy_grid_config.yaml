@@ -1,12 +1,12 @@
 zMax: 2.5
 xMax: 3.5
 resolution: 0.05
-yOffset : 0.495
+yOffset : 0.37
 brightness_lower_lim: 50
 brightness_upper_lim: 200
-num_points_thres_ratio: 2750
+num_points_thres_ratio: 0
 expo_weighted_avg_var: 0.1
-avg_num: 3
+median_filter_size: 5
 Scalar: 1.2
 Normalizer: 1.0
 rate: 30
