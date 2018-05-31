@@ -4,7 +4,9 @@
     <node pkg="ball_following" type="ball_following_node.py" name="ball_following" respawn="true" output="screen"/>
 
     <node pkg="usb_cam" type="usb_cam_node" name="usb_cam_node" respawn="true" output="screen">
-        <param name="video_device" value="/dev/video0"/>
+        <param name="video_device" value="/dev/microsoft_cam"/>
         <param name="pixel_format" value="yuyv"/>
+        <param name="brightness" value="16"/>
+        <param name="saturation" value="64"/>
     </node>
 </launch>
