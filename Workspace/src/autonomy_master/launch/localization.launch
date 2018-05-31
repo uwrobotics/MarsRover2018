@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <launch>
-
+  <!-- GPS and IMU -->
   <node pkg="nmea_navsat_driver" type="nmea_serial_driver" name="nmea_serial_driver"/>
+  <include file="$(find razor_imu_9dof)/launch/razor-pub.launch"/>
   
 
 
