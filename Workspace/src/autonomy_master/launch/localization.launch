@@ -1,6 +1,10 @@
 <?xml version="1.0"?>
 <launch>
 
+  <node pkg="nmea_navsat_driver" type="nmea_serial_driver" name="nmea_serial_driver"/>
+  
+
+
   <node pkg="robot_localization" type="ekf_localization_node" name="rover_odom_localization">
     <rosparam command="load" file="$(find simulation)/config/rover_odom_localization.yaml" />
     <remap from="/odometry/filtered" to="/odometry/rover_odom" />  
