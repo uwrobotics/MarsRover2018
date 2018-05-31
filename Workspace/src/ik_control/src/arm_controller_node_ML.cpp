@@ -35,6 +35,7 @@ const int INDEX_A = 0; //sensor_msg.buttons index number for the left bumper
 const int INDEX_B = 1; //sensor_msg.buttons index number for the right bumper
 const int INDEX_LB = 4; //sensor_msg.buttons index number for the left bumper
 const int INDEX_RB = 5; //sensor_msg.buttons index number for the right bumper
+const int INDEX_BACK = 6; //sensor_msg.buttons index number for the back button
 const int INDEX_LT = 2; //sensor_msg.axes index number for the left trigger
 const int INDEX_RT = 5; //sensor_msg.axes index number for the right trigger
 const int INDEX_LS_UD = 1; //sensor_msg.axes index number for the up/down value from the left joystick
@@ -47,24 +48,24 @@ const int INDEX_RS_LR = 3; //sensor_msg.axes index number for the right/left val
 const int LOOP_PERIOD_MS = 10; //Maximum time for a control loop execution (that ignores new input) based on human reaction time
 
 //Closed Loop Control Parameters
-uint stateData[NUM_ARM_MOTORS] = {0,0,0,0,0}; //Angles of the joints
-float stateDataFloat[NUM_ARM_MOTORS] = {0,0,0,0,0}; //Angles of the joints
+uint jointData[NUM_ARM_MOTORS] = {0,0,0,0,0}; //Angles of the joints
+float jointDataFloat[NUM_ARM_MOTORS] = {0,0,0,0,0}; //Angles of the joints
 const float ABS_ENCODER_TO_RAD = 2*3.14159/4098; //Conversion constant to go between absolute encoder values and radians
 const float INC_ENCODER_TO_RAD = 2*3.14159/2048; //Conversion constant to go between incremental encoder values and radians (assume 2048 resolution)
 const float ENCODER_ZEROPOSITION[NUM_DATA] = {0,725,3550,0,940,0}; //The encoder value corresponding to its zero position
 const bool isRegClsLp[NUM_DATA] = {true,true,true,true,false,false}; //Is the motor regularly controlled via closed loop
 
 //ML Control Parameters
-float MAX_ARM_SPEED = 0.05; //Measured in m/s, semi-arbitrarily selected maximum Cartesian speed
+float MAX_ARM_SPEED = 0.12; //Measured in m/s, semi-arbitrarily selected maximum Cartesian speed
 const float PI = 3.14159;
 float LINK_LENGTH[4] = {0.3,0.3,0.43};
 const float BACK_EMF_CONSTANT[NUM_ARM_MOTORS] = {0.0163,0.0273,0.0485,0.0226,0.0354}; //rad/(sV), measured by giving motors 12V and timing how long it takes to make a certain angle
 
 
 float outputPWM[NUM_DATA] = {0,0,0,0,0,0};
-float qCurr[NUM_ARM_MOTORS] = {}; //Current position in radians
+float qCurr[NUM_ARM_MOTORS] = {}; //Current joint angles in radians
 const int VOLTAGE = 12;
-float wristPosition[NUM_ARM_MOTORS] = {0,0,0,0,0}; // Position of the end effector (e) and wrist (w) in the inertial frame
+float armStateInertial[NUM_ARM_MOTORS] = {0,0,0,0,0}; //State of the arm in intertial frame (r/x, h/y, theta, phi, psi)
 //bool isWristAdjustMode = false; //Flag for detecting when the control mode is set to wrist adjust (indicating right joystick used to adjust wrist pitch instead of turntable movement)
 float inputCommands[NUM_DATA] = {};
 
@@ -114,7 +115,7 @@ void encoderCallback(const std_msgs::UInt32MultiArray& encoder_msg){
     uint * tmp = var.data();
 
     for (int i = 0; i < NUM_ARM_MOTORS; i++) {
-        stateData[i] = tmp[i];
+        jointData[i] = tmp[i];
     }
 
 }
@@ -125,7 +126,7 @@ void modelCallback(const std_msgs::Float32MultiArray& model_msg){
     float * tmp = var.data();
 
     for (int i = 0; i < NUM_ARM_MOTORS; i++) {
-        stateDataFloat[i] = tmp[i];
+        jointDataFloat[i] = tmp[i];
     }
     encoderConvert();
 
@@ -137,8 +138,8 @@ void modelCallback(const std_msgs::Float32MultiArray& model_msg){
 
 void encoderConvert() {
     for (int i = 0; i < NUM_ARM_MOTORS; i++) {
-        //qCurr[i] = stateData[i];
-        qCurr[i] = stateDataFloat[i];
+        //qCurr[i] = jointData[i];
+        qCurr[i] = jointDataFloat[i];
     }
 }
 
@@ -190,28 +191,28 @@ void getMessageButtonsData(const sensor_msgs::Joy& joy_msg, float arr[], int siz
 }
 
 void forwardKinematics() {
-    wristPosition[1] = (LINK_LENGTH[0]*cos(qCurr[1]) + LINK_LENGTH[1]*cos(qCurr[1] + qCurr[2]));
-    wristPosition[2] = (LINK_LENGTH[0]*sin(qCurr[1]) + LINK_LENGTH[1]*sin(qCurr[1] + qCurr[2]));
+    armStateInertial[0] = (LINK_LENGTH[0]*cos(qCurr[1]) + LINK_LENGTH[1]*cos(qCurr[1] + qCurr[2]));
+    armStateInertial[1] = (LINK_LENGTH[0]*sin(qCurr[1]) + LINK_LENGTH[1]*sin(qCurr[1] + qCurr[2]));
 
-    wristPosition[0] = qCurr[0];
-    wristPosition[3] = qCurr[3];
-    wristPosition[4] = qCurr[4];
+    armStateInertial[2] = qCurr[0];
+    armStateInertial[3] = qCurr[3];
+    armStateInertial[4] = qCurr[4];
 }
 
 void calculateNextPosition() {
     for (int j = 1; j <= 2; j++) {
-        //ROS_INFO("Old arm position of motor %d and %f \n", j, wristPosition[j]);
-        wristPosition[j] = wristPosition[j] + MAX_ARM_SPEED*inputCommands[j]*LOOP_PERIOD_MS/1000;
-        //ROS_INFO("New arm position of motor %d and %f \n", j, wristPosition[j]);
+        //ROS_INFO("Old arm position of motor %d and %f \n", j, armStateInertial[j]);
+        armStateInertial[j] = armStateInertial[j] + MAX_ARM_SPEED*inputCommands[j]*LOOP_PERIOD_MS/1000;
+        //ROS_INFO("New arm position of motor %d and %f \n", j, armStateInertial[j]);
     }
 }
 
 void reverseModel() {
-    float qNext1 = solve_for_q1(qCurr, LINK_LENGTH, wristPosition);
-    float qNext2 = solve_for_q2(qCurr, LINK_LENGTH, wristPosition);
+    float qNext1 = solve_for_q1(qCurr, LINK_LENGTH, armStateInertial);
+    float qNext2 = solve_for_q2(qCurr, LINK_LENGTH, armStateInertial);
 
-    ROS_INFO("qNext1 and qCurr1: %f and %f \n", qNext1, qCurr[1]);
-    ROS_INFO("qNext2 and qCurr2: %f and %f \n", qNext2, qCurr[2]);
+    //ROS_INFO("qNext1 and qCurr1: %f and %f \n", qNext1, qCurr[1]);
+    //ROS_INFO("qNext2 and qCurr2: %f and %f \n", qNext2, qCurr[2]);
 
     outputPWM[1] = (qNext1 - qCurr[1])/(VOLTAGE*BACK_EMF_CONSTANT[1]*LOOP_PERIOD_MS/1000);
     outputPWM[2] = (qNext2 - qCurr[2])/(VOLTAGE*BACK_EMF_CONSTANT[2]*LOOP_PERIOD_MS/1000);
@@ -295,8 +296,8 @@ float solve_for_q2(float q[], float l[], float p[]) {
 //This assumes set wrist pitch angle
 //The current method is a work-around to avoid segfaults
 float solve_for_q3(float q[], float l[], float p[]){
-    float q1_tmp = solve_for_q1(qCurr, LINK_LENGTH, wristPosition);
-    float q2_tmp = solve_for_q2(qCurr, LINK_LENGTH, wristPosition);
+    float q1_tmp = solve_for_q1(qCurr, LINK_LENGTH, armStateInertial);
+    float q2_tmp = solve_for_q2(qCurr, LINK_LENGTH, armStateInertial);
 
     return p[3]-q1_tmp-q2_tmp;
 }
@@ -339,31 +340,33 @@ int main(int argc, char **argv) {
 
         //Calculate the outputPWM
         if ((buttons[INDEX_LB] == 1) && (buttons[INDEX_RB] == 1)) {
-            for (int i = 0; i < NUM_DATA; i++) {
-                outputPWM[i] = inputCommands[i];
-            }
-
-        }
-        else  { //Regular Control Scheme
+            //IK control scheme
             outputPWM[0] = inputCommands[0];
             outputPWM[4] = inputCommands[4];
             outputPWM[5] = inputCommands[5];
 
+            forwardKinematics();
             calculateNextPosition();
             reverseModel();
 
 
-            if (buttons[INDEX_RB] == 1) { //Wrist pitch set mode (i.e. adjust relative angle of wirst pitch to the ground otherwise remains constant)
+            if (buttons[INDEX_BACK] == 1) { //Wrist pitch set mode (i.e. adjust relative angle of wirst pitch to the ground otherwise remains constant)
                 outputPWM[3] = inputCommands[3];
             }
             else { //Wrist pitch stays the same
-                outputPWM[3] = (solve_for_q3(qCurr, LINK_LENGTH, wristPosition) - qCurr[3])/(VOLTAGE*BACK_EMF_CONSTANT[3]*LOOP_PERIOD_MS/1000);
+                outputPWM[3] = (solve_for_q3(qCurr, LINK_LENGTH, armStateInertial) - qCurr[3])/(VOLTAGE*BACK_EMF_CONSTANT[3]*LOOP_PERIOD_MS/1000);
                 if (outputPWM[3] > 1) {
                     outputPWM[3] = 1;
                 }
                 else if (outputPWM[3] < -1) {
                     outputPWM[3] = -1;
                 }
+            }
+
+        }
+        else  { //Manual Control Scheme
+            for (int i = 0; i < NUM_DATA; i++) {
+                outputPWM[i] = inputCommands[i];
             }
 
         }

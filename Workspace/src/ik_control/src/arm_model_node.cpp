@@ -23,7 +23,7 @@ const float LINK_LENGTH[3] = {0.3,0.3,0.3};
 const float BACK_EMF_CONSTANT[NUM_MOTORS] = {0.0163,0.0273,0.0485,0.0226,0.0354}; //rad/(sV), measured by giving motors 12V and timing how long it takes to make a certain angle
 
 float inputPWM[NUM_MOTORS] = {0,0,0,0,0};
-float qCurr[NUM_MOTORS] = {0,PI/2.0,-PI/2.0,-PI/2.0,0}; //Current position in radians
+float qCurr[NUM_MOTORS] = {0,PI/4.0,-PI/2.0,-PI/1.1,0}; //Current position in radians
 const int VOLTAGE = 12;
 float xe, ye, ze, xw, yw, zw = 0; // Position of the end effector (e) and wrist (w) in the inertial frame
 
