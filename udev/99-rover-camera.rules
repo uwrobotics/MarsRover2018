@@ -4,5 +4,7 @@ SUBSYSTEMS=="usb", ATTRS{idVendor}=="045e", ATTRS{idProduct}=="0779", SYMLINK+="
 # Logitec Cam
 SUBSYSTEMS=="usb", ATTRS{idVendor}=="046d", ATTRS{idProduct}=="08ad", SYMLINK+="logitec_cam", MODE:="0666" 
 
-# Creative Web Cam
-SUBSYSTEMS=="usb", ATTRS{idVendor}=="041e", ATTRS{idProduct}=="4095", SYMLINK+="creative_cam", MODE:="0666"
+# Creative Web Cam F/2.4 f=1.92mm
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="041e", ATTRS{idProduct}=="4095", SYMLINK+="creative_cam_f2-4", MODE:="0666"
+# Creative Web Cam F/2.5 f=4.21mm
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="041e", ATTRS{idProduct}=="4080", SYMLINK+="creative_cam_f2-5", MODE:="0666"
