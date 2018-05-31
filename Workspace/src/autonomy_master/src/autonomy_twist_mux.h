@@ -5,12 +5,12 @@
 #ifndef PROJECT_AUTONOMY_TWIST_MUX_H
 #define PROJECT_AUTONOMY_TWIST_MUX_H
 #include "autonomy_master.h"
-#include <ros/ros.h>
 #include <geometry_msgs/Twist.h>
+#include <ros/ros.h>
 
 class CAutonomyTwistMux {
 public:
-  CAutonomyTwistMux(ros::NodeHandle& nh);
+  CAutonomyTwistMux(ros::NodeHandle &nh);
   void Arbitrate(eAutonomyState state);
 
 private:
@@ -21,19 +21,15 @@ private:
   void SpiralCallback(geometry_msgs::TwistConstPtr pVel);
   void BallFollowCallback(geometry_msgs::TwistConstPtr pVel);
 
-
   /// Subscribers ///
-  ros::Subscriber* m_pLocalPlannerSub;
-  ros::Subscriber* m_pUnstuckSub;
-  ros::Subscriber* m_pEStopSub;
-  ros::Subscriber* m_pSpiralSub;
-  ros::Subscriber* m_pBallFolowSub;
-
+  ros::Subscriber *m_pLocalPlannerSub;
+  ros::Subscriber *m_pUnstuckSub;
+  ros::Subscriber *m_pEStopSub;
+  ros::Subscriber *m_pSpiralSub;
+  ros::Subscriber *m_pBallFolowSub;
 
   /// Publishers ///
-  ros::Publisher* m_pCmdVelPub;
-
-
+  ros::Publisher *m_pCmdVelPub;
 
   /// Received twists ///
 
@@ -50,5 +46,4 @@ private:
   ros::Time m_BallFollowRecTime;
 };
 
-
-#endif //PROJECT_AUTONOMY_TWIST_MUX_H
+#endif // PROJECT_AUTONOMY_TWIST_MUX_H

@@ -6,7 +6,6 @@
 #include "ros/ros.h"
 #include <cstdio>
 
-
 int main(int argc, char **argv) {
   ros::init(argc, argv, "autonomy_master");
   ros::NodeHandle nh;
