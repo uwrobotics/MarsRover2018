@@ -17,6 +17,8 @@
     <param name="broadcast_utm_transform" value="true"/>
     <param name="publish_filtered_gps" value="true" />
 
+    <param name="frequency" value="5" />
+
     <!-- input mapping -->
     <!--remap from="/imu/data" to=""/-->
     <remap from="/gps/fix" to="/navsat/fix"/>

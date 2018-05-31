@@ -1,7 +1,7 @@
 zMax: 2.5
 xMax: 3.5
 resolution: 0.05
-yOffset : 0.10
+yOffset : 0.37
 brightness_lower_lim: 50
 brightness_upper_lim: 200
 num_points_thres_ratio: 0
