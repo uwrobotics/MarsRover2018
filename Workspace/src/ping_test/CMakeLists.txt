@@ -1,19 +1,19 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(occupancy_grid)
+project(ping_test)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-add_compile_options(-std=c++11)
+ add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  message_generation
   roscpp
+  std_msgs
 )
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS system)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -46,12 +46,11 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  OccupancyGrid.msg
-  OccupancyGridHeader.msg
-  GridDataDimension.msg
-)
+# add_message_files(
+#   FILES
+#   Message1.msg
+#   Message2.msg
+# )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -68,10 +67,10 @@ add_message_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  std_msgs  # Or other packages containing msgs
-)
+# generate_messages(
+#   DEPENDENCIES
+#   std_msgs
+# )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -90,6 +89,7 @@ generate_messages(
 ## Generate dynamic reconfigure parameters in the 'cfg' folder
 # generate_dynamic_reconfigure_options(
 #   cfg/DynReconf1.cfg
+#   cfg/DynReconf2.cfg
 # )
 
 ###################################
@@ -103,8 +103,8 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES occupancy_grid
-  CATKIN_DEPENDS roscpp message_runtime
+#  LIBRARIES ping_test
+#  CATKIN_DEPENDS roscpp std_msgs
 #  DEPENDS system_lib
 )
 
@@ -115,13 +115,13 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
- include
+# include
   ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/occupancy_grid.cpp
+#   src/${PROJECT_NAME}/ping_test.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -132,8 +132,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(occupancy_grid src/occupancy_grid.cpp)
-add_executable(occupancy_grid_no_median_filter src/occupancy_grid_no_median_filter.cpp)
+# add_executable(${PROJECT_NAME}_node src/ping_test_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -146,16 +145,9 @@ add_executable(occupancy_grid_no_median_filter src/occupancy_grid_no_median_filt
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(occupancy_grid
-  ${catkin_LIBRARIES}
-)
-
-target_link_libraries(occupancy_grid_no_median_filter
-  ${catkin_LIBRARIES}
-)
-
-add_dependencies(occupancy_grid occupancy_grid_generate_messages_cpp)
-add_dependencies(occupancy_grid_no_median_filter occupancy_grid_generate_messages_cpp)
+# target_link_libraries(${PROJECT_NAME}_node
+#   ${catkin_LIBRARIES}
+# )
 
 #############
 ## Install ##
@@ -197,10 +189,20 @@ add_dependencies(occupancy_grid_no_median_filter occupancy_grid_generate_message
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_occupancy_grid.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_ping_test.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+
+add_executable(ping_test_client src/ping_client.cpp)
+target_link_libraries(ping_test_client ${catkin_LIBRARIES})
+add_executable(ping_test_server src/ping_server.cpp)
+target_link_libraries(ping_test_server ${catkin_LIBRARIES})
+add_executable(ping_GPS_tracker src/ping_GPS_tracker.cpp)
+target_link_libraries(ping_GPS_tracker ${catkin_LIBRARIES})
+add_executable(gps_tester src/gps_tester.cpp)
+target_link_libraries(gps_tester ${catkin_LIBRARIES})

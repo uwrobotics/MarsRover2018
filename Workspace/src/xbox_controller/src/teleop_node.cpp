@@ -32,28 +32,13 @@ public:
     science_pub = n.advertise<sensor_msgs::Joy>("science_joy", 1);
     arm_pub = n.advertise<sensor_msgs::Joy>("arm_joy", 1);
     autonomy_pub = n.advertise<sensor_msgs::Joy>("autonomy_joy", 1);
+    state_pub = n.advertise<std_msgs::String>("joy_state", 1);
 
     // Logic Variables Initialization
     i = DRIVE;       // Starts at the drive branch
     pressed = false; // Initially, the change button is assumed to be NOT
                      // PRESSED
 
-    // populate timestamp, axes and buttons of empty joy msg, make into
-    // function?
-    empty_joy_msg.header.stamp = ros::Time().now();
-
-    // get size of buttons and axes arrays
-    int num_buttons = empty_joy_msg.buttons.size();
-    int num_axes = empty_joy_msg.axes.size();
-
-    // loop through each set, set all values to 0
-    for (int j = 0; j < num_buttons; j++) {
-      empty_joy_msg.buttons[j] = 0;
-    }
-
-    for (int k = 0; k < num_axes; k++) {
-      empty_joy_msg.axes[k] = 0.0;
-    }
   }
 
 private:
@@ -64,43 +49,60 @@ private:
   ros::Publisher science_pub;
   ros::Publisher arm_pub;
   ros::Publisher autonomy_pub;
+  ros::Publisher state_pub;
   enum topics { DRIVE, ARM, SCIENCE, AUTONOMY, NUM_TOPICS };
   int i; // Variable thats holds the current state index
   bool pressed;
-  sensor_msgs::Joy
-  empty_joy_msg; // empty joy message needed when switching states
+  sensor_msgs::Joy empty_joy_msg; // empty joy message needed when switching states
 };
 
 // Callback function: Called everytime there is an update on the joy-stick
 void StateSelect::callback(const sensor_msgs::Joy::ConstPtr &joy) {
 
+
   // logic to cycle through different states
   if (joy->buttons[8] == 1 && !pressed) {
     // Send empty message
+
+    sensor_msgs::Joy empty_joy = *joy;
+    for(int j = 0; j < 11; j++) empty_joy.buttons[j] = 0;
+    for(int j = 0; j < 8; j++) empty_joy.axes[j] = 0.0;
+
     if (i == DRIVE)
-      drive_pub.publish(empty_joy_msg);
+      drive_pub.publish(empty_joy);
 
     else if (i == ARM)
-      arm_pub.publish(empty_joy_msg);
+      arm_pub.publish(empty_joy);
 
     else if (i == SCIENCE)
-      science_pub.publish(empty_joy_msg);
+      science_pub.publish(empty_joy);
 
     else if (i == AUTONOMY)
-      autonomy_pub.publish(empty_joy_msg);
+      autonomy_pub.publish(empty_joy);
 
     i++;
     if (i >= NUM_TOPICS)
       i = DRIVE; // Cycle back to drive after autonomy branch
+
+  std_msgs::String msg;
+
+  if(i == DRIVE)
+    msg.data = "Drive";
+  else if (i == ARM)
+    msg.data = "Arm";
+  else if (i == SCIENCE)
+    msg.data = "Science";
+  else if (i == AUTONOMY)
+    msg.data = "Autonomy";
+
+  state_pub.publish(msg);
+
     pressed = true;
-  } else
-    pressed = false;
+  }
 
   // The algorithm below is required to counter controller debouncing.
   if (joy->buttons[8] != 1)
     pressed = false;
-  else
-    pressed = true;
 
   if (i == DRIVE)
     drive_pub.publish(joy);
