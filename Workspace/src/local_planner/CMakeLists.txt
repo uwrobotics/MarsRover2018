@@ -135,6 +135,7 @@ include_directories(
 # )
 add_library(DynamicWindow src/DynamicWindow.cpp src/LocalPlanner.cpp src/OccupancyUtils.cpp)
 
+add_dependencies(DynamicWindow local_planner_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
@@ -154,7 +155,7 @@ add_executable(local_planner src/LocalPlannerMain.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-add_dependencies(local_planner  ${catkin_EXPORTED_TARGETS})
+add_dependencies(local_planner ${catkin_EXPORTED_TARGETS} local_planner_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
