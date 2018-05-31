@@ -46,3 +46,7 @@ add_executable(arm_controller_node_ML src/arm_controller_node_ML.cpp)
 target_link_libraries(arm_controller_node_ML ${catkin_LIBRARIES})
 add_dependencies(arm_controller_node_ML arm_controller_node_ML_generate_messages_cpp)
 
+add_executable(arm_controller_node_ML_CAN src/arm_controller_node_ML_CAN.cpp)
+target_link_libraries(arm_controller_node_ML_CAN ${catkin_LIBRARIES})
+add_dependencies(arm_controller_node_ML_CAN arm_controller_node_ML_CAN_generate_messages_cpp)
+
