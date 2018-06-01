@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- GPS and IMU -->
+
+    <node pkg="gps_viz" type="gps_viz_node" name="gps_viz_node" respawn="true">
+    </node>
+    <node pkg="tf" type="static_transform_publisher" name="gps_viz_link_broadcaster" args="0 0 0 0 0 0 map world_frame 10" />
+    <node pkg="autonomy_master" type="autonomy_input_node" name="gps_viz_goal_input" respawn="true" output="screen">
+        <remap from="/gps/filtered" to="/fix"></remap>
+        <remap from="/autonomy/goal_gps" to="/goal_gps"></remap>
+    </node>
+    <group ns="visualization">
+        <node pkg="rviz" type="rviz" name="rviz" args="-d $(find gps_viz)/rviz/gps_viz.rviz"/>
+    </group>
+
+</launch>
+
