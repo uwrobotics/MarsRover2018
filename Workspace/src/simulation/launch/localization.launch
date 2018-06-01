@@ -15,6 +15,9 @@
     <param name="magnetic_declination_radians" value="0"/>
     <param name="yaw_offset" value="1.5707963"/>
     <param name="broadcast_utm_transform" value="true"/>
+    <param name="publish_filtered_gps" value="true" />
+
+    <param name="frequency" value="5" />
 
     <!-- input mapping -->
     <!--remap from="/imu/data" to=""/-->

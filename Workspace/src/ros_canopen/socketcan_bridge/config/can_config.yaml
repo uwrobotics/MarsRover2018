@@ -3,8 +3,18 @@
 ######################
 
 # Interface
-/receiver_interface:     "can0"
-/transmitter_interface:  "can0"
+
+/receiver_interface:    "can0"
+/transmitter_interface: "can0"
 
 # Topics
-/receiver_list:          ["/switchesTurntableFlags", "/switchesForearmFlags", "switchesShoulderFlags", "/science", "/current_sensors", "/thermistors"]
+# in ROS, dictionaries must have string keys
+/incoming_ids:          {"200": "limitSwitches",
+                         "300": "turntableEncoder",
+                         "301": "shoulderEncoder",
+                         "302": "elbowEncoder",
+                         "303": "wristPitchEncoder",
+                         "304": "wristRollEncoder",
+                         "305": "endEffectorEncoder"}
+/output_topics:         ["/encoders",
+                         "/limitSwitches"]

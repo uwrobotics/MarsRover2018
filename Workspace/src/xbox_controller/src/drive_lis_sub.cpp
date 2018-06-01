@@ -68,7 +68,7 @@ TeleopTwistJoy::TeleopTwistJoy(ros::NodeHandle *nh, ros::NodeHandle *nh_param) {
       "drive_joy", 1, &TeleopTwistJoy::Impl::joyCallback, pimpl_);
 
   nh_param->param<int>("enable_button", pimpl_->enable_button, 0);
-  nh_param->param<int>("enable_turbo_button", pimpl_->enable_turbo_button, -1);
+  nh_param->param<int>("enable_turbo_button", pimpl_->enable_turbo_button, 5);
 
   if (nh_param->getParam("axis_linear", pimpl_->axis_linear_map)) {
     nh_param->getParam("axis_linear", pimpl_->axis_linear_map);
