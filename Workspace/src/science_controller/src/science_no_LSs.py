@@ -20,7 +20,7 @@ Author: Zameer Bharwani
 
         self.init_Auger = rospy.init_node("ScienceController", anonymous=True)
         self.sub = rospy.Subscriber("/science_joy", Joy, self.callback_xbox)
-        self.pub = rospy.Publisher("/science", Frame, queue_size=20)
+        self.pub = rospy.Publisher("/CAN_transmitter", Frame, queue_size=20)
         self.upper_switch = 0
         self.lower_switch = 0
         self.temperature_switch = 0
