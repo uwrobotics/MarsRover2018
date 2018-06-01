@@ -3,12 +3,13 @@
 //
 #include "OccupancyUtils.h"
 #include <ros/ros.h>
-#define HEIGHT_THRESH 0.20
+//#define HEIGHT_THRESH 0.20
 #define SLOPE_THRESH 0.30
 
 // DANGER ZONE
 #define DANGER_ZONE_X_DIST 1.25 // times robotWidth
 #define DANGER_ZONE_Y_DIST 0.40 // meters
+float HEIGHT_THRESH = 0.20;
 
 template <typename T> int sgn(T val) { return (T(0) < val) - (val < T(0)); }
 
@@ -19,6 +20,8 @@ OccupancyUtils::OccupancyUtils(occupancy_grid::OccupancyGrid::ConstPtr &pGrid,
       m_timestep(timestep) {
   m_maxW = 1.0;
   ros::param::get("/roverParams_maxW", m_maxW);
+  ros::param::get("/local_planner/height_thresh", HEIGHT_THRESH);
+  ROS_WARN("local_planner using height thresh %f", HEIGHT_THRESH);
 }
 
 // accessor for Occupancy Grid Message

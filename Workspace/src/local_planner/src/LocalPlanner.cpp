@@ -32,7 +32,7 @@ CLocalPlanner::CLocalPlanner(ros::NodeHandle *pNh,
       m_robotParams(robotParams), m_bOdomReceived(false),
       m_bGoalReceived(false), m_bVelocityReady(true), m_pVelPubThread(nullptr),
       m_distanceSinceLastRightDanger(1000), m_distanceSinceLastLeftDanger(1000),
-      m_bGoalReached(false), m_bGoalInRange(false), m_bEnabled(false) {
+      m_bGoalReached(false), m_bGoalInRange(false), m_bEnabled(false), m_bGpsReceived(false) {
 
   // subscribe to the occupancy grid
   std::string occupancy_topic = "/OccupancyGrid";
@@ -46,8 +46,11 @@ CLocalPlanner::CLocalPlanner(ros::NodeHandle *pNh,
   m_pGoalGpsSub = new ros::Subscriber(m_pNh->subscribe(
       goal_gps_topic, 1, &CLocalPlanner::GoalGPSCallback, this));
 
+  m_pGpsSub = new ros::Subscriber(m_pNh->subscribe(
+      "/fix", 1, &CLocalPlanner::CurGPSCallback, this));
+
   // subscribe to the current odometry
-  std::string odometry_topic = "/odometry/rover_gps_odom";
+  std::string odometry_topic = "/imu";//"/odometry/rover_gps_odom";
   ros::param::get("/local_planner/odometry_topic", odometry_topic);
   m_pOdometrySub = new ros::Subscriber(m_pNh->subscribe(
       odometry_topic, 1, &CLocalPlanner::OdometryCallback, this));
@@ -119,38 +122,58 @@ void CLocalPlanner::EnableCallback(std_msgs::BoolConstPtr pEnableMsg){
   }
 }
 
+void CLocalPlanner::CurGPSCallback(sensor_msgs::NavSatFixConstPtr gps) {
+	ROS_WARN("received");
+      //m_goalGPS = *goal;
+      RobotLocalization::NavsatConversions::LLtoUTM(gps->latitude,
+                                                   gps->longitude,
+                                                   m_curGpsUtmY,
+                                                   m_curGpsUtmX,
+                                                   m_curGpsUtmZone);
+
+  // FOR SAR ONLY: use position in "map" frame
+  //m_goalGpsUtmX = goal->x;
+  //m_goalGpsUtmY = goal->y;
+
+  //m_bGoalReceived = true;
+  //m_bGoalReached = false;
+  //m_bGoalInRange = false;
+  m_bGpsReceived = true;
+  ROS_WARN("CurPos: x=%f, y=%f", m_curGpsUtmX, m_curGpsUtmY);
+}
+
 // Odometry callback
 // Convert the received location into UTM (TODO)
 // and update heading information
-void CLocalPlanner::OdometryCallback(nav_msgs::Odometry::ConstPtr odometry) {
-
-  tf2_ros::Buffer tfBuffer;
-  tf2_ros::TransformListener tfListener(tfBuffer);
-  geometry_msgs::TransformStamped roverLocToUTM;
-  try {
-    roverLocToUTM = tfBuffer.lookupTransform(
-        "utm",
-        /*odometry->child_frame_id*/ odometry->child_frame_id /*header.frame_id*/, ros::Time(0),
-        ros::Duration(2));
-  } catch (tf2::TransformException &ex) {
-    ROS_ERROR("%s", ex.what());
-  }
+//void CLocalPlanner::OdometryCallback(nav_msgs::Odometry::ConstPtr odometry) {
+void CLocalPlanner::OdometryCallback(sensor_msgs::Imu::ConstPtr odometry) {
+  //tf2_ros::Buffer tfBuffer;
+  //tf2_ros::TransformListener tfListener(tfBuffer);
+  //geometry_msgs::TransformStamped roverLocToUTM;
+  //try {
+  //  roverLocToUTM = tfBuffer.lookupTransform(
+  //      "utm",
+  //      /*odometry->child_frame_id*/ odometry->child_frame_id /*header.frame_id*/, ros::Time(0),
+  //      ros::Duration(2));
+  //} catch (tf2::TransformException &ex) {
+  //  ROS_ERROR("%s", ex.what());
+  //}
 
  // ROS_INFO("Generated transform from base_link to utm");
-  m_curGpsUtmX = roverLocToUTM.transform.translation.x;
-  m_curGpsUtmY = roverLocToUTM.transform.translation.y;
+  //m_curGpsUtmX = roverLocToUTM.transform.translation.x;
+  //m_curGpsUtmY = roverLocToUTM.transform.translation.y;
 
   // FOR SAR ONLY: use position on map, figure out utm later
   // m_curGpsUtmX = odometry->pose.pose.position.x;
   // m_curGpsUtmY = odometry->pose.pose.position.y;
 
-  m_curVel = odometry->twist.twist;
+  //m_curVel = odometry->twist.twist;
 
   // get the heading
   double heading = 0;
   tf::Quaternion q(
-      odometry->pose.pose.orientation.x, odometry->pose.pose.orientation.y,
-      odometry->pose.pose.orientation.z, odometry->pose.pose.orientation.w);
+      odometry->orientation.x, odometry->orientation.y,
+      odometry->orientation.z, odometry->orientation.w);
   tf::Matrix3x3 m(q);
   double roll, pitch, yaw;
   m.getRPY(roll, pitch, yaw);
@@ -172,13 +195,13 @@ void CLocalPlanner::OdometryCallback(nav_msgs::Odometry::ConstPtr odometry) {
   if (count == 0) {
     ROS_INFO("Current velocity: v=%f, w=%f", m_curVel.linear.x,
              m_curVel.angular.z);
-    ROS_INFO("Current pos: x=%f, y=%f, heading=%f", m_curGpsUtmX, m_curGpsUtmY,
-             heading);
+    //ROS_INFO("Current pos: x=%f, y=%f, heading=%f", m_curGpsUtmX, m_curGpsUtmY,
+    //         heading);
 
     ROS_INFO("globalOrientToGoal: %f, heading: %f, orientToGoal: %f",
              globOrient, heading, m_orientationToGoal);
   }
-  count = (count + 1) % 100;
+  count = (count + 1) % 2;
 }
 
 /*
@@ -191,7 +214,7 @@ void CLocalPlanner::OdometryCallback(nav_msgs::Odometry::ConstPtr odometry) {
 void CLocalPlanner::OccupancyCallback(
     occupancy_grid::OccupancyGrid::ConstPtr grid) {
   // Make sure we have the information requiredd for planning
-  if (!m_bEnabled || !m_bOdomReceived || !m_bGoalReceived) {
+  if (!m_bEnabled || !m_bOdomReceived || !m_bGpsReceived || !m_bGoalReceived) {
     ROS_WARN("ignoring occupancy: not ready");
     return;
   }

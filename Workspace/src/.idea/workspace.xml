@@ -1,0 +1,620 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true" buildAllGenerated="true">
+    <generated>
+      <config projectName="Project" targetName="twist2roboteq_odom" />
+      <config projectName="Project" targetName="diagnostic_msgs_generate_messages_lisp" />
+      <config projectName="Project" targetName="geographic_msgs_generate_messages_eus" />
+      <config projectName="Project" targetName="roscpp_generate_messages_py" />
+      <config projectName="Project" targetName="nav_msgs_generate_messages_py" />
+      <config projectName="Project" targetName="robot_localization_generate_messages_py" />
+      <config projectName="Project" targetName="topic_to_socketcan" />
+      <config projectName="Project" targetName="_roboteq_msgs_generate_messages_check_deps_Command" />
+      <config projectName="Project" targetName="tf2_msgs_generate_messages_cpp" />
+      <config projectName="Project" targetName="can_msgs_geneus" />
+      <config projectName="Project" targetName="actionlib_generate_messages_nodejs" />
+      <config projectName="Project" targetName="clean_test_results" />
+      <config projectName="Project" targetName="uuid_msgs_generate_messages_nodejs" />
+      <config projectName="Project" targetName="socketcan_interface-test_dummy_interface" />
+      <config projectName="Project" targetName="can_msgs_genpy" />
+      <config projectName="Project" targetName="nav_msgs_generate_messages_cpp" />
+      <config projectName="Project" targetName="roboteq_msgs_gennodejs" />
+      <config projectName="Project" targetName="geometry_msgs_generate_messages_cpp" />
+      <config projectName="Project" targetName="rosgraph_msgs_generate_messages_cpp" />
+      <config projectName="Project" targetName="geometry_msgs_generate_messages_lisp" />
+      <config projectName="Project" targetName="rosgraph_msgs_generate_messages_py" />
+      <config projectName="Project" targetName="_run_tests_socketcan_interface_gtest_socketcan_interface-test_dummy_interface" />
+      <config projectName="Project" targetName="socketcan_interface_plugin" />
+      <config projectName="Project" targetName="run_tests_socketcan_interface_gtest_socketcan_interface-test_dummy_interface" />
+      <config projectName="Project" targetName="actionlib_msgs_generate_messages_eus" />
+      <config projectName="Project" targetName="tf2_msgs_generate_messages_eus" />
+      <config projectName="Project" targetName="can_msgs_gencpp" />
+      <config projectName="Project" targetName="joy_to_twist" />
+      <config projectName="Project" targetName="roboteq_msgs_generate_messages_nodejs" />
+      <config projectName="Project" targetName="_can_msgs_generate_messages_check_deps_Frame" />
+      <config projectName="Project" targetName="uuid_msgs_generate_messages_lisp" />
+      <config projectName="Project" targetName="actionlib_msgs_generate_messages_lisp" />
+      <config projectName="Project" targetName="nav_msgs_generate_messages_eus" />
+      <config projectName="Project" targetName="topic_to_socketcan_node" />
+      <config projectName="Project" targetName="_catkin_empty_exported_target" />
+      <config projectName="Project" targetName="clean_test_results_socketcan_interface" />
+      <config projectName="Project" targetName="roboteq_msgs_genpy" />
+      <config projectName="Project" targetName="tf2_msgs_generate_messages_nodejs" />
+      <config projectName="Project" targetName="actionlib_generate_messages_py" />
+      <config projectName="Project" targetName="rosgraph_msgs_generate_messages_nodejs" />
+      <config projectName="Project" targetName="roboteq_msgs_generate_messages" />
+      <config projectName="Project" targetName="roboteq_msgs_generate_messages_lisp" />
+      <config projectName="Project" targetName="actionlib_generate_messages_eus" />
+      <config projectName="Project" targetName="roscpp_generate_messages_nodejs" />
+      <config projectName="Project" targetName="rosgraph_msgs_generate_messages_eus" />
+      <config projectName="Project" targetName="download_extra_data" />
+      <config projectName="Project" targetName="run_tests_socketcan_interface" />
+      <config projectName="Project" targetName="std_srvs_generate_messages_cpp" />
+      <config projectName="Project" targetName="geometry_msgs_generate_messages_py" />
+      <config projectName="Project" targetName="geometry_msgs_generate_messages_nodejs" />
+      <config projectName="Project" targetName="socketcan_to_topic" />
+      <config projectName="Project" targetName="actionlib_generate_messages_lisp" />
+      <config projectName="Project" targetName="actionlib_msgs_generate_messages_cpp" />
+      <config projectName="Project" targetName="geographic_msgs_generate_messages_lisp" />
+      <config projectName="Project" targetName="state_select" />
+      <config projectName="Project" targetName="actionlib_msgs_generate_messages_py" />
+      <config projectName="Project" targetName="sensor_msgs_generate_messages_eus" />
+      <config projectName="Project" targetName="roboteq_driver_script" />
+      <config projectName="Project" targetName="roboteq_msgs_geneus" />
+      <config projectName="Project" targetName="can_msgs_generate_messages_cpp" />
+      <config projectName="Project" targetName="_run_tests_socketcan_interface" />
+      <config projectName="Project" targetName="std_msgs_generate_messages_lisp" />
+      <config projectName="Project" targetName="can_msgs_generate_messages_lisp" />
+      <config projectName="Project" targetName="actionlib_generate_messages_cpp" />
+      <config projectName="Project" targetName="tf2_msgs_generate_messages_py" />
+      <config projectName="Project" targetName="gmock_main" />
+      <config projectName="Project" targetName="run_tests_socketcan_interface_gtest" />
+      <config projectName="Project" targetName="geographic_msgs_generate_messages_cpp" />
+      <config projectName="Project" targetName="gtest_main" />
+      <config projectName="Project" targetName="geographic_msgs_generate_messages_nodejs" />
+      <config projectName="Project" targetName="std_srvs_generate_messages_eus" />
+      <config projectName="Project" targetName="roboteq_msgs_generate_messages_py" />
+      <config projectName="Project" targetName="sensor_msgs_generate_messages_cpp" />
+      <config projectName="Project" targetName="roboteq_msgs_gencpp" />
+      <config projectName="Project" targetName="can_msgs_generate_messages_eus" />
+      <config projectName="Project" targetName="uuid_msgs_generate_messages_eus" />
+      <config projectName="Project" targetName="tf_generate_messages_nodejs" />
+      <config projectName="Project" targetName="roboteq_msgs_genlisp" />
+      <config projectName="Project" targetName="tf_generate_messages_eus" />
+      <config projectName="Project" targetName="_run_tests_socketcan_interface_gtest" />
+      <config projectName="Project" targetName="robot_localization_generate_messages_cpp" />
+      <config projectName="Project" targetName="nav_msgs_generate_messages_lisp" />
+      <config projectName="Project" targetName="roboteq_msgs_generate_messages_eus" />
+      <config projectName="Project" targetName="diagnostic_msgs_generate_messages_eus" />
+      <config projectName="Project" targetName="sensor_msgs_generate_messages_nodejs" />
+      <config projectName="Project" targetName="std_msgs_generate_messages_cpp" />
+      <config projectName="Project" targetName="twist2roboteq_node" />
+      <config projectName="Project" targetName="diagnostic_msgs_generate_messages_py" />
+      <config projectName="Project" targetName="uuid_msgs_generate_messages_cpp" />
+      <config projectName="Project" targetName="gtest" />
+      <config projectName="Project" targetName="std_msgs_generate_messages_nodejs" />
+      <config projectName="Project" targetName="socketcan_interface_string" />
+      <config projectName="Project" targetName="rosgraph_msgs_generate_messages_lisp" />
+      <config projectName="Project" targetName="sensor_msgs_generate_messages_py" />
+      <config projectName="Project" targetName="std_srvs_generate_messages_nodejs" />
+      <config projectName="Project" targetName="can_msgs_generate_messages_nodejs" />
+      <config projectName="Project" targetName="can_msgs_generate_messages" />
+      <config projectName="Project" targetName="std_msgs_generate_messages_py" />
+      <config projectName="Project" targetName="tf_generate_messages_cpp" />
+      <config projectName="Project" targetName="roscpp_generate_messages_eus" />
+      <config projectName="Project" targetName="gmock" />
+      <config projectName="Project" targetName="doxygen" />
+      <config projectName="Project" targetName="roboteq_driver_node" />
+      <config projectName="Project" targetName="tests" />
+      <config projectName="Project" targetName="diagnostic_msgs_generate_messages_cpp" />
+      <config projectName="Project" targetName="std_msgs_generate_messages_eus" />
+      <config projectName="Project" targetName="can_msgs_generate_messages_py" />
+      <config projectName="Project" targetName="can_msgs_genlisp" />
+      <config projectName="Project" targetName="std_srvs_generate_messages_py" />
+      <config projectName="Project" targetName="run_tests" />
+      <config projectName="Project" targetName="roscpp_generate_messages_cpp" />
+      <config projectName="Project" targetName="actionlib_msgs_generate_messages_nodejs" />
+      <config projectName="Project" targetName="robot_localization_generate_messages_lisp" />
+      <config projectName="Project" targetName="tf2_msgs_generate_messages_lisp" />
+      <config projectName="Project" targetName="diagnostic_msgs_generate_messages_nodejs" />
+      <config projectName="Project" targetName="sensor_msgs_generate_messages_lisp" />
+      <config projectName="Project" targetName="uuid_msgs_generate_messages_py" />
+      <config projectName="Project" targetName="std_srvs_generate_messages_lisp" />
+      <config projectName="Project" targetName="tf_generate_messages_lisp" />
+      <config projectName="Project" targetName="can_msgs_gennodejs" />
+      <config projectName="Project" targetName="socketcan_dump" />
+      <config projectName="Project" targetName="robot_localization_generate_messages_eus" />
+      <config projectName="Project" targetName="geographic_msgs_generate_messages_py" />
+      <config projectName="Project" targetName="nav_msgs_generate_messages_nodejs" />
+      <config projectName="Project" targetName="_roboteq_msgs_generate_messages_check_deps_Status" />
+      <config projectName="Project" targetName="roboteq_msgs_generate_messages_cpp" />
+      <config projectName="Project" targetName="robot_localization_generate_messages_nodejs" />
+      <config projectName="Project" targetName="roscpp_generate_messages_lisp" />
+      <config projectName="Project" targetName="socketcan_to_topic_node" />
+      <config projectName="Project" targetName="_roboteq_msgs_generate_messages_check_deps_Feedback" />
+      <config projectName="Project" targetName="geometry_msgs_generate_messages_eus" />
+      <config projectName="Project" targetName="tf_generate_messages_py" />
+    </generated>
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="ROS" CONFIG_NAME="Debug" GENERATION_OPTIONS="-DCATKIN_DEVEL_PREFIX:PATH=/home/wmmc/MarsRover2018/Workspace/devel" GENERATION_DIR="$PROJECT_DIR$/../build" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="f0aab555-f3f0-47f4-a3eb-3be4b71e7eb1" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/duo3d_driver/CMakeLists.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/duo3d_driver/LICENSE" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/duo3d_driver/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/duo3d_driver/cfg/Duo3D.cfg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/duo3d_driver/include/DUOLib.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/duo3d_driver/include/Dense3DMT.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/duo3d_driver/launch/duo3d_camera.launch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/duo3d_driver/launch/duo3d_depth.launch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/duo3d_driver/launch/duo3d_imu.launch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/duo3d_driver/launch/rqt/depth_view.perspective" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/duo3d_driver/launch/rqt/stereo_view.perspective" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/duo3d_driver/launch/rviz/depth.rviz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/duo3d_driver/launch/rviz/imu.rviz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/duo3d_driver/lib/libDUO.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/duo3d_driver/lib/libDense3DMT.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/duo3d_driver/package.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/duo3d_driver/src/duo3d_driver.cpp" beforeDir="false" />
+    </list>
+    <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
+    <ignored path="$PROJECT_DIR$/../build/" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:ROS" />
+  <component name="FileEditorManager">
+    <leaf>
+      <file leaf-file-name="package.xml" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/twistmux_masterlogic/package.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="940">
+              <caret line="68" selection-start-line="68" selection-end-line="68" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="removethis.txt" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/twistmux_masterlogic/src/removethis.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="232">
+              <caret line="8" column="29" selection-start-line="8" selection-start-column="29" selection-end-line="8" selection-end-column="29" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="Git.Settings">
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/twistmux_masterlogic/src/removethis.txt" />
+      </list>
+    </option>
+  </component>
+  <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsGulpfileManager">
+    <detection-done>true</detection-done>
+    <sorting>DEFINITION_ORDER</sorting>
+  </component>
+  <component name="NodePackageJsonFileManager">
+    <packageJsonPaths />
+  </component>
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="130" />
+    <option name="y" value="48" />
+    <option name="width" value="1435" />
+    <option name="height" value="1952" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="MarsRover2018" type="b2602c69:ProjectViewProjectNode" />
+              <item name="src" type="47feb1d3:ProjectViewModuleNode" />
+            </path>
+            <path>
+              <item name="MarsRover2018" type="b2602c69:ProjectViewProjectNode" />
+              <item name="src" type="47feb1d3:ProjectViewModuleNode" />
+              <item name="MarsRover2018" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MarsRover2018" type="b2602c69:ProjectViewProjectNode" />
+              <item name="src" type="47feb1d3:ProjectViewModuleNode" />
+              <item name="MarsRover2018" type="462c0819:PsiDirectoryNode" />
+              <item name="Workspace" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MarsRover2018" type="b2602c69:ProjectViewProjectNode" />
+              <item name="src" type="47feb1d3:ProjectViewModuleNode" />
+              <item name="MarsRover2018" type="462c0819:PsiDirectoryNode" />
+              <item name="Workspace" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MarsRover2018" type="b2602c69:ProjectViewProjectNode" />
+              <item name="src" type="47feb1d3:ProjectViewModuleNode" />
+              <item name="MarsRover2018" type="462c0819:PsiDirectoryNode" />
+              <item name="Workspace" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="twistmux_masterlogic" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../.." />
+    <property name="settings.editor.selected.configurable" value="CMakeSettings" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="Application.Build All">
+    <configuration name="Build All" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" CONFIG_NAME="ROS" EXPLICIT_BUILD_TARGET_NAME="all" />
+    <configuration name="_can_msgs_generate_messages_check_deps_Frame" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="_can_msgs_generate_messages_check_deps_Frame" CONFIG_NAME="ROS" />
+    <configuration name="_catkin_empty_exported_target" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="_catkin_empty_exported_target" CONFIG_NAME="ROS" />
+    <configuration name="_roboteq_msgs_generate_messages_check_deps_Command" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="_roboteq_msgs_generate_messages_check_deps_Command" CONFIG_NAME="ROS" />
+    <configuration name="_roboteq_msgs_generate_messages_check_deps_Feedback" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="_roboteq_msgs_generate_messages_check_deps_Feedback" CONFIG_NAME="ROS" />
+    <configuration name="_roboteq_msgs_generate_messages_check_deps_Status" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="_roboteq_msgs_generate_messages_check_deps_Status" CONFIG_NAME="ROS" />
+    <configuration name="_run_tests_socketcan_interface" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="_run_tests_socketcan_interface" CONFIG_NAME="ROS" />
+    <configuration name="_run_tests_socketcan_interface_gtest" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="_run_tests_socketcan_interface_gtest" CONFIG_NAME="ROS" />
+    <configuration name="_run_tests_socketcan_interface_gtest_socketcan_interface-test_dummy_interface" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="_run_tests_socketcan_interface_gtest_socketcan_interface-test_dummy_interface" CONFIG_NAME="ROS" />
+    <configuration name="actionlib_generate_messages_cpp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="actionlib_generate_messages_cpp" CONFIG_NAME="ROS" />
+    <configuration name="actionlib_generate_messages_eus" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="actionlib_generate_messages_eus" CONFIG_NAME="ROS" />
+    <configuration name="actionlib_generate_messages_lisp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="actionlib_generate_messages_lisp" CONFIG_NAME="ROS" />
+    <configuration name="actionlib_generate_messages_nodejs" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="actionlib_generate_messages_nodejs" CONFIG_NAME="ROS" />
+    <configuration name="actionlib_generate_messages_py" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="actionlib_generate_messages_py" CONFIG_NAME="ROS" />
+    <configuration name="actionlib_msgs_generate_messages_cpp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="actionlib_msgs_generate_messages_cpp" CONFIG_NAME="ROS" />
+    <configuration name="actionlib_msgs_generate_messages_eus" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="actionlib_msgs_generate_messages_eus" CONFIG_NAME="ROS" />
+    <configuration name="actionlib_msgs_generate_messages_lisp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="actionlib_msgs_generate_messages_lisp" CONFIG_NAME="ROS" />
+    <configuration name="actionlib_msgs_generate_messages_nodejs" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="actionlib_msgs_generate_messages_nodejs" CONFIG_NAME="ROS" />
+    <configuration name="actionlib_msgs_generate_messages_py" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="actionlib_msgs_generate_messages_py" CONFIG_NAME="ROS" />
+    <configuration name="can_msgs_gencpp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="can_msgs_gencpp" CONFIG_NAME="ROS" />
+    <configuration name="can_msgs_generate_messages" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="can_msgs_generate_messages" CONFIG_NAME="ROS" />
+    <configuration name="can_msgs_generate_messages_cpp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="can_msgs_generate_messages_cpp" CONFIG_NAME="ROS" />
+    <configuration name="can_msgs_generate_messages_eus" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="can_msgs_generate_messages_eus" CONFIG_NAME="ROS" />
+    <configuration name="can_msgs_generate_messages_lisp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="can_msgs_generate_messages_lisp" CONFIG_NAME="ROS" />
+    <configuration name="can_msgs_generate_messages_nodejs" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="can_msgs_generate_messages_nodejs" CONFIG_NAME="ROS" />
+    <configuration name="can_msgs_generate_messages_py" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="can_msgs_generate_messages_py" CONFIG_NAME="ROS" />
+    <configuration name="can_msgs_geneus" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="can_msgs_geneus" CONFIG_NAME="ROS" />
+    <configuration name="can_msgs_genlisp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="can_msgs_genlisp" CONFIG_NAME="ROS" />
+    <configuration name="can_msgs_gennodejs" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="can_msgs_gennodejs" CONFIG_NAME="ROS" />
+    <configuration name="can_msgs_genpy" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="can_msgs_genpy" CONFIG_NAME="ROS" />
+    <configuration name="clean_test_results" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="clean_test_results" CONFIG_NAME="ROS" />
+    <configuration name="clean_test_results_socketcan_interface" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="clean_test_results_socketcan_interface" CONFIG_NAME="ROS" />
+    <configuration name="diagnostic_msgs_generate_messages_cpp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="diagnostic_msgs_generate_messages_cpp" CONFIG_NAME="ROS" />
+    <configuration name="diagnostic_msgs_generate_messages_eus" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="diagnostic_msgs_generate_messages_eus" CONFIG_NAME="ROS" />
+    <configuration name="diagnostic_msgs_generate_messages_lisp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="diagnostic_msgs_generate_messages_lisp" CONFIG_NAME="ROS" />
+    <configuration name="diagnostic_msgs_generate_messages_nodejs" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="diagnostic_msgs_generate_messages_nodejs" CONFIG_NAME="ROS" />
+    <configuration name="diagnostic_msgs_generate_messages_py" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="diagnostic_msgs_generate_messages_py" CONFIG_NAME="ROS" />
+    <configuration name="download_extra_data" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="download_extra_data" CONFIG_NAME="ROS" />
+    <configuration name="doxygen" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="doxygen" CONFIG_NAME="ROS" />
+    <configuration name="geographic_msgs_generate_messages_cpp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="geographic_msgs_generate_messages_cpp" CONFIG_NAME="ROS" />
+    <configuration name="geographic_msgs_generate_messages_eus" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="geographic_msgs_generate_messages_eus" CONFIG_NAME="ROS" />
+    <configuration name="geographic_msgs_generate_messages_lisp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="geographic_msgs_generate_messages_lisp" CONFIG_NAME="ROS" />
+    <configuration name="geographic_msgs_generate_messages_nodejs" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="geographic_msgs_generate_messages_nodejs" CONFIG_NAME="ROS" />
+    <configuration name="geographic_msgs_generate_messages_py" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="geographic_msgs_generate_messages_py" CONFIG_NAME="ROS" />
+    <configuration name="geometry_msgs_generate_messages_cpp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="geometry_msgs_generate_messages_cpp" CONFIG_NAME="ROS" />
+    <configuration name="geometry_msgs_generate_messages_eus" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="geometry_msgs_generate_messages_eus" CONFIG_NAME="ROS" />
+    <configuration name="geometry_msgs_generate_messages_lisp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="geometry_msgs_generate_messages_lisp" CONFIG_NAME="ROS" />
+    <configuration name="geometry_msgs_generate_messages_nodejs" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="geometry_msgs_generate_messages_nodejs" CONFIG_NAME="ROS" />
+    <configuration name="geometry_msgs_generate_messages_py" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="geometry_msgs_generate_messages_py" CONFIG_NAME="ROS" />
+    <configuration name="gmock" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="gmock" CONFIG_NAME="ROS" />
+    <configuration name="gmock_main" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="gmock_main" CONFIG_NAME="ROS" />
+    <configuration name="gtest" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="gtest" CONFIG_NAME="ROS" />
+    <configuration name="gtest_main" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="gtest_main" CONFIG_NAME="ROS" />
+    <configuration name="joy_to_twist" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="joy_to_twist" CONFIG_NAME="ROS" RUN_TARGET_PROJECT_NAME="Project" RUN_TARGET_NAME="joy_to_twist" />
+    <configuration name="nav_msgs_generate_messages_cpp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="nav_msgs_generate_messages_cpp" CONFIG_NAME="ROS" />
+    <configuration name="nav_msgs_generate_messages_eus" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="nav_msgs_generate_messages_eus" CONFIG_NAME="ROS" />
+    <configuration name="nav_msgs_generate_messages_lisp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="nav_msgs_generate_messages_lisp" CONFIG_NAME="ROS" />
+    <configuration name="nav_msgs_generate_messages_nodejs" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="nav_msgs_generate_messages_nodejs" CONFIG_NAME="ROS" />
+    <configuration name="nav_msgs_generate_messages_py" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="nav_msgs_generate_messages_py" CONFIG_NAME="ROS" />
+    <configuration name="robot_localization_generate_messages_cpp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="robot_localization_generate_messages_cpp" CONFIG_NAME="ROS" />
+    <configuration name="robot_localization_generate_messages_eus" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="robot_localization_generate_messages_eus" CONFIG_NAME="ROS" />
+    <configuration name="robot_localization_generate_messages_lisp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="robot_localization_generate_messages_lisp" CONFIG_NAME="ROS" />
+    <configuration name="robot_localization_generate_messages_nodejs" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="robot_localization_generate_messages_nodejs" CONFIG_NAME="ROS" />
+    <configuration name="robot_localization_generate_messages_py" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="robot_localization_generate_messages_py" CONFIG_NAME="ROS" />
+    <configuration name="roboteq_driver_node" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="roboteq_driver_node" CONFIG_NAME="ROS" RUN_TARGET_PROJECT_NAME="Project" RUN_TARGET_NAME="roboteq_driver_node" />
+    <configuration name="roboteq_driver_script" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="roboteq_driver_script" CONFIG_NAME="ROS" />
+    <configuration name="roboteq_msgs_gencpp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="roboteq_msgs_gencpp" CONFIG_NAME="ROS" />
+    <configuration name="roboteq_msgs_generate_messages" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="roboteq_msgs_generate_messages" CONFIG_NAME="ROS" />
+    <configuration name="roboteq_msgs_generate_messages_cpp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="roboteq_msgs_generate_messages_cpp" CONFIG_NAME="ROS" />
+    <configuration name="roboteq_msgs_generate_messages_eus" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="roboteq_msgs_generate_messages_eus" CONFIG_NAME="ROS" />
+    <configuration name="roboteq_msgs_generate_messages_lisp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="roboteq_msgs_generate_messages_lisp" CONFIG_NAME="ROS" />
+    <configuration name="roboteq_msgs_generate_messages_nodejs" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="roboteq_msgs_generate_messages_nodejs" CONFIG_NAME="ROS" />
+    <configuration name="roboteq_msgs_generate_messages_py" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="roboteq_msgs_generate_messages_py" CONFIG_NAME="ROS" />
+    <configuration name="roboteq_msgs_geneus" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="roboteq_msgs_geneus" CONFIG_NAME="ROS" />
+    <configuration name="roboteq_msgs_genlisp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="roboteq_msgs_genlisp" CONFIG_NAME="ROS" />
+    <configuration name="roboteq_msgs_gennodejs" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="roboteq_msgs_gennodejs" CONFIG_NAME="ROS" />
+    <configuration name="roboteq_msgs_genpy" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="roboteq_msgs_genpy" CONFIG_NAME="ROS" />
+    <configuration name="roscpp_generate_messages_cpp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="roscpp_generate_messages_cpp" CONFIG_NAME="ROS" />
+    <configuration name="roscpp_generate_messages_eus" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="roscpp_generate_messages_eus" CONFIG_NAME="ROS" />
+    <configuration name="roscpp_generate_messages_lisp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="roscpp_generate_messages_lisp" CONFIG_NAME="ROS" />
+    <configuration name="roscpp_generate_messages_nodejs" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="roscpp_generate_messages_nodejs" CONFIG_NAME="ROS" />
+    <configuration name="roscpp_generate_messages_py" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="roscpp_generate_messages_py" CONFIG_NAME="ROS" />
+    <configuration name="rosgraph_msgs_generate_messages_cpp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="rosgraph_msgs_generate_messages_cpp" CONFIG_NAME="ROS" />
+    <configuration name="rosgraph_msgs_generate_messages_eus" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="rosgraph_msgs_generate_messages_eus" CONFIG_NAME="ROS" />
+    <configuration name="rosgraph_msgs_generate_messages_lisp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="rosgraph_msgs_generate_messages_lisp" CONFIG_NAME="ROS" />
+    <configuration name="rosgraph_msgs_generate_messages_nodejs" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="rosgraph_msgs_generate_messages_nodejs" CONFIG_NAME="ROS" />
+    <configuration name="rosgraph_msgs_generate_messages_py" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="rosgraph_msgs_generate_messages_py" CONFIG_NAME="ROS" />
+    <configuration name="run_tests" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="run_tests" CONFIG_NAME="ROS" />
+    <configuration name="run_tests_socketcan_interface" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="run_tests_socketcan_interface" CONFIG_NAME="ROS" />
+    <configuration name="run_tests_socketcan_interface_gtest" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="run_tests_socketcan_interface_gtest" CONFIG_NAME="ROS" />
+    <configuration name="run_tests_socketcan_interface_gtest_socketcan_interface-test_dummy_interface" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="run_tests_socketcan_interface_gtest_socketcan_interface-test_dummy_interface" CONFIG_NAME="ROS" />
+    <configuration name="sensor_msgs_generate_messages_cpp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="sensor_msgs_generate_messages_cpp" CONFIG_NAME="ROS" />
+    <configuration name="sensor_msgs_generate_messages_eus" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="sensor_msgs_generate_messages_eus" CONFIG_NAME="ROS" />
+    <configuration name="sensor_msgs_generate_messages_lisp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="sensor_msgs_generate_messages_lisp" CONFIG_NAME="ROS" />
+    <configuration name="sensor_msgs_generate_messages_nodejs" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="sensor_msgs_generate_messages_nodejs" CONFIG_NAME="ROS" />
+    <configuration name="sensor_msgs_generate_messages_py" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="sensor_msgs_generate_messages_py" CONFIG_NAME="ROS" />
+    <configuration name="socketcan_dump" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="socketcan_dump" CONFIG_NAME="ROS" RUN_TARGET_PROJECT_NAME="Project" RUN_TARGET_NAME="socketcan_dump" />
+    <configuration name="socketcan_interface-test_dummy_interface" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="socketcan_interface-test_dummy_interface" CONFIG_NAME="ROS" RUN_TARGET_PROJECT_NAME="Project" RUN_TARGET_NAME="socketcan_interface-test_dummy_interface" />
+    <configuration name="socketcan_interface_plugin" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="socketcan_interface_plugin" CONFIG_NAME="ROS" />
+    <configuration name="socketcan_interface_string" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="socketcan_interface_string" CONFIG_NAME="ROS" />
+    <configuration name="socketcan_to_topic" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="socketcan_to_topic" CONFIG_NAME="ROS" />
+    <configuration name="socketcan_to_topic_node" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="socketcan_to_topic_node" CONFIG_NAME="ROS" RUN_TARGET_PROJECT_NAME="Project" RUN_TARGET_NAME="socketcan_to_topic_node" />
+    <configuration name="state_select" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="state_select" CONFIG_NAME="ROS" RUN_TARGET_PROJECT_NAME="Project" RUN_TARGET_NAME="state_select" />
+    <configuration name="std_msgs_generate_messages_cpp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="std_msgs_generate_messages_cpp" CONFIG_NAME="ROS" />
+    <configuration name="std_msgs_generate_messages_eus" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="std_msgs_generate_messages_eus" CONFIG_NAME="ROS" />
+    <configuration name="std_msgs_generate_messages_lisp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="std_msgs_generate_messages_lisp" CONFIG_NAME="ROS" />
+    <configuration name="std_msgs_generate_messages_nodejs" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="std_msgs_generate_messages_nodejs" CONFIG_NAME="ROS" />
+    <configuration name="std_msgs_generate_messages_py" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="std_msgs_generate_messages_py" CONFIG_NAME="ROS" />
+    <configuration name="std_srvs_generate_messages_cpp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="std_srvs_generate_messages_cpp" CONFIG_NAME="ROS" />
+    <configuration name="std_srvs_generate_messages_eus" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="std_srvs_generate_messages_eus" CONFIG_NAME="ROS" />
+    <configuration name="std_srvs_generate_messages_lisp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="std_srvs_generate_messages_lisp" CONFIG_NAME="ROS" />
+    <configuration name="std_srvs_generate_messages_nodejs" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="std_srvs_generate_messages_nodejs" CONFIG_NAME="ROS" />
+    <configuration name="std_srvs_generate_messages_py" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="std_srvs_generate_messages_py" CONFIG_NAME="ROS" />
+    <configuration name="tests" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="tests" CONFIG_NAME="ROS" />
+    <configuration name="tf2_msgs_generate_messages_cpp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="tf2_msgs_generate_messages_cpp" CONFIG_NAME="ROS" />
+    <configuration name="tf2_msgs_generate_messages_eus" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="tf2_msgs_generate_messages_eus" CONFIG_NAME="ROS" />
+    <configuration name="tf2_msgs_generate_messages_lisp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="tf2_msgs_generate_messages_lisp" CONFIG_NAME="ROS" />
+    <configuration name="tf2_msgs_generate_messages_nodejs" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="tf2_msgs_generate_messages_nodejs" CONFIG_NAME="ROS" />
+    <configuration name="tf2_msgs_generate_messages_py" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="tf2_msgs_generate_messages_py" CONFIG_NAME="ROS" />
+    <configuration name="tf_generate_messages_cpp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="tf_generate_messages_cpp" CONFIG_NAME="ROS" />
+    <configuration name="tf_generate_messages_eus" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="tf_generate_messages_eus" CONFIG_NAME="ROS" />
+    <configuration name="tf_generate_messages_lisp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="tf_generate_messages_lisp" CONFIG_NAME="ROS" />
+    <configuration name="tf_generate_messages_nodejs" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="tf_generate_messages_nodejs" CONFIG_NAME="ROS" />
+    <configuration name="tf_generate_messages_py" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="tf_generate_messages_py" CONFIG_NAME="ROS" />
+    <configuration name="topic_to_socketcan" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="topic_to_socketcan" CONFIG_NAME="ROS" />
+    <configuration name="topic_to_socketcan_node" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="topic_to_socketcan_node" CONFIG_NAME="ROS" RUN_TARGET_PROJECT_NAME="Project" RUN_TARGET_NAME="topic_to_socketcan_node" />
+    <configuration name="twist2roboteq_node" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="twist2roboteq_node" CONFIG_NAME="ROS" RUN_TARGET_PROJECT_NAME="Project" RUN_TARGET_NAME="twist2roboteq_node" />
+    <configuration name="twist2roboteq_odom" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="twist2roboteq_odom" CONFIG_NAME="ROS" RUN_TARGET_PROJECT_NAME="Project" RUN_TARGET_NAME="twist2roboteq_odom" />
+    <configuration name="uuid_msgs_generate_messages_cpp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="uuid_msgs_generate_messages_cpp" CONFIG_NAME="ROS" />
+    <configuration name="uuid_msgs_generate_messages_eus" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="uuid_msgs_generate_messages_eus" CONFIG_NAME="ROS" />
+    <configuration name="uuid_msgs_generate_messages_lisp" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="uuid_msgs_generate_messages_lisp" CONFIG_NAME="ROS" />
+    <configuration name="uuid_msgs_generate_messages_nodejs" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="uuid_msgs_generate_messages_nodejs" CONFIG_NAME="ROS" />
+    <configuration name="uuid_msgs_generate_messages_py" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="uuid_msgs_generate_messages_py" CONFIG_NAME="ROS" />
+    <list>
+      <item itemvalue="Application.Build All" />
+      <item itemvalue="Application.clean_test_results" />
+      <item itemvalue="Application.download_extra_data" />
+      <item itemvalue="Application.doxygen" />
+      <item itemvalue="Application.run_tests" />
+      <item itemvalue="Application.tests" />
+      <item itemvalue="Application._catkin_empty_exported_target" />
+      <item itemvalue="Application.roscpp_generate_messages_cpp" />
+      <item itemvalue="Application.roscpp_generate_messages_eus" />
+      <item itemvalue="Application.roscpp_generate_messages_lisp" />
+      <item itemvalue="Application.roscpp_generate_messages_nodejs" />
+      <item itemvalue="Application.roscpp_generate_messages_py" />
+      <item itemvalue="Application.rosgraph_msgs_generate_messages_cpp" />
+      <item itemvalue="Application.rosgraph_msgs_generate_messages_eus" />
+      <item itemvalue="Application.rosgraph_msgs_generate_messages_lisp" />
+      <item itemvalue="Application.rosgraph_msgs_generate_messages_nodejs" />
+      <item itemvalue="Application.rosgraph_msgs_generate_messages_py" />
+      <item itemvalue="Application.roboteq_driver_script" />
+      <item itemvalue="Application.roboteq_driver_node" />
+      <item itemvalue="Application._roboteq_msgs_generate_messages_check_deps_Command" />
+      <item itemvalue="Application._roboteq_msgs_generate_messages_check_deps_Feedback" />
+      <item itemvalue="Application._roboteq_msgs_generate_messages_check_deps_Status" />
+      <item itemvalue="Application.roboteq_msgs_gencpp" />
+      <item itemvalue="Application.roboteq_msgs_generate_messages" />
+      <item itemvalue="Application.roboteq_msgs_generate_messages_cpp" />
+      <item itemvalue="Application.roboteq_msgs_generate_messages_eus" />
+      <item itemvalue="Application.roboteq_msgs_generate_messages_lisp" />
+      <item itemvalue="Application.roboteq_msgs_generate_messages_nodejs" />
+      <item itemvalue="Application.roboteq_msgs_generate_messages_py" />
+      <item itemvalue="Application.roboteq_msgs_geneus" />
+      <item itemvalue="Application.roboteq_msgs_genlisp" />
+      <item itemvalue="Application.roboteq_msgs_gennodejs" />
+      <item itemvalue="Application.roboteq_msgs_genpy" />
+      <item itemvalue="Application._can_msgs_generate_messages_check_deps_Frame" />
+      <item itemvalue="Application.can_msgs_gencpp" />
+      <item itemvalue="Application.can_msgs_generate_messages" />
+      <item itemvalue="Application.can_msgs_generate_messages_cpp" />
+      <item itemvalue="Application.can_msgs_generate_messages_eus" />
+      <item itemvalue="Application.can_msgs_generate_messages_lisp" />
+      <item itemvalue="Application.can_msgs_generate_messages_nodejs" />
+      <item itemvalue="Application.can_msgs_generate_messages_py" />
+      <item itemvalue="Application.can_msgs_geneus" />
+      <item itemvalue="Application.can_msgs_genlisp" />
+      <item itemvalue="Application.can_msgs_gennodejs" />
+      <item itemvalue="Application.can_msgs_genpy" />
+      <item itemvalue="Application.std_msgs_generate_messages_cpp" />
+      <item itemvalue="Application.std_msgs_generate_messages_eus" />
+      <item itemvalue="Application.std_msgs_generate_messages_lisp" />
+      <item itemvalue="Application.std_msgs_generate_messages_nodejs" />
+      <item itemvalue="Application.std_msgs_generate_messages_py" />
+      <item itemvalue="Application.socketcan_to_topic" />
+      <item itemvalue="Application.socketcan_to_topic_node" />
+      <item itemvalue="Application.topic_to_socketcan" />
+      <item itemvalue="Application.topic_to_socketcan_node" />
+      <item itemvalue="Application._run_tests_socketcan_interface" />
+      <item itemvalue="Application._run_tests_socketcan_interface_gtest" />
+      <item itemvalue="Application._run_tests_socketcan_interface_gtest_socketcan_interface-test_dummy_interface" />
+      <item itemvalue="Application.clean_test_results_socketcan_interface" />
+      <item itemvalue="Application.run_tests_socketcan_interface" />
+      <item itemvalue="Application.run_tests_socketcan_interface_gtest" />
+      <item itemvalue="Application.run_tests_socketcan_interface_gtest_socketcan_interface-test_dummy_interface" />
+      <item itemvalue="Application.socketcan_dump" />
+      <item itemvalue="Application.socketcan_interface-test_dummy_interface" />
+      <item itemvalue="Application.socketcan_interface_plugin" />
+      <item itemvalue="Application.socketcan_interface_string" />
+      <item itemvalue="Application.actionlib_generate_messages_cpp" />
+      <item itemvalue="Application.actionlib_generate_messages_eus" />
+      <item itemvalue="Application.actionlib_generate_messages_lisp" />
+      <item itemvalue="Application.actionlib_generate_messages_nodejs" />
+      <item itemvalue="Application.actionlib_generate_messages_py" />
+      <item itemvalue="Application.actionlib_msgs_generate_messages_cpp" />
+      <item itemvalue="Application.actionlib_msgs_generate_messages_eus" />
+      <item itemvalue="Application.actionlib_msgs_generate_messages_lisp" />
+      <item itemvalue="Application.actionlib_msgs_generate_messages_nodejs" />
+      <item itemvalue="Application.actionlib_msgs_generate_messages_py" />
+      <item itemvalue="Application.diagnostic_msgs_generate_messages_cpp" />
+      <item itemvalue="Application.diagnostic_msgs_generate_messages_eus" />
+      <item itemvalue="Application.diagnostic_msgs_generate_messages_lisp" />
+      <item itemvalue="Application.diagnostic_msgs_generate_messages_nodejs" />
+      <item itemvalue="Application.diagnostic_msgs_generate_messages_py" />
+      <item itemvalue="Application.geographic_msgs_generate_messages_cpp" />
+      <item itemvalue="Application.geographic_msgs_generate_messages_eus" />
+      <item itemvalue="Application.geographic_msgs_generate_messages_lisp" />
+      <item itemvalue="Application.geographic_msgs_generate_messages_nodejs" />
+      <item itemvalue="Application.geographic_msgs_generate_messages_py" />
+      <item itemvalue="Application.geometry_msgs_generate_messages_cpp" />
+      <item itemvalue="Application.geometry_msgs_generate_messages_eus" />
+      <item itemvalue="Application.geometry_msgs_generate_messages_lisp" />
+      <item itemvalue="Application.geometry_msgs_generate_messages_nodejs" />
+      <item itemvalue="Application.geometry_msgs_generate_messages_py" />
+      <item itemvalue="Application.nav_msgs_generate_messages_cpp" />
+      <item itemvalue="Application.nav_msgs_generate_messages_eus" />
+      <item itemvalue="Application.nav_msgs_generate_messages_lisp" />
+      <item itemvalue="Application.nav_msgs_generate_messages_nodejs" />
+      <item itemvalue="Application.nav_msgs_generate_messages_py" />
+      <item itemvalue="Application.robot_localization_generate_messages_cpp" />
+      <item itemvalue="Application.robot_localization_generate_messages_eus" />
+      <item itemvalue="Application.robot_localization_generate_messages_lisp" />
+      <item itemvalue="Application.robot_localization_generate_messages_nodejs" />
+      <item itemvalue="Application.robot_localization_generate_messages_py" />
+      <item itemvalue="Application.sensor_msgs_generate_messages_cpp" />
+      <item itemvalue="Application.sensor_msgs_generate_messages_eus" />
+      <item itemvalue="Application.sensor_msgs_generate_messages_lisp" />
+      <item itemvalue="Application.sensor_msgs_generate_messages_nodejs" />
+      <item itemvalue="Application.sensor_msgs_generate_messages_py" />
+      <item itemvalue="Application.std_srvs_generate_messages_cpp" />
+      <item itemvalue="Application.std_srvs_generate_messages_eus" />
+      <item itemvalue="Application.std_srvs_generate_messages_lisp" />
+      <item itemvalue="Application.std_srvs_generate_messages_nodejs" />
+      <item itemvalue="Application.std_srvs_generate_messages_py" />
+      <item itemvalue="Application.tf2_msgs_generate_messages_cpp" />
+      <item itemvalue="Application.tf2_msgs_generate_messages_eus" />
+      <item itemvalue="Application.tf2_msgs_generate_messages_lisp" />
+      <item itemvalue="Application.tf2_msgs_generate_messages_nodejs" />
+      <item itemvalue="Application.tf2_msgs_generate_messages_py" />
+      <item itemvalue="Application.uuid_msgs_generate_messages_cpp" />
+      <item itemvalue="Application.uuid_msgs_generate_messages_eus" />
+      <item itemvalue="Application.uuid_msgs_generate_messages_lisp" />
+      <item itemvalue="Application.uuid_msgs_generate_messages_nodejs" />
+      <item itemvalue="Application.uuid_msgs_generate_messages_py" />
+      <item itemvalue="Application.tf_generate_messages_cpp" />
+      <item itemvalue="Application.tf_generate_messages_eus" />
+      <item itemvalue="Application.tf_generate_messages_lisp" />
+      <item itemvalue="Application.tf_generate_messages_nodejs" />
+      <item itemvalue="Application.tf_generate_messages_py" />
+      <item itemvalue="Application.twist2roboteq_node" />
+      <item itemvalue="Application.twist2roboteq_odom" />
+      <item itemvalue="Application.joy_to_twist" />
+      <item itemvalue="Application.state_select" />
+      <item itemvalue="Application.gmock" />
+      <item itemvalue="Application.gmock_main" />
+      <item itemvalue="Application.gtest" />
+      <item itemvalue="Application.gtest_main" />
+    </list>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="f0aab555-f3f0-47f4-a3eb-3be4b71e7eb1" name="Default" comment="" />
+      <created>1526862555946</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1526862555946</updated>
+      <workItem from="1526862558716" duration="488000" />
+      <workItem from="1526863343308" duration="91000" />
+      <workItem from="1526863459393" duration="23000" />
+      <workItem from="1526865395282" duration="1629000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="2231000" />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="129" y="13" width="2872" height="1988" extended-state="6" />
+    <layout>
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.33310103" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Messages" sideWeight="0.49965158" visible="true" weight="0.3303671" />
+      <window_info anchor="bottom" id="CMake" order="7" sideWeight="0.49965158" weight="0.145" />
+      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.50034845" side_tool="true" visible="true" weight="0.3303671" />
+      <window_info anchor="bottom" id="Version Control" order="7" />
+      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info anchor="bottom" id="Terminal" order="7" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Find" order="1" />
+    </layout>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/twistmux_masterlogic/package.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="940">
+          <caret line="68" selection-start-line="68" selection-end-line="68" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/twistmux_masterlogic/src/removethis.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="232">
+          <caret line="8" column="29" selection-start-line="8" selection-start-column="29" selection-end-line="8" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>

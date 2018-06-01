@@ -1,6 +1,6 @@
 <launch>
-  <include file="$(find xbox_controller)/launch/state_select.launch"/>
+  <node name="joy_to_twist" pkg="xbox_controller" type="joy_to_twist"/>
   <node name="twist2roboteq_node" pkg="twist2roboteq" type="twist2roboteq_node"/>
   <include file="$(find roboteq_driver)/launch/example.launch"/>
-  <include file="$(find ik_control)/launch/rover_launch.launch"/>
+  <include file="/home/uwrt/MarsRover2018/Workspace/cameras.launch"/>
 </launch>

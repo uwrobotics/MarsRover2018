@@ -13,6 +13,7 @@
 #include <std_msgs/Bool.h>
 #include <ros/ros.h>
 #include <sensor_msgs/NavSatFix.h>
+#include <sensor_msgs/Imu.h>
 
 #include <geometry_msgs/Point.h>
 #include <mutex>
@@ -26,8 +27,10 @@ public:
 private:
   // Subscriber callbacks
   void GoalGPSCallback(sensor_msgs::NavSatFixConstPtr goal);
+  void CurGPSCallback(sensor_msgs::NavSatFixConstPtr gps);
   void OccupancyCallback(occupancy_grid::OccupancyGrid::ConstPtr grid);
-  void OdometryCallback(nav_msgs::Odometry::ConstPtr odemetry);
+  //void OdometryCallback(nav_msgs::Odometry::ConstPtr odemetry);
+void OdometryCallback(sensor_msgs::Imu::ConstPtr odometry);
   void EnableCallback(std_msgs::BoolConstPtr pEnableMsg);
   // publisher thread
   void VelocityPublisher();
@@ -37,6 +40,7 @@ private:
   ros::Subscriber *m_pOccupancySub;
   ros::Subscriber *m_pGoalGpsSub;
   ros::Subscriber *m_pOdometrySub;
+  ros::Subscriber *m_pGpsSub;
   ros::Subscriber *m_pEnableSub;
   ros::Publisher *m_pVelPub;
   ros::Publisher *m_pStatusPub;
@@ -54,6 +58,7 @@ private:
   const RobotParams_t &m_robotParams;
 
   bool m_bOdomReceived;
+  bool m_bGpsReceived;
   bool m_bGoalReceived;
   bool m_bGoalReached;
   bool m_bGoalInRange;

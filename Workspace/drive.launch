@@ -1,0 +1,5 @@
+<launch>
+  <node name="joy_to_twist" pkg="xbox_controller" type="joy_to_twist"/>
+  <node name="twist2roboteq_node" pkg="twist2roboteq" type="twist2roboteq_node"/>
+  <include file="$(find roboteq_driver)/launch/example.launch"/>
+</launch>

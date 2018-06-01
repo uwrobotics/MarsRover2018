@@ -6,7 +6,7 @@
 
 
     <!-- Subcomponents -->
-    <include file="$(find occupancy_grid)/launch/occupancy_grid.launch" />
+    <include file="$(find occupancy_grid)/launch/occupancy_grid_new_Rover.launch" />
     <include file="$(find local_planner)/launch/local_planner_stand_alone.launch" />
     <include file="$(find spiral)/launch/spiral.launch" />
     <!-- ball tracking -->
@@ -15,11 +15,7 @@
     <!-- estop -->
     <arg name="EStopConfig" default="$(find xbox_controller)/config/e_stop_params.yaml"/>
     <rosparam command="load" file="$(arg EStopConfig)"/>
-    <node name="joy_launcher" pkg="joy" type="joy_node">
-        <param name="dev" type="string" value="/dev/input/js0" />
-    </node>
     <node name="emergency_stop" pkg="xbox_controller" type="emergency_stop" output="screen">
-        <remap from="/autonomy_joy" to="/joy"/>
     </node>
 
     <node name="estop_joy_to_twist" pkg="xbox_controller" type="joy_to_twist">

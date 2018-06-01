@@ -1,0 +1,8 @@
+<launch>
+    <include file="$(find autonomy_master)/launch/autonomy.launch"/>
+
+    <node pkg="twist2roboteq" type="twist2roboteq_node" name="twist2roboteq_node" respawn="true"/>
+    <node pkg="twist2roboteq" type="twist2roboteq_odom" name="twist2roboteq_odom" respawn="true"/>
+
+    <include file="$(find roboteq_driver)/launch/example.launch"/>
+</launch>

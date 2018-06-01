@@ -171,7 +171,7 @@ void CAutonomyMasterLogic::UpdateState() {
     }
     break;
   case eAutonomyState::IDLE:
-    if (m_pGoalGps && TimeSinceMessage(m_pGoalGps->header.stamp) < 10.0) {
+    if (m_pGoalGps) {
       StateTransition(eAutonomyState::LOCALPLAN);
     }
     break;
