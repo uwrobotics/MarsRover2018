@@ -63,8 +63,11 @@ float MAX_ARM_SPEED = 0.12; //Measured in m/s, semi-arbitrarily selected maximum
 float LINK_LENGTH[4] = {0.3,0.3,0.43};
 const float BACK_EMF_CONSTANT[NUM_ARM_MOTORS] = {0.0163,0.0273,0.0485,0.0226,0.0354}; //rad/(sV), measured by giving motors 12V and timing how long it takes to make a certain angle
 float weightJoints[NUM_ARM_MOTORS] = {1,1,1,1,1}; //Weight factors for joint angle PWM outputs that should tend the output towards the correct values
-const float LEARNING_RATE[NUM_ARM_MOTORS] = {1.2,1.2,1.2,1.2,1.2}; //Learning rate for each joint
+const float LEARNING_RATE[NUM_ARM_MOTORS] = {0.012,0.012,0.012,0.012,0.012}; //Learning rate for each joint
 const float RUNTIME_FACTOR = 6000;
+const float CONVERGE_LIMIT = 0.0004;
+const int CONV_COUNT_LIMIT = 300;
+int convCount[NUM_ARM_MOTORS] = {0,0,0,0,0};
 
 
 float outputPWM[NUM_DATA] = {0,0,0,0,0,0};
@@ -215,22 +218,11 @@ void reverseModel() {
     qNext[1] = solve_for_q1(qCurr, LINK_LENGTH, armStateInertial);
     qNext[2] = solve_for_q2(qCurr, LINK_LENGTH, armStateInertial);
 
-    //ROS_INFO("qNext1 and qCurr1: %f and %f \n", qNext[1], qCurr[1]);
-    //ROS_INFO("qNext2 and qCurr2: %f and %f \n", qNext[2], qCurr[2]);
+    //ROS_INFO("qNext1 and qCurr1: %f and %f \n", qNext1, qCurr[1]);
+    //ROS_INFO("qNext2 and qCurr2: %f and %f \n", qNext2, qCurr[2]);
 
     outputPWM[1] = (qNext[1] - qCurr[1])/(VOLTAGE*BACK_EMF_CONSTANT[1]*LOOP_PERIOD_MS/1000);
     outputPWM[2] = (qNext[2] - qCurr[2])/(VOLTAGE*BACK_EMF_CONSTANT[2]*LOOP_PERIOD_MS/1000);
-
-    // In case the next position crosses across the zero (e.g. go from 1 degrees to 359 degrees)
-    for (int j = 1; j <= 2; j++) {
-        if ((qNext[j] - qCurr[j]) > PI) {
-            outputPWM[j] = -(qNext[j] - qCurr[j] - 2*PI)/(VOLTAGE*BACK_EMF_CONSTANT[j]*LOOP_PERIOD_MS/1000);
-        }
-        else if ((qNext[j] - qCurr[j]) < -PI) {
-            outputPWM[j] = -(qNext[j] - qCurr[j] + 2*PI)/(VOLTAGE*BACK_EMF_CONSTANT[j]*LOOP_PERIOD_MS/1000);
-
-        }
-    }
 
     for (int j = 1; j <= 2; j++) {
         if (outputPWM[j] > 1) {
@@ -245,8 +237,9 @@ void reverseModel() {
 //Weight update function for output learning
 //w is the weight array meant to be updated via reference, t is the time increment, a is the learning rate
 //ti is the target value at time t, and yt is the actual output at time t
-float weightUpdate(float w, int t, float a, float Tt, float yt) {
-    return w + (Tt-yt)*a*(RUNTIME_FACTOR/(t+RUNTIME_FACTOR));
+//Essentially the delta rule
+float weightUpdate(int t, float a, float Tt, float yt) {
+    return (Tt-yt)*a*(RUNTIME_FACTOR/(t+RUNTIME_FACTOR));
 }
 
 
@@ -365,9 +358,21 @@ int main(int argc, char **argv) {
         encoderConvert();
         outputPWM[5] = inputCommands[5];
 
+        //Pseudo reinforcement-learning algorithm (delta function)
+        //If it has not converged, update the weight parameter
         for (int i = 1; i <= 3; i++) {
-            weightJoints[i] = weightUpdate(weightJoints[i], t, LEARNING_RATE[i], qNext[i], qCurr[i]);
+            float dw = weightUpdate(t, LEARNING_RATE[i], qNext[i], qCurr[i]);
+            if (convCount[i] < CONV_COUNT_LIMIT) {
+                if (fabs(dw) <= CONVERGE_LIMIT) {
+                    ++convCount[i];
+                }
+                else {
+                    convCount[i] = 0;
+                }
+                weightJoints[i] = weightJoints[i] + dw;
+            }
         }
+
         if ((buttons[INDEX_LB] == 1) && (buttons[INDEX_RB] == 1)) {
             //IK control scheme
             outputPWM[0] = inputCommands[0];
@@ -404,6 +409,9 @@ int main(int argc, char **argv) {
         for (int i = 0; i < NUM_ARM_MOTORS; i++) {
             if (fabs(outputPWM[i]) >= JOYSTICK_DEADZONE) {
                 //ROS_INFO("Position of motor %d is: %f \n", i, outputPWM[i]);
+                if (fabs(weightJoints[i]*outputPWM[i]) < 1.0) {
+                    outputPWM[i] = weightJoints[i]*outputPWM[i];
+                }
                 modelOutputMsg.data.push_back(outputPWM[i]*DUTY_SAFETY_FACTOR);
             }
             else {
@@ -421,12 +429,11 @@ int main(int argc, char **argv) {
 
         //chatter_pub1.publish(modelOutputMsg);
         
-        
+
         frameFormerHelper();
         for (int i = 0; i < NUM_DATA; i++) {
             chatter_pub.publish(motorCANFrames[i]);
         }
-        
 
         loop_rate.sleep();
         ++count;
