@@ -61,10 +61,13 @@ const bool isRegClsLp[NUM_DATA] = {true,true,true,true,false,false}; //Is the mo
 //ML Control Parameters
 float MAX_ARM_SPEED = 0.12; //Measured in m/s, semi-arbitrarily selected maximum Cartesian speed
 float LINK_LENGTH[4] = {0.3,0.3,0.43};
-const float BACK_EMF_CONSTANT[NUM_ARM_MOTORS] = {0.0163,0.0273,0.0485,0.0226,0.0354}; //rad/(sV), measured by giving motors 12V and timing how long it takes to make a certain angle
+const float BACK_EMF_CONSTANT[NUM_ARM_MOTORS] = {0.0163,0.0263,0.0465,0.0196,0.0354}; //rad/(sV), measured by giving motors 12V and timing how long it takes to make a certain angle
 float weightJoints[NUM_ARM_MOTORS] = {1,1,1,1,1}; //Weight factors for joint angle PWM outputs that should tend the output towards the correct values
-const float LEARNING_RATE[NUM_ARM_MOTORS] = {1.2,1.2,1.2,1.2,1.2}; //Learning rate for each joint
+const float LEARNING_RATE[NUM_ARM_MOTORS] = {0.012,0.012,0.012,0.012,0.012}; //Learning rate for each joint
 const float RUNTIME_FACTOR = 6000;
+const float CONVERGE_LIMIT = 0.0004;
+const int CONV_COUNT_LIMIT = 600;
+int convCount[NUM_ARM_MOTORS] = {0,0,0,0,0};
 
 
 float outputPWM[NUM_DATA] = {0,0,0,0,0,0};
@@ -142,8 +145,8 @@ void modelCallback(const std_msgs::Float32MultiArray& model_msg){
 
 void encoderConvert() {
     for (int i = 0; i < NUM_ARM_MOTORS; i++) {
-        //qCurr[i] = jointDataFloat[i];
-        qCurr[i] = jointData[i]*ENCODER_TO_RAD[i] - ENCODER_ZEROPOSITION[i];
+        qCurr[i] = jointDataFloat[i];
+        //qCurr[i] = jointData[i]*ENCODER_TO_RAD[i] - ENCODER_ZEROPOSITION[i];
     }
 }
 
@@ -221,17 +224,6 @@ void reverseModel() {
     outputPWM[1] = (qNext[1] - qCurr[1])/(VOLTAGE*BACK_EMF_CONSTANT[1]*LOOP_PERIOD_MS/1000);
     outputPWM[2] = (qNext[2] - qCurr[2])/(VOLTAGE*BACK_EMF_CONSTANT[2]*LOOP_PERIOD_MS/1000);
 
-    // In case the next position crosses across the zero (e.g. go from 1 degrees to 359 degrees)
-    for (int j = 1; j <= 2; j++) {
-        if ((qNext[j] - qCurr[j]) > PI) {
-            outputPWM[j] = -(qNext[j] - qCurr[j] - 2*PI)/(VOLTAGE*BACK_EMF_CONSTANT[j]*LOOP_PERIOD_MS/1000);
-        }
-        else if ((qNext[j] - qCurr[j]) < -PI) {
-            outputPWM[j] = -(qNext[j] - qCurr[j] + 2*PI)/(VOLTAGE*BACK_EMF_CONSTANT[j]*LOOP_PERIOD_MS/1000);
-
-        }
-    }
-
     for (int j = 1; j <= 2; j++) {
         if (outputPWM[j] > 1) {
             outputPWM[j] = 1;
@@ -245,8 +237,9 @@ void reverseModel() {
 //Weight update function for output learning
 //w is the weight array meant to be updated via reference, t is the time increment, a is the learning rate
 //ti is the target value at time t, and yt is the actual output at time t
-float weightUpdate(float w, int t, float a, float Tt, float yt) {
-    return w + (Tt-yt)*a*(RUNTIME_FACTOR/(t+RUNTIME_FACTOR));
+//Essentially the delta rule
+float weightUpdate(int t, float a, float Tt, float yt) {
+    return (Tt-yt)*a*(RUNTIME_FACTOR/(t+RUNTIME_FACTOR));
 }
 
 
@@ -337,7 +330,7 @@ float solve_for_q4(float q[], float l[], float p[]) {
 
 
 int main(int argc, char **argv) {
-    ros::init(argc, argv, "arm_controller_node_ML");
+    ros::init(argc, argv, "arm_controller_node_MLforreals");
     ros::NodeHandle n;
     //dutyWriteArray.data.resize(NUM_DATA,0);
     
@@ -345,7 +338,7 @@ int main(int argc, char **argv) {
     ros::Publisher chatter_pub1 = n.advertise<std_msgs::Float32MultiArray>("model_topic", 30);
 
     ros::Subscriber sub0 = n.subscribe("/encoders", 1, encoderCallback);
-    ros::Subscriber sub2 = n.subscribe("/arm_joy", 1, joystickCallback);
+    ros::Subscriber sub2 = n.subscribe("/joy", 1, joystickCallback);
     ros::Subscriber sub3 = n.subscribe("model_output", 1, modelCallback);
 
     for (int i = 0; i < NUM_ARM_MOTORS; i++) {
@@ -365,13 +358,29 @@ int main(int argc, char **argv) {
         encoderConvert();
         outputPWM[5] = inputCommands[5];
 
-        for (int i = 1; i <= 3; i++) {
-            weightJoints[i] = weightUpdate(weightJoints[i], t, LEARNING_RATE[i], qNext[i], qCurr[i]);
-        }
+        
+
         if ((buttons[INDEX_LB] == 1) && (buttons[INDEX_RB] == 1)) {
             //IK control scheme
             outputPWM[0] = inputCommands[0];
             outputPWM[4] = inputCommands[4];
+
+            //Pseudo reinforcement-learning algorithm (delta function)
+            //If it has not converged, update the weight parameter
+            for (int i = 1; i <= 3; i++) {
+                float dw = weightUpdate(t, LEARNING_RATE[i], qNext[i], qCurr[i]);
+                if (convCount[i] < CONV_COUNT_LIMIT) {
+                    if (fabs(dw) <= CONVERGE_LIMIT) {
+                        ++convCount[i];
+                    }
+                    else {
+                        convCount[i] = 0;
+                    }
+                    ROS_INFO("Weight and weight update of motor %d: %f and %f \n", i, weightJoints[i], dw);
+                    weightJoints[i] = weightJoints[i] + dw;
+
+                }
+            }
             
             forwardKinematics();
             calculateNextPosition();
@@ -404,6 +413,9 @@ int main(int argc, char **argv) {
         for (int i = 0; i < NUM_ARM_MOTORS; i++) {
             if (fabs(outputPWM[i]) >= JOYSTICK_DEADZONE) {
                 //ROS_INFO("Position of motor %d is: %f \n", i, outputPWM[i]);
+                if (fabs(weightJoints[i]*outputPWM[i]) < 1.0*DUTY_SAFETY_FACTOR) {
+                    outputPWM[i] = weightJoints[i]*outputPWM[i];
+                }
                 modelOutputMsg.data.push_back(outputPWM[i]*DUTY_SAFETY_FACTOR);
             }
             else {
@@ -412,6 +424,7 @@ int main(int argc, char **argv) {
             
             //ROS_INFO("Output PWM of motor %d is: %f \n", i, outputPWM[i]);
         }
+
         //Done calculating outputPWM
 
         for (int i = 0; i < NUM_ARM_MOTORS; i++) {
@@ -419,14 +432,14 @@ int main(int argc, char **argv) {
         }
 
 
-        //chatter_pub1.publish(modelOutputMsg);
+        chatter_pub1.publish(modelOutputMsg);
         
-        
+        /*
         frameFormerHelper();
         for (int i = 0; i < NUM_DATA; i++) {
             chatter_pub.publish(motorCANFrames[i]);
         }
-        
+        */
 
         loop_rate.sleep();
         ++count;

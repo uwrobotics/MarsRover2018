@@ -142,8 +142,8 @@ void modelCallback(const std_msgs::Float32MultiArray& model_msg){
 
 void encoderConvert() {
     for (int i = 0; i < NUM_ARM_MOTORS; i++) {
-        //qCurr[i] = jointDataFloat[i];
-        qCurr[i] = jointData[i]*ENCODER_TO_RAD[i] - ENCODER_ZEROPOSITION[i];
+        qCurr[i] = jointDataFloat[i];
+        //qCurr[i] = jointData[i]*ENCODER_TO_RAD[i] - ENCODER_ZEROPOSITION[i];
     }
 }
 
@@ -215,11 +215,22 @@ void reverseModel() {
     qNext[1] = solve_for_q1(qCurr, LINK_LENGTH, armStateInertial);
     qNext[2] = solve_for_q2(qCurr, LINK_LENGTH, armStateInertial);
 
-    //ROS_INFO("qNext1 and qCurr1: %f and %f \n", qNext1, qCurr[1]);
-    //ROS_INFO("qNext2 and qCurr2: %f and %f \n", qNext2, qCurr[2]);
+    //ROS_INFO("qNext1 and qCurr1: %f and %f \n", qNext[1], qCurr[1]);
+    //ROS_INFO("qNext2 and qCurr2: %f and %f \n", qNext[2], qCurr[2]);
 
     outputPWM[1] = (qNext[1] - qCurr[1])/(VOLTAGE*BACK_EMF_CONSTANT[1]*LOOP_PERIOD_MS/1000);
     outputPWM[2] = (qNext[2] - qCurr[2])/(VOLTAGE*BACK_EMF_CONSTANT[2]*LOOP_PERIOD_MS/1000);
+
+    // In case the next position crosses across the zero (e.g. go from 1 degrees to 359 degrees)
+    for (int j = 1; j <= 2; j++) {
+        if ((qNext[j] - qCurr[j]) > PI) {
+            outputPWM[j] = -(qNext[j] - qCurr[j] - 2*PI)/(VOLTAGE*BACK_EMF_CONSTANT[j]*LOOP_PERIOD_MS/1000);
+        }
+        else if ((qNext[j] - qCurr[j]) < -PI) {
+            outputPWM[j] = -(qNext[j] - qCurr[j] + 2*PI)/(VOLTAGE*BACK_EMF_CONSTANT[j]*LOOP_PERIOD_MS/1000);
+
+        }
+    }
 
     for (int j = 1; j <= 2; j++) {
         if (outputPWM[j] > 1) {
