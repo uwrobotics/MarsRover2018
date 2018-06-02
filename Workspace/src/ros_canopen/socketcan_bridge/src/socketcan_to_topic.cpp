@@ -28,30 +28,22 @@
 #include <socketcan_bridge/socketcan_to_topic.h>
 #include <socketcan_interface/string.h>
 #include <can_msgs/Frame.h>
-#include <limits.h>
+#include <std_msgs/MultiArrayDimension.h>
+#include <std_msgs/UInt32MultiArray.h>
+#include <std_msgs/UInt32.h>
 #include <linux/can.h>
+
 
 namespace socketcan_bridge
 {
     SocketCANToTopic::SocketCANToTopic(boost::shared_ptr<can::DriverInterface> driver)
     {
         driver_ = driver;
-
-        ros::Publisher* pPub = new ros::Publisher;
-        if (!pPub)
-        {
-            ROS_ERROR("Could not allocate memory for publisher");
-            return;
-        }
-
-        *pPub = nh_.advertise<can_msgs::Frame>("CAN_receiver", 10);
-        topics_.push_back(pPub);
-        topic_names_.push_back("CAN_receiver");
     }
 
     SocketCANToTopic::~SocketCANToTopic()
     {
-        cleanup();
+        this->cleanup();
     }
 
     void SocketCANToTopic::cleanup()
@@ -59,14 +51,12 @@ namespace socketcan_bridge
         nh_.shutdown();
 
         // Deallocate memory for publisher pointers
-        for (int i = 0; i < topics_.size(); i++)
+        for (auto& topic_pair : topics_)
         {
-            delete topics_[i];
-            topics_[i] = NULL;
+            topic_pair.second.reset();
         }
 
         topics_.clear();
-        topic_names_.clear();
 
         ROS_INFO("CAN receiver publishers deallocated and vectors cleared");
     }
@@ -77,22 +67,10 @@ namespace socketcan_bridge
         frame_listener_ = driver_->createMsgListener(can::CommInterface::FrameDelegate(this, &SocketCANToTopic::frameCallback));
         state_listener_ = driver_->createStateListener(can::StateInterface::StateDelegate(this, &SocketCANToTopic::stateCallback));
 
-        cleanup();
-
-        if (topics_.size() > 0)
-        {
-            topics_.clear();
-        }
-
-        if (topic_names_.size() > 0)
-        {
-            topic_names_.clear();
-        }
-
         // Get parameters from .yaml file
-        getParams(nh_);
+        this->getParams(nh_);
 
-        if (!publishTopic(topic_names_))
+        if (!this->publishTopics(topics_))
         {
             ROS_WARN("Could not publish topics");
             return;
@@ -102,29 +80,49 @@ namespace socketcan_bridge
 
     void SocketCANToTopic::getParams(ros::NodeHandle& nh)
     {
-        nh.getParam("/receiver_list", topic_names_);
+        nh.getParam("/incoming_ids", message_ids_);
+        std::vector<std::string> names;
+        nh.getParam("/output_topics", names);
+        for (std::string name : names)
+        {
+            topics_.insert(std::pair<std::string, std::unique_ptr<ros::Publisher>>(name, std::unique_ptr<ros::Publisher>(nullptr)));
+        }
     }
 
-    bool SocketCANToTopic::publishTopic(std::vector<std::string>& topic_list)
+    bool SocketCANToTopic::publishTopics(std::map<std::string, std::unique_ptr<ros::Publisher>>& topic_list)
     {
         if (topic_list.size() == 0)
         {
             return false;
         }
-
-        for (int i = 0; i < topic_list.size(); i++)
+        for (auto& topic_pair : topic_list)
         {
-            ros::Publisher* pPub = new ros::Publisher;
+            std::string topic_name = topic_pair.first;
 
-            if (!pPub)
+            // Change publisher type based on topic
+            if (topic_name == "/encoders")
             {
-                ROS_ERROR("Could not allocate memory for publisher");
+                topic_pair.second.reset();
+                topic_pair.second = std::unique_ptr<ros::Publisher>(new ros::Publisher);
+                *topic_pair.second = nh_.advertise<std_msgs::UInt32MultiArray>(topic_name, 10);
+                encoder_msg_.layout.dim.push_back(std_msgs::MultiArrayDimension());
+                encoder_msg_.layout.dim[0].size = 6;
+                encoder_msg_.layout.dim[0].stride = 1;
+                encoder_msg_.layout.dim[0].label = "encoders";
+                encoder_msg_.data.resize(5);
+            }
+            else if (topic_name == "/limitSwitches")
+            {
+                topic_pair.second.reset();
+                topic_pair.second = std::unique_ptr<ros::Publisher>(new ros::Publisher);
+                *topic_pair.second = nh_.advertise<std_msgs::UInt32>(topic_name, 10);
+            }
+            else
+            {
+                topic_pair.second.reset();
+                ROS_WARN("Topic name \"%s\" is not registered in config file", topic_name.c_str());
                 return false;
             }
-
-            // Advertise topic and push into vector of pointers
-            *pPub = nh_.advertise<can_msgs::Frame>(topic_list[i], 10);
-            topics_.push_back(pPub);
         }
 
         return true;
@@ -138,7 +136,7 @@ namespace socketcan_bridge
         m.is_rtr = f.is_rtr;
         m.is_extended = f.is_extended;
 
-        for (int i = 0; i < 8; i++)  // always copy all data, regardless of dlc.
+        for (int i = 0; i < m.dlc; i++)  // copy data based on dlc
         {
             m.data[i] = f.data[i];
         }
@@ -146,12 +144,12 @@ namespace socketcan_bridge
 
     void SocketCANToTopic::frameCallback(const can::Frame& f)
     {
-        // ROS_DEBUG("Message came in: %s", can::tostring(f, true).c_str());
         can::Frame frame = f;  // copy the frame first, cannot call isValid() on const.
         if (!frame.isValid())
         {
             ROS_ERROR("Invalid frame from SocketCAN: id: %#04x, length: %d, is_extended: %d, is_error: %d, is_rtr: %d",
-                f.id, f.dlc, f.is_extended, f.is_error, f.is_rtr);
+                      f.id, f.dlc, f.is_extended, f.is_error, f.is_rtr);
+
             return;
         }
         else
@@ -175,45 +173,61 @@ namespace socketcan_bridge
 
         can_msgs::Frame msg;
         // converts the can::Frame (socketcan.h) to can_msgs::Frame (ROS msg)
-        frameToMessage(frame, msg);
+
+        this->frameToMessage(frame, msg);
 
         msg.header.frame_id = "";  // empty frame is the de-facto standard for no frame.
         msg.header.stamp = ros::Time::now();
 
-        int topic_idx = INT_MAX;
-        bool valid_frame = true;
-        switch (msg.id)
+        // check if message ID exists inside map
+        if (message_ids_.count(std::to_string(msg.id)))
         {
-            case CAN_RX_GPS:
-                topic_idx = 0;
-                break;
-
-            case CAN_RX_IMU:
-                topic_idx = 1;
-                break;
-
-            case CAN_RX_BMS:
-                topic_idx = 2;
-                break;
-
-            case CAN_RX_ARM:
-                topic_idx = 3;
-                break;
-
-            default:
-                ROS_WARN("Received frame has unregistered CAN ID %x", msg.id);
-                valid_frame = false;
-                break;
-        }
-
-        if (valid_frame)
-        {
-            if (topic_idx < topics_.size())
+            std::string message_type = message_ids_[std::to_string(msg.id)];
+            if (message_type == "limitSwitches")
             {
-                if (topics_[topic_idx])
+                // will always be uint32_t
+                if (msg.dlc != 4)
                 {
-                    topics_[topic_idx]->publish(msg);
+                    ROS_WARN("Incorrect data length for limit switch message");
+                    return;
                 }
+                uint32_t limit_switch = 0;
+                limit_switch = msg.data[3] << 24 | msg.data[2] << 16 | msg.data[1] << 8 | msg.data[0];
+                limit_switch_msg_.data = limit_switch;
+                if (topics_["/limitSwitches"])
+                {
+                    topics_["/limitSwitches"]->publish(limit_switch_msg_);
+                }
+            }
+            else if (message_type == "turntableEncoder" ||
+                     message_type == "shoulderEncoder" ||
+                     message_type == "elbowEncoder" ||
+                     message_type == "wristPitchEncoder" ||
+                     message_type == "wristRollEncoder" ||
+                     message_type == "endEffectorEncoder")
+            {
+                // will always be uint32_t
+                if (msg.dlc != 4)
+                {
+                    ROS_WARN("Incorrect data length for absolute encoder message");
+                    return;
+                }
+                uint32_t encoder_value;
+                encoder_value = (msg.data[3] << 24) | (msg.data[2] << 16) | (msg.data[1] << 8) | msg.data[0];
+                if ((msg.id % 300) < encoder_msg_.layout.dim[0].size)
+                {
+                    encoder_mutex_.lock();
+                    encoder_msg_.data[msg.id % 300] = encoder_value; // all encoder message IDs are in the 300 range
+                    encoder_mutex_.unlock();
+                }
+                if (topics_["/encoders"])
+                {
+                    topics_["/encoders"]->publish(encoder_msg_);
+                }
+            }
+            else
+            {
+                ROS_WARN("Message ID is not recognized");
             }
         }
     }

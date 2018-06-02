@@ -1,0 +1,18 @@
+autonomy/goal_gps_topic: /autonomy/goal_gps
+autonomy/backtrack_gps_topic: /backtrack_ping/backtrack_gps
+autonomy/local_plan_status_topic: /local_planner/status
+autonomy/ball_detection_topic: /ball_tracker/detection
+autonomy/ball_tracker_lost_topic: /ball_tracker/lost_ball
+autonomy/ball_follower_arrived_topic: /ball_following/arrival
+
+autonomy/target_gps_topic: /local_planner/goal_gps
+autonomy/local_planner_enable_topic: /local_planner/enable
+autonomy/spiral_enable_topic: /spiral/enable
+autonomy/ball_tracker_enable_topic: /ball_tracker/enable
+
+
+autonomy/twist_mux/local_planner_vel_topic: /local_planner/cmd_vel
+autonomy/twist_mux/unstuck_vel_topic: /unstuck/cmd_vel
+autonomy/twist_mux/estop_vel_topic: /estop/cmd_vel
+autonomy/twist_mux/spiral_vel_topic: /spiral/cmd_vel
+autonomy/twist_mux/ball_follow_vel_topic: /ball_following/cmd_vel

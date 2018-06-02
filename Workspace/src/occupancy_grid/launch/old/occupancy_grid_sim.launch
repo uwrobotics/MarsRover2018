@@ -1,0 +1,11 @@
+<launch>
+	<param name = "logging" value = "false" type = "bool" />
+	<param name = "PCL2TopicName" value = "/duo3d_camera/depth/points" type = "str" />
+	<arg name="cameraConfig" default="$(find occupancy_grid)/cfg/occupancy_grid_config.yaml"/>
+	<rosparam command="load" file="$(arg cameraConfig)"/>
+
+	<node pkg="occupancy_grid" type="occupancy_grid" name="occupancy_grid">
+	</node>
+
+	<node pkg="rviz" type="rviz" name="rviz" args="-d $(find occupancy_grid)/launch/OccupancyVisualization.rviz"/>
+</launch>
