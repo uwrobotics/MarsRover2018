@@ -46,16 +46,16 @@ const int INDEX_RS_LR = 3; //sensor_msg.axes index number for the right/left val
 
 
 //Loop parameters
-const int LOOP_PERIOD_MS = 10; //Maximum time for a control loop execution (that ignores new input) based on human reaction time
+const int LOOP_PERIOD_MS = 100; //Maximum time for a control loop execution (that ignores new input) based on human reaction time
 
 //Closed Loop Control Parameters
 uint jointData[NUM_ARM_MOTORS] = {0,0,0,0,0}; //Angles of the joints
 float jointDataFloat[NUM_ARM_MOTORS] = {0,0,0,0,0}; //Angles of the joints
 const float ABS_ENCODER_TO_RAD = 2*PI/4098; //Conversion constant to go between absolute encoder values and radians
-const float INC_ENCODER_TO_RAD = 2*PI/2048; //Conversion constant to go between incremental encoder values and radians (assume 2048 resolution)
+const float INC_ENCODER_TO_RAD = 2*PI/8192; //Conversion constant to go between incremental encoder values and radians (assume 2048 resolution)
 const float ENCODER_TO_RAD[NUM_ARM_MOTORS] = {INC_ENCODER_TO_RAD,ABS_ENCODER_TO_RAD,ABS_ENCODER_TO_RAD,INC_ENCODER_TO_RAD,ABS_ENCODER_TO_RAD}; //Indicates the conversion factor for each motor and whether it is absolute or incremental
-const float ENCODER_ZEROPOSITION[NUM_ARM_MOTORS] = {0,725,3550,0,940}; //The encoder value corresponding to its zero position
-const int ENCODER_DIR[NUM_ARM_MOTORS] = {1,1,1,1,1}; //Determines if an increase in encoder values indicates an increase in assumed direction
+const float ENCODER_ZEROPOSITION[NUM_ARM_MOTORS] = {0,704,2554,0,940}; //The encoder value corresponding to its zero position
+const int ENCODER_DIR[NUM_ARM_MOTORS] = {1,-1,-1,1,1}; //Determines if an increase in encoder values indicates an increase in assumed direction
 const bool isRegClsLp[NUM_DATA] = {true,true,true,true,false,false}; //Is the motor regularly controlled via closed loop
 
 //ML Control Parameters
@@ -143,7 +143,10 @@ void modelCallback(const std_msgs::Float32MultiArray& model_msg){
 void encoderConvert() {
     for (int i = 0; i < NUM_ARM_MOTORS; i++) {
         //qCurr[i] = jointDataFloat[i];
-        qCurr[i] = jointData[i]*ENCODER_TO_RAD[i] - ENCODER_ZEROPOSITION[i];
+        qCurr[i] = ENCODER_DIR[i]*(jointData[i] - ENCODER_ZEROPOSITION[i])*ENCODER_TO_RAD[i];
+        if (qCurr[i] > PI) {
+            qCurr[i] = -qCurr[i] + 2*PI;
+        }
     }
 }
 
@@ -228,7 +231,6 @@ void reverseModel() {
         }
         else if ((qNext[j] - qCurr[j]) < -PI) {
             outputPWM[j] = -(qNext[j] - qCurr[j] + 2*PI)/(VOLTAGE*BACK_EMF_CONSTANT[j]*LOOP_PERIOD_MS/1000);
-
         }
     }
 
