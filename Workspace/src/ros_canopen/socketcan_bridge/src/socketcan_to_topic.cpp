@@ -93,6 +93,7 @@ namespace socketcan_bridge
     {
         if (topic_list.size() == 0)
         {
+            ROS_WARN("Empty topic list for socketcan_to_topic");
             return false;
         }
         for (auto& topic_pair : topic_list)
@@ -106,7 +107,7 @@ namespace socketcan_bridge
                 topic_pair.second = std::unique_ptr<ros::Publisher>(new ros::Publisher);
                 *topic_pair.second = nh_.advertise<std_msgs::UInt32MultiArray>(topic_name, 10);
                 encoder_msg_.layout.dim.push_back(std_msgs::MultiArrayDimension());
-                encoder_msg_.layout.dim[0].size = 6;
+                encoder_msg_.layout.dim[0].size = 5;
                 encoder_msg_.layout.dim[0].stride = 1;
                 encoder_msg_.layout.dim[0].label = "encoders";
                 encoder_msg_.data.resize(5);
