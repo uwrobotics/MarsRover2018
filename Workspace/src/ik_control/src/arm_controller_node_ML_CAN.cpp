@@ -44,6 +44,7 @@ const int INDEX_LS_LR = 0; //sensor_msg.axes index number for the right/left val
 const int INDEX_RS_UD = 4; //sensor_msg.axes index number for the up/down value from the right joystick
 const int INDEX_RS_LR = 3; //sensor_msg.axes index number for the right/left value from the right joystick
 
+volatile bool new_joy_input = false;
 
 //Loop parameters
 const int LOOP_PERIOD_MS = 100; //Maximum time for a control loop execution (that ignores new input) based on human reaction time
@@ -111,6 +112,7 @@ void joystickCallback(const sensor_msgs::Joy& joy_msg){
     getMessageAxesData(joy_msg,axes,NUM_AXES_DATA);
     getMessageButtonsData(joy_msg,buttons,NUM_BUTTONS_DATA);
     populateInputCommands();
+    new_joy_input = true;
 
 }
 
@@ -425,8 +427,12 @@ int main(int argc, char **argv) {
         
         
         frameFormerHelper();
-        for (int i = 0; i < NUM_DATA; i++) {
-            chatter_pub.publish(motorCANFrames[i]);
+        if(new_joy_input) {
+            for (int i = 0; i < NUM_DATA; i++) {
+                chatter_pub.publish(motorCANFrames[i]);
+                ros::Duration(0.02).sleep(); //sleep for 10ms
+            }
+            new_joy_input = false;
         }
         
 

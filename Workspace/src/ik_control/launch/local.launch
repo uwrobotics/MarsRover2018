@@ -1,0 +1,11 @@
+<launch>
+	<node name="arm_controller_node_ML" pkg="ik_control" type="arm_controller_node_ML_CAN" />
+
+	<node name="joy_launcher" pkg="joy" type="joy_node">
+	
+		<param name="dev" type="string" value="/dev/input/js0" />
+		<remap from="joy" to="arm_joy"/>
+	</node>
+	
+</launch>
+

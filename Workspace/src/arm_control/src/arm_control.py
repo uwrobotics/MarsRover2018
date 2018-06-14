@@ -29,7 +29,7 @@ class ArmController:
 	if(abs(joy.axes[1]) <= 0.1):
             self._pwm = 0.0
         else:
-            self._pwm = joy.axes[1]/4.0
+            self._pwm = joy.axes[1]/2.0
         self.sendAngle()
 
     # Convert angles to CAN frame msg type

@@ -1,0 +1,4 @@
+<launch>
+  <node name="science_controller" pkg="science_controller" type="science_no_LSs.py" output="screen" respawn="true" />
+  <include file="$(find socketcan_bridge)/launch/can_interface.launch"/>
+</launch>
